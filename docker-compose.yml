@@ -1,0 +1,73 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: resumeforge-db
+    environment:
+      POSTGRES_DB: resumeforge
+      POSTGRES_USER: resumeforge
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-resumeforge_dev_2024}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U resumeforge"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: resumeforge-api
+    environment:
+      DATABASE_URL: postgresql+asyncpg://resumeforge:${POSTGRES_PASSWORD:-resumeforge_dev_2024}@postgres:5432/resumeforge
+      SECRET_KEY: ${SECRET_KEY:-change-me-in-production-use-openssl-rand-hex-32}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6a7b8c9d0e1f2a3b4c5d6a7b8c9d0e1f2}
+      CORS_ORIGINS: http://localhost:3000,http://localhost:80
+      AUTO_MIGRATE: "true"
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - pdf_temp:/tmp/resumeforge-pdf
+    command: >
+      sh -c "alembic upgrade head &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: resumeforge-web
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+
+  nginx:
+    image: nginx:alpine
+    container_name: resumeforge-proxy
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - backend
+
+volumes:
+  postgres_data:
+  pdf_temp:

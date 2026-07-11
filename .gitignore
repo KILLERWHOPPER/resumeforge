@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+
+# Environment
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+
+# Next.js
+.next/
+out/
+
+# Docker
+docker-compose.override.yml
+
+# Database
+*.db
+
+# PDF temp files
+/tmp/
