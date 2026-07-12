@@ -1,0 +1,499 @@
+{
+  "common": {
+    "appName": "ResumeForge",
+    "save": "保存",
+    "cancel": "取消",
+    "delete": "删除",
+    "edit": "编辑",
+    "add": "添加",
+    "create": "创建",
+    "update": "更新",
+    "submit": "提交",
+    "confirm": "确认",
+    "close": "关闭",
+    "loading": "加载中...",
+    "error": "错误",
+    "success": "成功",
+    "warning": "警告",
+    "info": "提示",
+    "yes": "是",
+    "no": "否",
+    "back": "返回",
+    "next": "下一步",
+    "previous": "上一步",
+    "finish": "完成",
+    "skip": "跳过",
+    "search": "搜索",
+    "filter": "筛选",
+    "sort": "排序",
+    "reset": "重置",
+    "clear": "清空",
+    "copy": "复制",
+    "paste": "粘贴",
+    "download": "下载",
+    "upload": "上传",
+    "preview": "预览",
+    "print": "打印",
+    "export": "导出",
+    "import": "导入",
+    "settings": "设置",
+    "profile": "个人资料",
+    "logout": "退出登录",
+    "login": "登录",
+    "register": "注册",
+    "email": "邮箱",
+    "password": "密码",
+    "confirmPassword": "确认密码",
+    "forgotPassword": "忘记密码？",
+    "resetPassword": "重置密码",
+    "changePassword": "修改密码",
+    "currentPassword": "当前密码",
+    "newPassword": "新密码",
+    "rememberMe": "记住我",
+    "or": "或",
+    "and": "和",
+    "required": "必填",
+    "optional": "可选",
+    "none": "无",
+    "never": "从不",
+    "now": "刚刚",
+    "today": "今天",
+    "yesterday": "昨天",
+    "thisWeek": "本周",
+    "thisMonth": "本月",
+    "thisYear": "今年",
+    "language": "语言",
+    "chinese": "中文",
+    "english": "English",
+    "bilingual": "中英双语"
+  },
+  "auth": {
+    "login": {
+      "title": "登录 ResumeForge",
+      "subtitle": "欢迎回来，请登录您的账号",
+      "emailLabel": "邮箱",
+      "emailPlaceholder": "请输入邮箱地址",
+      "passwordLabel": "密码",
+      "passwordPlaceholder": "请输入密码",
+      "submit": "登录",
+      "loading": "登录中...",
+      "noAccount": "还没有账号？",
+      "registerLink": "立即注册",
+      "forgotPassword": "忘记密码？",
+      "errors": {
+        "invalidCredentials": "邮箱或密码错误",
+        "networkError": "网络错误，请检查连接",
+        "serverError": "服务器错误，请稍后重试"
+      }
+    },
+    "register": {
+      "title": "注册 ResumeForge",
+      "subtitle": "创建账号，开始生成专业简历",
+      "emailLabel": "邮箱",
+      "emailPlaceholder": "请输入邮箱地址",
+      "passwordLabel": "密码",
+      "passwordPlaceholder": "请输入密码（至少 8 位）",
+      "confirmPasswordLabel": "确认密码",
+      "confirmPasswordPlaceholder": "请再次输入密码",
+      "submit": "注册",
+      "loading": "注册中...",
+      "hasAccount": "已有账号？",
+      "loginLink": "立即登录",
+      "errors": {
+        "passwordMismatch": "两次密码不一致",
+        "passwordTooShort": "密码至少 8 位",
+        "emailExists": "该邮箱已被注册",
+        "networkError": "网络错误，请检查连接",
+        "serverError": "服务器错误，请稍后重试"
+      }
+    },
+    "forgotPassword": {
+      "title": "忘记密码",
+      "subtitle": "输入注册邮箱，我们将发送重置链接",
+      "emailLabel": "邮箱",
+      "emailPlaceholder": "请输入注册邮箱",
+      "submit": "发送重置链接",
+      "loading": "发送中...",
+      "backToLogin": "返回登录",
+      "success": "如果该邮箱已注册，重置链接已发送",
+      "errors": {
+        "networkError": "网络错误，请检查连接",
+        "serverError": "服务器错误，请稍后重试"
+      }
+    },
+    "resetPassword": {
+      "title": "重置密码",
+      "subtitle": "设置新密码",
+      "passwordLabel": "新密码",
+      "passwordPlaceholder": "请输入新密码（至少 8 位）",
+      "confirmPasswordLabel": "确认新密码",
+      "confirmPasswordPlaceholder": "请再次输入新密码",
+      "submit": "重置密码",
+      "loading": "重置中...",
+      "success": "密码重置成功，请登录",
+      "errors": {
+        "passwordMismatch": "两次密码不一致",
+        "passwordTooShort": "密码至少 8 位",
+        "invalidToken": "重置链接无效或已过期",
+        "networkError": "网络错误，请检查连接",
+        "serverError": "服务器错误，请稍后重试"
+      }
+    },
+    "changePassword": {
+      "title": "修改密码",
+      "currentPasswordLabel": "当前密码",
+      "currentPasswordPlaceholder": "请输入当前密码",
+      "newPasswordLabel": "新密码",
+      "newPasswordPlaceholder": "请输入新密码（至少 8 位）",
+      "confirmPasswordLabel": "确认新密码",
+      "confirmPasswordPlaceholder": "请再次输入新密码",
+      "submit": "修改密码",
+      "loading": "修改中...",
+      "success": "密码修改成功，请重新登录",
+      "errors": {
+        "passwordMismatch": "两次密码不一致",
+        "passwordTooShort": "密码至少 8 位",
+        "currentPasswordWrong": "当前密码错误",
+        "networkError": "网络错误，请检查连接",
+        "serverError": "服务器错误，请稍后重试"
+      }
+    }
+  },
+  "dashboard": {
+    "title": "我的简历",
+    "createNew": "新建简历",
+    "emptyTitle": "还没有简历",
+    "emptyDescription": "粘贴一个职位描述，AI 会帮你生成一份针对性的简历",
+    "createFirst": "创建第一份简历",
+    "companyName": "目标公司",
+    "language": "语言",
+    "status": "状态",
+    "createdAt": "创建时间",
+    "actions": {
+      "edit": "编辑",
+      "preview": "预览",
+      "delete": "删除",
+      "duplicate": "复制"
+    },
+    "statuses": {
+      "draft": "草稿",
+      "generating": "生成中",
+      "completed": "已完成",
+      "failed": "生成失败"
+    },
+    "languages": {
+      "chinese": "中文",
+      "english": "英文",
+      "bilingual": "中英双语"
+    }
+  },
+  "experiences": {
+    "title": "经历管理",
+    "tabs": {
+      "education": "教育经历",
+      "work": "工作经历",
+      "project": "项目经历",
+      "skill": "技能",
+      "certificate": "证书"
+    },
+    "emptyTitle": "暂无{type}",
+    "emptyDescription": "添加您的第一条{type}，丰富简历内容",
+    "addButton": "添加{type}",
+    "form": {
+      "title": "{type}信息",
+      "required": "必填",
+      "optional": "选填"
+    },
+    "education": {
+      "school": "学校",
+      "schoolPlaceholder": "如：清华大学",
+      "degree": "学位",
+      "degreePlaceholder": "如：本科、硕士、博士",
+      "fieldOfStudy": "专业",
+      "fieldOfStudyPlaceholder": "如：计算机科学与技术",
+      "gpa": "GPA",
+      "gpaPlaceholder": "如：3.8/4.0",
+      "startDate": "开始时间",
+      "endDate": "结束时间",
+      "current": "至今",
+      "description": "描述",
+      "descriptionPlaceholder": "主要课程、荣誉奖项、课外活动等"
+    },
+    "work": {
+      "company": "公司",
+      "companyPlaceholder": "如：字节跳动",
+      "position": "职位",
+      "positionPlaceholder": "如：高级软件工程师",
+      "startDate": "开始时间",
+      "endDate": "结束时间",
+      "current": "至今",
+      "description": "工作描述",
+      "descriptionPlaceholder": "核心职责、业绩成果、技术栈等（支持 Markdown）"
+    },
+    "project": {
+      "name": "项目名称",
+      "namePlaceholder": "如：电商推荐系统重构",
+      "role": "角色",
+      "rolePlaceholder": "如：技术负责人",
+      "startDate": "开始时间",
+      "endDate": "结束时间",
+      "current": "至今",
+      "description": "项目描述",
+      "descriptionPlaceholder": "项目背景、技术方案、个人贡献、成果数据等（支持 Markdown）",
+      "techTags": "技术栈标签",
+      "techTagsPlaceholder": "输入技术栈，按回车确认",
+      "url": "项目链接",
+      "urlPlaceholder": "GitHub、演示地址等（可选）"
+    },
+    "skill": {
+      "name": "技能名称",
+      "namePlaceholder": "如：Python、React、Docker",
+      "category": "分类",
+      "categories": {
+        "language": "编程语言",
+        "framework": "框架/库",
+        "tool": "工具/平台",
+        "database": "数据库",
+        "cloud": "云服务",
+        "other": "其他"
+      },
+      "proficiency": "熟练度",
+      "proficiencyLevels": {
+        "beginner": "入门",
+        "intermediate": "熟练",
+        "advanced": "精通",
+        "expert": "专家"
+      }
+    },
+    "certificate": {
+      "name": "证书名称",
+      "namePlaceholder": "如：AWS 认证解决方案架构师",
+      "issuer": "颁发机构",
+      "issuerPlaceholder": "如：Amazon Web Services",
+      "date": "获取日期",
+      "credentialUrl": "证书链接",
+      "credentialUrlPlaceholder": "证书验证链接（可选）"
+    },
+    "actions": {
+      "save": "保存",
+      "cancel": "取消",
+      "delete": "删除",
+      "edit": "编辑",
+      "confirmDelete": "确定要删除这条{type}吗？此操作不可恢复。"
+    },
+    "toast": {
+      "created": "{type}创建成功",
+      "updated": "{type}更新成功",
+      "deleted": "{type}删除成功",
+      "error": "操作失败，请重试"
+    }
+  },
+  "resume": {
+    "jdInput": {
+      "title": "输入职位描述",
+      "subtitle": "粘贴 JD，AI 将分析关键要求并生成针对性简历",
+      "jdLabel": "职位描述 (JD)",
+      "jdPlaceholder": "粘贴完整的职位描述...",
+      "companyLabel": "目标公司",
+      "companyPlaceholder": "如：字节跳动（可选）",
+      "languageLabel": "目标语言",
+      "generate": "生成简历",
+      "generating": "生成中...",
+      "analyzing": "分析 JD...",
+      "requirements": {
+        "jdRequired": "请输入职位描述",
+        "jdMinLength": "职位描述至少 50 字符",
+        "apiKeyRequired": "请先在设置中配置 LLM API Key"
+      }
+    },
+    "jdAnalysis": {
+      "title": "JD 分析结果",
+      "coreResponsibilities": "核心职责",
+      "requiredSkills": "必备技能",
+      "preferredSkills": "加分技能",
+      "experienceLevel": "经验要求",
+      "softSkills": "软技能要求",
+      "keywords": "关键词",
+      "regenerate": "重新分析",
+      "proceed": "继续生成简历"
+    },
+    "generation": {
+      "title": "正在生成简历",
+      "steps": {
+        "analyzing": "分析职位要求",
+        "matching": "匹配个人经历",
+        "writing": "撰写简历内容",
+        "formatting": "排版优化"
+      },
+      "waiting": "请稍候，AI 正在为您定制简历...",
+      "complete": "生成完成",
+      "viewResult": "查看结果"
+    },
+    "editor": {
+      "title": "简历编辑器",
+      "preview": "预览",
+      "export": "导出 PDF",
+      "save": "保存",
+      "saving": "保存中...",
+      "saved": "已保存",
+      "sections": {
+        "header": "页眉",
+        "summary": "职业摘要",
+        "education": "教育经历",
+        "work": "工作经历",
+        "projects": "项目经历",
+        "skills": "技能",
+        "certificates": "证书"
+      },
+      "actions": {
+        "addSection": "添加版块",
+        "removeSection": "移除版块",
+        "moveUp": "上移",
+        "moveDown": "下移",
+        "edit": "编辑",
+        "dragHint": "拖拽排序"
+      }
+    },
+    "versions": {
+      "title": "版本历史",
+      "current": "当前版本",
+      "createdAt": "创建时间",
+      "actions": {
+        "restore": "恢复此版本",
+        "preview": "预览",
+        "delete": "删除"
+      },
+      "empty": "暂无历史版本"
+    }
+  },
+  "settings": {
+    "title": "设置",
+    "tabs": {
+      "profile": "个人资料",
+      "llm": "LLM 配置",
+      "security": "安全设置",
+      "appearance": "外观"
+    },
+    "profile": {
+      "title": "个人资料",
+      "email": "邮箱",
+      "emailHint": "邮箱不可修改",
+      "avatar": "头像",
+      "uploadAvatar": "上传头像"
+    },
+    "llm": {
+      "title": "LLM 配置",
+      "description": "配置 AI 模型 API，用于 JD 分析和简历生成",
+      "addConfig": "添加配置",
+      "name": "配置名称",
+      "namePlaceholder": "如：DeepSeek Chat、GPT-4o",
+      "provider": "服务商",
+      "providers": {
+        "openai": "OpenAI",
+        "deepseek": "DeepSeek",
+        "zhipu": "智谱 AI",
+        "custom": "自定义 (OpenAI 兼容)"
+      },
+      "baseUrl": "API Base URL",
+      "baseUrlPlaceholder": "如：https://api.deepseek.com/v1",
+      "apiKey": "API Key",
+      "apiKeyPlaceholder": "输入 API Key（加密存储）",
+      "modelName": "模型名称",
+      "modelNamePlaceholder": "如：deepseek-chat、gpt-4o",
+      "isActive": "设为默认",
+      "testConnection": "测试连接",
+      "testing": "测试中...",
+      "testSuccess": "连接成功！",
+      "testFailed": "连接失败：{error}",
+      "save": "保存配置",
+      "saving": "保存中...",
+      "errors": {
+        "nameRequired": "请输入配置名称",
+        "baseUrlRequired": "请输入 API Base URL",
+        "apiKeyRequired": "请输入 API Key",
+        "modelNameRequired": "请输入模型名称",
+        "testFirst": "请先测试连接"
+      }
+    },
+    "security": {
+      "title": "安全设置",
+      "changePassword": "修改密码",
+      "currentPassword": "当前密码",
+      "newPassword": "新密码",
+      "confirmPassword": "确认新密码",
+      "update": "更新密码",
+      "sessions": "活跃会话",
+      "revokeAll": "撤销所有其他会话",
+      "twoFactor": "两步验证",
+      "twoFactorComingSoon": "即将支持"
+    },
+    "appearance": {
+      "title": "外观设置",
+      "theme": "主题",
+      "themes": {
+        "light": "浅色",
+        "dark": "深色",
+        "system": "跟随系统"
+      },
+      "language": "语言"
+    }
+  },
+  "toast": {
+    "success": "操作成功",
+    "error": "操作失败",
+    "warning": "警告",
+    "info": "提示",
+    "networkError": "网络错误，请检查连接",
+    "unauthorized": "登录已过期，请重新登录",
+    "forbidden": "无权限访问",
+    "notFound": "资源不存在",
+    "serverError": "服务器错误，请稍后重试",
+    "validationError": "输入验证失败"
+  },
+  "validation": {
+    "required": "此字段为必填项",
+    "email": "请输入有效的邮箱地址",
+    "minLength": "最少 {min} 个字符",
+    "maxLength": "最多 {max} 个字符",
+    "pattern": "格式不正确",
+    "match": "两次输入不一致",
+    "number": "请输入数字",
+    "integer": "请输入整数",
+    "positive": "请输入正数",
+    "url": "请输入有效的 URL",
+    "date": "请输入有效的日期"
+  },
+  "errors": {
+    "400": "请求参数错误",
+    "401": "未授权，请重新登录",
+    "403": "禁止访问",
+    "404": "资源不存在",
+    "409": "资源冲突",
+    "422": "数据验证失败",
+    "429": "请求过于频繁，请稍后重试",
+    "500": "服务器内部错误",
+    "502": "网关错误",
+    "503": "服务不可用",
+    "network": "网络连接失败",
+    "timeout": "请求超时",
+    "unknown": "未知错误"
+  },
+  "pagination": {
+    "previous": "上一页",
+    "next": "下一页",
+    "page": "第 {page} 页",
+    "of": "共 {total} 页",
+    "showing": "显示 {start}-{end} 条，共 {total} 条",
+    "perPage": "每页条数"
+  },
+  "date": {
+    "formats": {
+      "short": "YYYY-MM-DD",
+      "long": "YYYY年MM月DD日",
+      "datetime": "YYYY-MM-DD HH:mm",
+      "relative": "relative"
+    },
+    "months": ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"],
+    "monthsShort": ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"]
+  }
+}

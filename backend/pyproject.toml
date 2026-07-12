@@ -1,0 +1,179 @@
+[project]
+name = "resumeforge-backend"
+version = "1.0.0"
+description = "ResumeForge Backend API"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[standard]>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+    "sqlalchemy[asyncio]>=2.0.0",
+    "asyncpg>=0.29.0",
+    "alembic>=1.13.0",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    "python-jose[cryptography]>=3.3.0",
+    "passlib[bcrypt]>=1.7.4",
+    "bcrypt>=4.0.0",
+    "httpx>=0.27.0",
+    "python-multipart>=0.0.9",
+    "weasyprint>=62.0",
+    "cryptography>=42.0.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=5.0.0",
+    "httpx>=0.27.0",
+    "ruff>=0.5.0",
+    "mypy>=1.11.0",
+    "bandit>=1.7.0",
+    "pre-commit>=3.7.0",
+]
+
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+indent-style = "space"
+indent-width = 4
+quote-style = "double"
+docstring-code-format = true
+
+# Lint rules
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "N",   # pep8-naming
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "T20", # flake8-print
+    "SIM", # flake8-simplify
+    "ARG", # flake8-unused-arguments
+    "PTH", # flake8-use-pathlib
+    "ERA", # eradicate
+    "PL",  # pylint
+    "TRY", # tryceratops
+    "NPY", # numpy
+    "TD",  # flake8-todo
+]
+ignore = [
+    "E501",  # line too long (handled by formatter)
+    "B008",  # function calls in default arguments
+    "C901",  # too complex
+    "T201",  # print statements (allowed in scripts)
+    "ARG001", # unused argument (common in FastAPI deps)
+    "ARG002", # unused argument
+]
+per-file-ignores = {
+    "tests/*": ["S101", "ARG001", "ARG002"],
+    "alembic/*": ["E402", "I001"],
+}
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+indent-width = 4
+line-length = 100
+docstring-code-format = true
+
+[tool.ruff.isort]
+known-first-party = ["app"]
+import-strategy = "useBundled"
+section-order = ["future", "standard-library", "third-party", "first-party", "local"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+implicit_reexport = true
+allow_untyped_globals = false
+enable_error_code = [
+    "arg-type",
+    "attr-defined",
+    "dict-iter-missing-items",
+    "index",
+    "misc",
+    "name-defined",
+    "no-any-return",
+    "no-untyped-def",
+    "override",
+    "return-value",
+    "type-arg",
+    "union-attr",
+    "unused-ignore",
+]
+exclude = [
+    "alembic",
+    ".venv",
+    "__pycache__",
+    "build",
+    "dist",
+]
+[[tool.mypy.overrides]]
+module = [
+    "sqlalchemy*",
+    "pydantic*",
+    "fastapi*",
+    "pytest*",
+    "httpx*",
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --strict-markers --strict-config"
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "slow: Slow tests",
+]
+
+[tool.coverage.run]
+source = ["app"]
+omit = [
+    "*/tests/*",
+    "*/alembic/*",
+    "*/migrations/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]
+
+[tool.bandit]
+targets = ["app"]
+exclude_dirs = ["tests", "alembic", "__pycache__"]
+skips = ["B101", "B601"]  # assert, shell injection (false positives)
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "1.0.0"
+tag_format = "v$version"
+version_files = []

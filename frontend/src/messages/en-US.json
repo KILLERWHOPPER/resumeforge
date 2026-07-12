@@ -1,0 +1,499 @@
+{
+  "common": {
+    "appName": "ResumeForge",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "create": "Create",
+    "update": "Update",
+    "submit": "Submit",
+    "confirm": "Confirm",
+    "close": "Close",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "warning": "Warning",
+    "info": "Info",
+    "yes": "Yes",
+    "no": "No",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "finish": "Finish",
+    "skip": "Skip",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "reset": "Reset",
+    "clear": "Clear",
+    "copy": "Copy",
+    "paste": "Paste",
+    "download": "Download",
+    "upload": "Upload",
+    "preview": "Preview",
+    "print": "Print",
+    "export": "Export",
+    "import": "Import",
+    "settings": "Settings",
+    "profile": "Profile",
+    "logout": "Logout",
+    "login": "Login",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "forgotPassword": "Forgot Password?",
+    "resetPassword": "Reset Password",
+    "changePassword": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "rememberMe": "Remember Me",
+    "or": "or",
+    "and": "and",
+    "required": "Required",
+    "optional": "Optional",
+    "none": "None",
+    "never": "Never",
+    "now": "Just now",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "thisWeek": "This Week",
+    "thisMonth": "This Month",
+    "thisYear": "This Year",
+    "language": "Language",
+    "chinese": "中文",
+    "english": "English",
+    "bilingual": "Bilingual"
+  },
+  "auth": {
+    "login": {
+      "title": "Login to ResumeForge",
+      "subtitle": "Welcome back, please sign in to your account",
+      "emailLabel": "Email",
+      "emailPlaceholder": "Enter your email address",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "submit": "Login",
+      "loading": "Logging in...",
+      "noAccount": "Don't have an account?",
+      "registerLink": "Sign up now",
+      "forgotPassword": "Forgot password?",
+      "errors": {
+        "invalidCredentials": "Invalid email or password",
+        "networkError": "Network error, please check your connection",
+        "serverError": "Server error, please try again later"
+      }
+    },
+    "register": {
+      "title": "Register for ResumeForge",
+      "subtitle": "Create an account to start generating professional resumes",
+      "emailLabel": "Email",
+      "emailPlaceholder": "Enter your email address",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Enter password (min 8 characters)",
+      "confirmPasswordLabel": "Confirm Password",
+      "confirmPasswordPlaceholder": "Confirm your password",
+      "submit": "Register",
+      "loading": "Registering...",
+      "hasAccount": "Already have an account?",
+      "loginLink": "Login now",
+      "errors": {
+        "passwordMismatch": "Passwords do not match",
+        "passwordTooShort": "Password must be at least 8 characters",
+        "emailExists": "This email is already registered",
+        "networkError": "Network error, please check your connection",
+        "serverError": "Server error, please try again later"
+      }
+    },
+    "forgotPassword": {
+      "title": "Forgot Password",
+      "subtitle": "Enter your registered email to receive a reset link",
+      "emailLabel": "Email",
+      "emailPlaceholder": "Enter your registered email",
+      "submit": "Send Reset Link",
+      "loading": "Sending...",
+      "backToLogin": "Back to Login",
+      "success": "If the email is registered, a reset link has been sent",
+      "errors": {
+        "networkError": "Network error, please check your connection",
+        "serverError": "Server error, please try again later"
+      }
+    },
+    "resetPassword": {
+      "title": "Reset Password",
+      "subtitle": "Set a new password",
+      "passwordLabel": "New Password",
+      "passwordPlaceholder": "Enter new password (min 8 characters)",
+      "confirmPasswordLabel": "Confirm New Password",
+      "confirmPasswordPlaceholder": "Confirm your new password",
+      "submit": "Reset Password",
+      "loading": "Resetting...",
+      "success": "Password reset successful, please login",
+      "errors": {
+        "passwordMismatch": "Passwords do not match",
+        "passwordTooShort": "Password must be at least 8 characters",
+        "invalidToken": "Reset link is invalid or expired",
+        "networkError": "Network error, please check your connection",
+        "serverError": "Server error, please try again later"
+      }
+    },
+    "changePassword": {
+      "title": "Change Password",
+      "currentPasswordLabel": "Current Password",
+      "currentPasswordPlaceholder": "Enter current password",
+      "newPasswordLabel": "New Password",
+      "newPasswordPlaceholder": "Enter new password (min 8 characters)",
+      "confirmPasswordLabel": "Confirm New Password",
+      "confirmPasswordPlaceholder": "Confirm your new password",
+      "submit": "Change Password",
+      "loading": "Changing...",
+      "success": "Password changed successfully, please login again",
+      "errors": {
+        "passwordMismatch": "Passwords do not match",
+        "passwordTooShort": "Password must be at least 8 characters",
+        "currentPasswordWrong": "Current password is incorrect",
+        "networkError": "Network error, please check your connection",
+        "serverError": "Server error, please try again later"
+      }
+    }
+  },
+  "dashboard": {
+    "title": "My Resumes",
+    "createNew": "New Resume",
+    "emptyTitle": "No resumes yet",
+    "emptyDescription": "Paste a job description and AI will generate a tailored resume for you",
+    "createFirst": "Create First Resume",
+    "companyName": "Target Company",
+    "language": "Language",
+    "status": "Status",
+    "createdAt": "Created At",
+    "actions": {
+      "edit": "Edit",
+      "preview": "Preview",
+      "delete": "Delete",
+      "duplicate": "Duplicate"
+    },
+    "statuses": {
+      "draft": "Draft",
+      "generating": "Generating",
+      "completed": "Completed",
+      "failed": "Failed"
+    },
+    "languages": {
+      "chinese": "Chinese",
+      "english": "English",
+      "bilingual": "Bilingual"
+    }
+  },
+  "experiences": {
+    "title": "Experience Management",
+    "tabs": {
+      "education": "Education",
+      "work": "Work Experience",
+      "project": "Projects",
+      "skill": "Skills",
+      "certificate": "Certificates"
+    },
+    "emptyTitle": "No {type} yet",
+    "emptyDescription": "Add your first {type} to enrich your resume",
+    "addButton": "Add {type}",
+    "form": {
+      "title": "{type} Information",
+      "required": "Required",
+      "optional": "Optional"
+    },
+    "education": {
+      "school": "School",
+      "schoolPlaceholder": "e.g., Tsinghua University",
+      "degree": "Degree",
+      "degreePlaceholder": "e.g., Bachelor, Master, PhD",
+      "fieldOfStudy": "Field of Study",
+      "fieldOfStudyPlaceholder": "e.g., Computer Science",
+      "gpa": "GPA",
+      "gpaPlaceholder": "e.g., 3.8/4.0",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "current": "Present",
+      "description": "Description",
+      "descriptionPlaceholder": "Key courses, honors, activities, etc."
+    },
+    "work": {
+      "company": "Company",
+      "companyPlaceholder": "e.g., ByteDance",
+      "position": "Position",
+      "positionPlaceholder": "e.g., Senior Software Engineer",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "current": "Present",
+      "description": "Description",
+      "descriptionPlaceholder": "Key responsibilities, achievements, tech stack (Markdown supported)"
+    },
+    "project": {
+      "name": "Project Name",
+      "namePlaceholder": "e.g., E-commerce Recommendation System Refactor",
+      "role": "Role",
+      "rolePlaceholder": "e.g., Tech Lead",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "current": "Present",
+      "description": "Description",
+      "descriptionPlaceholder": "Background, technical approach, contributions, results (Markdown supported)",
+      "techTags": "Tech Stack Tags",
+      "techTagsPlaceholder": "Enter tech stack, press Enter to confirm",
+      "url": "Project URL",
+      "urlPlaceholder": "GitHub, demo link, etc. (optional)"
+    },
+    "skill": {
+      "name": "Skill Name",
+      "namePlaceholder": "e.g., Python, React, Docker",
+      "category": "Category",
+      "categories": {
+        "language": "Programming Languages",
+        "framework": "Frameworks/Libraries",
+        "tool": "Tools/Platforms",
+        "database": "Databases",
+        "cloud": "Cloud Services",
+        "other": "Other"
+      },
+      "proficiency": "Proficiency",
+      "proficiencyLevels": {
+        "beginner": "Beginner",
+        "intermediate": "Intermediate",
+        "advanced": "Advanced",
+        "expert": "Expert"
+      }
+    },
+    "certificate": {
+      "name": "Certificate Name",
+      "namePlaceholder": "e.g., AWS Certified Solutions Architect",
+      "issuer": "Issuer",
+      "issuerPlaceholder": "e.g., Amazon Web Services",
+      "date": "Date Obtained",
+      "credentialUrl": "Credential URL",
+      "credentialUrlPlaceholder": "Verification link (optional)"
+    },
+    "actions": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "edit": "Edit",
+      "confirmDelete": "Are you sure you want to delete this {type}? This action cannot be undone."
+    },
+    "toast": {
+      "created": "{type} created successfully",
+      "updated": "{type} updated successfully",
+      "deleted": "{type} deleted successfully",
+      "error": "Operation failed, please try again"
+    }
+  },
+  "resume": {
+    "jdInput": {
+      "title": "Enter Job Description",
+      "subtitle": "Paste JD, AI will analyze key requirements and generate a tailored resume",
+      "jdLabel": "Job Description (JD)",
+      "jdPlaceholder": "Paste the complete job description...",
+      "companyLabel": "Target Company",
+      "companyPlaceholder": "e.g., ByteDance (optional)",
+      "languageLabel": "Target Language",
+      "generate": "Generate Resume",
+      "generating": "Generating...",
+      "analyzing": "Analyzing JD...",
+      "requirements": {
+        "jdRequired": "Please enter a job description",
+        "jdMinLength": "Job description must be at least 50 characters",
+        "apiKeyRequired": "Please configure LLM API Key in settings first"
+      }
+    },
+    "jdAnalysis": {
+      "title": "JD Analysis Result",
+      "coreResponsibilities": "Core Responsibilities",
+      "requiredSkills": "Required Skills",
+      "preferredSkills": "Preferred Skills",
+      "experienceLevel": "Experience Level",
+      "softSkills": "Soft Skills",
+      "keywords": "Keywords",
+      "regenerate": "Re-analyze",
+      "proceed": "Proceed to Generate Resume"
+    },
+    "generation": {
+      "title": "Generating Resume",
+      "steps": {
+        "analyzing": "Analyzing job requirements",
+        "matching": "Matching personal experience",
+        "writing": "Writing resume content",
+        "formatting": "Formatting optimization"
+      },
+      "waiting": "Please wait, AI is crafting your resume...",
+      "complete": "Generation Complete",
+      "viewResult": "View Result"
+    },
+    "editor": {
+      "title": "Resume Editor",
+      "preview": "Preview",
+      "export": "Export PDF",
+      "save": "Save",
+      "saving": "Saving...",
+      "saved": "Saved",
+      "sections": {
+        "header": "Header",
+        "summary": "Professional Summary",
+        "education": "Education",
+        "work": "Work Experience",
+        "projects": "Projects",
+        "skills": "Skills",
+        "certificates": "Certificates"
+      },
+      "actions": {
+        "addSection": "Add Section",
+        "removeSection": "Remove Section",
+        "moveUp": "Move Up",
+        "moveDown": "Move Down",
+        "edit": "Edit",
+        "dragHint": "Drag to reorder"
+      }
+    },
+    "versions": {
+      "title": "Version History",
+      "current": "Current Version",
+      "createdAt": "Created At",
+      "actions": {
+        "restore": "Restore This Version",
+        "preview": "Preview",
+        "delete": "Delete"
+      },
+      "empty": "No history versions yet"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "tabs": {
+      "profile": "Profile",
+      "llm": "LLM Config",
+      "security": "Security",
+      "appearance": "Appearance"
+    },
+    "profile": {
+      "title": "Profile",
+      "email": "Email",
+      "emailHint": "Email cannot be changed",
+      "avatar": "Avatar",
+      "uploadAvatar": "Upload Avatar"
+    },
+    "llm": {
+      "title": "LLM Configuration",
+      "description": "Configure AI model APIs for JD analysis and resume generation",
+      "addConfig": "Add Configuration",
+      "name": "Config Name",
+      "namePlaceholder": "e.g., DeepSeek Chat, GPT-4o",
+      "provider": "Provider",
+      "providers": {
+        "openai": "OpenAI",
+        "deepseek": "DeepSeek",
+        "zhipu": "Zhipu AI",
+        "custom": "Custom (OpenAI Compatible)"
+      },
+      "baseUrl": "API Base URL",
+      "baseUrlPlaceholder": "e.g., https://api.deepseek.com/v1",
+      "apiKey": "API Key",
+      "apiKeyPlaceholder": "Enter API Key (encrypted storage)",
+      "modelName": "Model Name",
+      "modelNamePlaceholder": "e.g., deepseek-chat, gpt-4o",
+      "isActive": "Set as Default",
+      "testConnection": "Test Connection",
+      "testing": "Testing...",
+      "testSuccess": "Connection successful!",
+      "testFailed": "Connection failed: {error}",
+      "save": "Save Configuration",
+      "saving": "Saving...",
+      "errors": {
+        "nameRequired": "Please enter configuration name",
+        "baseUrlRequired": "Please enter API Base URL",
+        "apiKeyRequired": "Please enter API Key",
+        "modelNameRequired": "Please enter model name",
+        "testFirst": "Please test connection first"
+      }
+    },
+    "security": {
+      "title": "Security Settings",
+      "changePassword": "Change Password",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm New Password",
+      "update": "Update Password",
+      "sessions": "Active Sessions",
+      "revokeAll": "Revoke All Other Sessions",
+      "twoFactor": "Two-Factor Authentication",
+      "twoFactorComingSoon": "Coming Soon"
+    },
+    "appearance": {
+      "title": "Appearance",
+      "theme": "Theme",
+      "themes": {
+        "light": "Light",
+        "dark": "Dark",
+        "system": "System"
+      },
+      "language": "Language"
+    }
+  },
+  "toast": {
+    "success": "Success",
+    "error": "Error",
+    "warning": "Warning",
+    "info": "Info",
+    "networkError": "Network error, please check your connection",
+    "unauthorized": "Session expired, please login again",
+    "forbidden": "Access denied",
+    "notFound": "Resource not found",
+    "serverError": "Server error, please try again later",
+    "validationError": "Validation failed"
+  },
+  "validation": {
+    "required": "This field is required",
+    "email": "Please enter a valid email address",
+    "minLength": "Minimum {min} characters",
+    "maxLength": "Maximum {max} characters",
+    "pattern": "Invalid format",
+    "match": "Values do not match",
+    "number": "Please enter a number",
+    "integer": "Please enter an integer",
+    "positive": "Please enter a positive number",
+    "url": "Please enter a valid URL",
+    "date": "Please enter a valid date"
+  },
+  "errors": {
+    "400": "Bad request",
+    "401": "Unauthorized, please login again",
+    "403": "Forbidden",
+    "404": "Not found",
+    "409": "Conflict",
+    "422": "Validation failed",
+    "429": "Too many requests, please try again later",
+    "500": "Internal server error",
+    "502": "Bad gateway",
+    "503": "Service unavailable",
+    "network": "Network connection failed",
+    "timeout": "Request timeout",
+    "unknown": "Unknown error"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {page}",
+    "of": "of {total} pages",
+    "showing": "Showing {start}-{end} of {total}",
+    "perPage": "Per page"
+  },
+  "date": {
+    "formats": {
+      "short": "YYYY-MM-DD",
+      "long": "MMMM D, YYYY",
+      "datetime": "YYYY-MM-DD HH:mm",
+      "relative": "relative"
+    },
+    "months": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+    "monthsShort": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+  }
+}

@@ -1,0 +1,166 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: resumeforge-db-prod
+    environment:
+      POSTGRES_DB: resumeforge_prod
+      POSTGRES_USER: resumeforge
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+      - ./backup:/backup
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U resumeforge"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - resumeforge-prod-internal
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+
+  backend:
+    image: ${REGISTRY:-ghcr.io}/${{ github.repository }}-backend:${TAG:-latest}
+    container_name: resumeforge-api-prod
+    environment:
+      DATABASE_URL: postgresql+asyncpg://resumeforge:${POSTGRES_PASSWORD}@postgres:5432/resumeforge_prod
+      SECRET_KEY: ${SECRET_KEY}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      CORS_ORIGINS: ${CORS_ORIGINS}
+      AUTO_MIGRATE: "true"
+      LLM_REQUEST_TIMEOUT: "120"
+      LLM_STREAM_TIMEOUT: "300"
+      PDF_TEMP_DIR: "/tmp/resumeforge-pdf"
+      PDF_MAX_CONCURRENT: "2"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - pdf_temp:/tmp/resumeforge-pdf
+    restart: unless-stopped
+    networks:
+      - resumeforge-prod-internal
+      - resumeforge-prod-external
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first
+      rollback_config:
+        parallelism: 1
+        delay: 5s
+        order: stop-first
+
+  frontend:
+    image: ${REGISTRY:-ghcr.io}/${{ github.repository }}-frontend:${TAG:-latest}
+    container_name: resumeforge-web-prod
+    environment:
+      NEXT_PUBLIC_API_URL: https://api.resumeforge.com
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - resumeforge-prod-internal
+      - resumeforge-prod-external
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+      rollback_config:
+        parallelism: 1
+        delay: 5s
+
+  nginx:
+    image: nginx:alpine
+    container_name: resumeforge-proxy-prod
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - certbot-www:/var/www/certbot
+      - certbot-etc:/etc/letsencrypt
+    depends_on:
+      - frontend
+      - backend
+    restart: unless-stopped
+    networks:
+      - resumeforge-prod-external
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+
+  certbot:
+    image: certbot/certbot
+    container_name: resumeforge-certbot-prod
+    volumes:
+      - certbot-etc:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --quiet; sleep 12h & wait $${!}; done'"
+
+  # Backup service
+  backup:
+    image: postgres:16-alpine
+    container_name: resumeforge-backup-prod
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data:ro
+      - ./backup:/backup
+    entrypoint: |
+      /bin/sh -c '
+        while true; do
+          pg_dump -h postgres -U resumeforge resumeforge_prod | gzip > /backup/resumeforge_$(date +\%Y\%m\%d_\%H\%M\%S).sql.gz
+          find /backup -name "*.sql.gz" -mtime +30 -delete
+          sleep 86400
+        done
+      '
+    depends_on:
+      - postgres
+    networks:
+      - resumeforge-prod-internal
+    restart: unless-stopped
+
+volumes:
+  postgres_prod_data:
+  pdf_temp:
+  certbot-www:
+  certbot-etc:
+
+networks:
+  resumeforge-prod-internal:
+    driver: bridge
+    internal: true
+  resumeforge-prod-external:
+    driver: bridge
