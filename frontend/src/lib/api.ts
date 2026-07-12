@@ -4,7 +4,8 @@
  */
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+// 同源代理：通过 Next.js API route 代理到后端，所有流量走 3000 端口
+const API_BASE = "";
 
 // Token 存储（内存）
 let accessToken: string | null = null;
@@ -44,7 +45,8 @@ api.interceptors.response.use(
       _retry?: boolean;
     };
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    const isAuthEndpoint = originalRequest.url?.includes("/auth/login") || originalRequest.url?.includes("/auth/register");
+    if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -66,7 +68,7 @@ api.interceptors.response.use(
       }
 
       try {
-        const { data } = await axios.post(`${API_BASE}/api/v1/auth/refresh`, {
+        const { data } = await axios.post(`/api/v1/auth/refresh`, {
           refresh_token: refreshToken,
         });
         accessToken = data.access_token;

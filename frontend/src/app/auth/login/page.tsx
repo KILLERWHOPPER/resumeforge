@@ -21,7 +21,8 @@ export default function LoginPage() {
       setTokens(data.access_token, data.refresh_token);
       router.push("/dashboard");
     } catch (err: any) {
-      setError(err.response?.data?.detail || "登录失败");
+      const msg = err.response?.data?.detail || err.message || "登录失败，请检查网络连接";
+      setError(typeof msg === "string" ? msg : "登录失败，请稍后重试");
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,11 @@
 """Alembic env — 异步模式"""
 import asyncio
+import sys
 from logging.config import fileConfig
+from pathlib import Path
+
+# 确保 app 包可被导入
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from alembic import context
 from sqlalchemy import pool

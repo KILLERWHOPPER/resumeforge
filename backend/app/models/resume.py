@@ -23,7 +23,7 @@ class Resume(Base):
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
     user = relationship("User", back_populates="resumes")
-    versions = relationship("ResumeVersion", back_populates="resume", cascade="all, delete-orphan")
+    versions = relationship("ResumeVersion", back_populates="resume", cascade="all, delete-orphan", foreign_keys="[ResumeVersion.resume_id]")
 
 
 class ResumeVersion(Base):
@@ -36,7 +36,7 @@ class ResumeVersion(Base):
     html_preview = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
-    resume = relationship("Resume", back_populates="versions")
+    resume = relationship("Resume", back_populates="versions", foreign_keys=[resume_id])
 
 
 class JDAnalysis(Base):
