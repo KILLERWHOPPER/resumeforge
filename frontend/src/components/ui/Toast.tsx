@@ -3,8 +3,7 @@
 import * as React from "react";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ModalContent from "@/lib/utils";
-import { Modal, ModalHeader, ModalTitle, ModalDescription, ModalContent, ModalFooter, ModalClose } from "./Modal";
+import { Modal } from "./Modal";
 
 interface ToastProps {
   title: string;

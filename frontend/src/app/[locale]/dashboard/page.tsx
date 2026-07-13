@@ -3,7 +3,20 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useTranslations, useRouter, usePathname } from "next-intl";
-import { Plus, FileText, Briefcase, GraduationCap, FolderKanban, Award, Settings, LogOut, User, Menu, X, ChevronDown } from "lucide-react";
+import {
+  Plus,
+  FileText,
+  Briefcase,
+  GraduationCap,
+  FolderKanban,
+  Award,
+  Settings,
+  LogOut,
+  User,
+  Menu,
+  X,
+  ChevronDown,
+} from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -55,11 +68,14 @@ export default function DashboardPage() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString(locale === "zh-CN" ? "zh-CN" : "en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+    return new Date(dateString).toLocaleDateString(
+      locale === "zh-CN" ? "zh-CN" : "en-US",
+      {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }
+    );
   };
 
   const getLanguageLabel = (lang: string) => {

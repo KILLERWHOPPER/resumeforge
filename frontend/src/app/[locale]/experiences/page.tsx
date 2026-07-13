@@ -3,7 +3,18 @@
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Plus, GraduationCap, Briefcase, FolderKanban, Code, Award, Edit, Trash2, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Plus,
+  GraduationCap,
+  Briefcase,
+  FolderKanban,
+  Code,
+  Award,
+  Edit,
+  Trash2,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
@@ -96,15 +107,15 @@ export default function ExperiencesPage() {
 
   // Fetch experiences for a type
   const fetchExperiences = async (type: ExperienceType) => {
-    setLoading(prev => ({ ...prev, [type]: true }));
+    setLoading((prev) => ({ ...prev, [type]: true }));
     try {
-      const { data } = await api.get(`/experiences/`, { params: { type } });
-      setExperiences(prev => ({ ...prev, [type]: data }));
+      const { data } = await api.get("/experiences/", { params: { type } });
+      setExperiences((prev) => ({ ...prev, [type]: data }));
     } catch (error) {
       console.error(`Failed to fetch ${type}:`, error);
       toast.error(tCommon("error"), tCommon("networkError"));
     } finally {
-      setLoading(prev => ({ ...prev, [type]: false }));
+      setLoading((prev) => ({ ...prev, [type]: false }));
     }
   };
 
@@ -131,7 +142,7 @@ export default function ExperiencesPage() {
     }
 
     try {
-      const endpoint = editingExperience ? `/experiences/${editingExperience.id}` : `/experiences/`;
+      const endpoint = editingExperience ? `/experiences/${editingExperience.id}` : "/experiences/";
       const method = editingExperience ? "put" : "post";
       await api[method](endpoint, { ...formData, type: activeTab });
 
@@ -170,27 +181,26 @@ export default function ExperiencesPage() {
   };
 
   const renderFormFields = () => {
-    const config = typeConfig[activeTab];
     const commonFields = (
       <>
         <Input
           label={t(`${activeTab}.startDate`)}
           type="date"
           value={formData.start_date || ""}
-          onChange={(e) => setFormData(prev => ({ ...prev, start_date: e.target.value }))}
+          onChange={(e) => setFormData((prev) => ({ ...prev, start_date: e.target.value }))}
         />
         <Input
           label={t(`${activeTab}.endDate`)}
           type="date"
           value={formData.end_date || ""}
-          onChange={(e) => setFormData(prev => ({ ...prev, end_date: e.target.value }))}
+          onChange={(e) => setFormData((prev) => ({ ...prev, end_date: e.target.value }))}
         />
         <div className="flex items-center gap-2">
           <input
             type="checkbox"
             id="current"
             checked={formData.end_date === "present" || formData.end_date === "current"}
-            onChange={(e) => setFormData(prev => ({ ...prev, end_date: e.target.checked ? "present" : "" }))}
+            onChange={(e) => setFormData((prev) => ({ ...prev, end_date: e.target.checked ? "present" : "" }))}
             className="h-4 w-4 rounded border-border-medium"
           />
           <label htmlFor="current" className="text-sm text-text-secondary">{t(`${activeTab}.current`)}</label>
@@ -205,7 +215,7 @@ export default function ExperiencesPage() {
             <Input
               label={t("education.school")}
               value={formData.school || ""}
-              onChange={(e) => setFormData(prev => ({ ...prev, school: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, school: e.target.value }))}
               placeholder={t("education.schoolPlaceholder")}
               required
               error={formErrors.school}
@@ -213,19 +223,19 @@ export default function ExperiencesPage() {
             <Input
               label={t("education.degree")}
               value={formData.degree || ""}
-              onChange={(e) => setFormData(prev => ({ ...prev, degree: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, degree: e.target.value }))}
               placeholder={t("education.degreePlaceholder")}
             />
             <Input
               label={t("education.fieldOfStudy")}
               value={formData.field_of_study || ""}
-              onChange={(e) => setFormData(prev => ({ ...prev, field_of_study: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, field_of_study: e.target.value }))}
               placeholder={t("education.fieldOfStudyPlaceholder")}
             />
             <Input
               label={t("education.gpa")}
               value={formData.gpa || ""}
-              onChange={(e) => setFormData(prev => ({ ...prev, gpa: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, gpa: e.target.value }))}
               placeholder={t("education.gpaPlaceholder")}
             />
             {commonFields}
@@ -233,7 +243,7 @@ export default function ExperiencesPage() {
               <label className="label-base">{t("education.description")} <span className="text-text-tertiary">({tCommon("optional")})</span></label>
               <textarea
                 value={formData.description || ""}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
                 rows={4}
                 className="input-base min-h-[100px]"
                 placeholder={t("education.descriptionPlaceholder")}
@@ -248,7 +258,7 @@ export default function ExperiencesPage() {
             <Input
               label={t("work.company")}
               value={formData.company || ""}
-              onChange={(e) => setFormData(prev => ({ ...prev, company: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, company: e.target.value }))}
               placeholder={t("work.companyPlaceholder")}
               required
               error={formErrors.company}
@@ -256,7 +266,7 @@ export default function ExperiencesPage() {
             <Input
               label={t("work.position")}
               value={formData.position || ""}
-              onChange={(e) => setFormData(prev => ({ ...prev, position: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, position: e.target.value }))}
               placeholder={t("work.positionPlaceholder")}
             />
             {commonFields}
@@ -264,7 +274,7 @@ export default function ExperiencesPage() {
               <label className="label-base">{t("work.description")} <span className="text-text-tertiary">({tCommon("optional")})</span></label>
               <textarea
                 value={formData.description || ""}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
                 rows={5}
                 className="input-base min-h-[120px]"
                 placeholder={t("work.descriptionPlaceholder")}
@@ -279,7 +289,7 @@ export default function ExperiencesPage() {
             <Input
               label={t("project.name")}
               value={formData.name || ""}
-              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
               placeholder={t("project.namePlaceholder")}
               required
               error={formErrors.name}
@@ -287,7 +297,7 @@ export default function ExperiencesPage() {
             <Input
               label={t("project.role")}
               value={formData.role || ""}
-              onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, role: e.target.value }))}
               placeholder={t("project.rolePlaceholder")}
             />
             {commonFields}
@@ -295,7 +305,7 @@ export default function ExperiencesPage() {
               <label className="label-base">{t("project.description")} <span className="text-text-tertiary">({tCommon("optional")})</span></label>
               <textarea
                 value={formData.description || ""}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
                 rows={5}
                 className="input-base min-h-[120px]"
                 placeholder={t("project.descriptionPlaceholder")}
@@ -305,14 +315,14 @@ export default function ExperiencesPage() {
               <label className="label-base">{t("project.techTags")} <span className="text-text-tertiary">({tCommon("optional")})</span></label>
               <TechTagsInput
                 value={formData.tech_tags || []}
-                onChange={(tags) => setFormData(prev => ({ ...prev, tech_tags: tags }))}
+                onChange={(tags) => setFormData((prev) => ({ ...prev, tech_tags: tags }))}
               />
             </div>
             <Input
               label={t("project.url")}
               type="url"
               value={formData.url || ""}
-              onChange={(e) => setFormData(prev => ({ ...prev, url: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, url: e.target.value }))}
               placeholder={t("project.urlPlaceholder")}
             />
           </>
@@ -324,7 +334,7 @@ export default function ExperiencesPage() {
             <Input
               label={t("skill.name")}
               value={formData.name || ""}
-              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
               placeholder={t("skill.namePlaceholder")}
               required
               error={formErrors.name}
@@ -332,15 +342,15 @@ export default function ExperiencesPage() {
             <Select
               label={t("skill.category")}
               value={formData.category || ""}
-              onChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
-              options={skillCategories.map(c => ({ value: c.value, label: c.label }))}
+              onChange={(value) => setFormData((prev) => ({ ...prev, category: value }))}
+              options={skillCategories.map((c) => ({ value: c.value, label: c.label }))}
               placeholder={t("skill.category")}
             />
             <Select
               label={t("skill.proficiency")}
               value={formData.proficiency || ""}
-              onChange={(value) => setFormData(prev => ({ ...prev, proficiency: value }))}
-              options={proficiencyOptions.map(p => ({ value: p.value, label: p.label }))}
+              onChange={(value) => setFormData((prev) => ({ ...prev, proficiency: value }))}
+              options={proficiencyOptions.map((p) => ({ value: p.value, label: p.label }))}
               placeholder={t("skill.proficiency")}
             />
           </>
@@ -352,7 +362,7 @@ export default function ExperiencesPage() {
             <Input
               label={t("certificate.name")}
               value={formData.name || ""}
-              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
               placeholder={t("certificate.namePlaceholder")}
               required
               error={formErrors.name}
@@ -360,20 +370,20 @@ export default function ExperiencesPage() {
             <Input
               label={t("certificate.issuer")}
               value={formData.issuer || ""}
-              onChange={(e) => setFormData(prev => ({ ...prev, issuer: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, issuer: e.target.value }))}
               placeholder={t("certificate.issuerPlaceholder")}
             />
             <Input
               label={t("certificate.date")}
               type="date"
               value={formData.start_date || ""}
-              onChange={(e) => setFormData(prev => ({ ...prev, start_date: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, start_date: e.target.value }))}
             />
             <Input
               label={t("certificate.credentialUrl")}
               type="url"
               value={formData.credential_url || ""}
-              onChange={(e) => setFormData(prev => ({ ...prev, credential_url: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, credential_url: e.target.value }))}
               placeholder={t("certificate.credentialUrlPlaceholder")}
             />
           </>
@@ -396,7 +406,15 @@ export default function ExperiencesPage() {
                 {config.icon}
               </span>
               <h4 className="font-semibold text-text-primary truncate">
-                {activeTab === "education" ? exp.school : activeTab === "work" ? exp.company : activeTab === "project" ? exp.name : activeTab === "skill" ? exp.name : exp.name}
+                {activeTab === "education"
+                  ? exp.school
+                  : activeTab === "work"
+                    ? exp.company
+                    : activeTab === "project"
+                      ? exp.name
+                      : activeTab === "skill"
+                        ? exp.name
+                        : exp.name}
               </h4>
             </div>
 
@@ -412,7 +430,7 @@ export default function ExperiencesPage() {
             {activeTab === "skill" && (
               <div className="flex flex-wrap gap-1.5 mt-1">
                 {exp.category && <span className="badge-primary text-xs">{exp.category}</span>}
-                {exp.proficiency && <span className="badge-info text-xs">{proficiencyOptions.find(p => p.value === exp.proficiency)?.label}</span>}
+                {exp.proficiency && <span className="badge-info text-xs">{proficiencyOptions.find((p) => p.value === exp.proficiency)?.label}</span>}
               </div>
             )}
             {activeTab === "certificate" && exp.issuer && (
@@ -423,7 +441,9 @@ export default function ExperiencesPage() {
               {exp.start_date && (
                 <span>
                   {new Date(exp.start_date).toLocaleDateString(locale === "zh-CN" ? "zh-CN" : "en-US", { year: "numeric", month: "short" })}
-                  {exp.end_date ? ` - ${exp.end_date === "present" || exp.end_date === "current" ? t(`${activeTab}.current`) : new Date(exp.end_date).toLocaleDateString(locale === "zh-CN" ? "zh-CN" : "en-US", { year: "numeric", month: "short" })}` : ""}
+                  {exp.end_date
+                    ? ` - ${exp.end_date === "present" || exp.end_date === "current" ? t(`${activeTab}.current`) : new Date(exp.end_date).toLocaleDateString(locale === "zh-CN" ? "zh-CN" : "en-US", { year: "numeric", month: "short" })}`
+                    : ""}
                 </span>
               )}
             </div>
@@ -443,7 +463,9 @@ export default function ExperiencesPage() {
 
             {activeTab === "certificate" && exp.credential_url && (
               <a href={exp.credential_url} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-1 text-xs text-primary-600 hover:text-primary-500">
-                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
                 {t("certificate.viewCredential")}
               </a>
             )}
@@ -598,7 +620,7 @@ function TechTagsInput({ value, onChange }: { value: string[]; onChange: (tags: 
   };
 
   const removeTag = (tag: string) => {
-    const newTags = tags.filter(t => t !== tag);
+    const newTags = tags.filter((t) => t !== tag);
     setTags(newTags);
     onChange(newTags);
   };
