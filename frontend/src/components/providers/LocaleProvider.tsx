@@ -7,7 +7,7 @@ import { notFound } from "next/navigation";
 interface LocaleProviderProps {
   children: React.ReactNode;
   locale: string;
-  messages: Record<string, unknown>;
+  messages: Record<string, string>;
 }
 
 export function LocaleProvider({

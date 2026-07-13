@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 import {
   Plus,
@@ -478,7 +478,7 @@ export default function ExperiencesPage() {
               <Trash2 className="h-4 w-4 mr-1" /> {tCommon("delete")}
             </Button>
           </div>
-        )
+        </div>
       </div>
     );
   };
@@ -520,7 +520,7 @@ export default function ExperiencesPage() {
 
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab as (value: string) => void} className="mb-6">
           <TabsList aria-label="Experience types">
             {(["education", "work", "project", "skill", "certificate"] as ExperienceType[]).map((type) => (
               <TabsTrigger key={type} value={type}>
@@ -594,8 +594,6 @@ export default function ExperiencesPage() {
           </Button>
         </div>
       </Modal>
-
-      <ToastProvider />
     </div>
   );
 }

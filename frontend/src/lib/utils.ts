@@ -152,8 +152,11 @@ export function groupBy<T>(array: T[], key: keyof T | ((item: T) => string)): Re
   }, {} as Record<string, T[]>);
 }
 
-export function sortBy<T>(array: T[], key: keyof T | ((item: T) => unknown), order: "asc" | "desc" = "asc"): T[] {
-  const getValue = typeof key === "function" ? key : (item: T) => item[key];
+export function sortBy<T>(array: T[], key: keyof T | ((item: T) => string | number), order: "asc" | "desc" = "asc"): T[] {
+  const getValue = typeof key === "function" ? key : (item: T) => {
+    const val = item[key];
+    return typeof val === "string" || typeof val === "number" ? val : String(val);
+  };
   return [...array].sort((a, b) => {
     const aVal = getValue(a);
     const bVal = getValue(b);

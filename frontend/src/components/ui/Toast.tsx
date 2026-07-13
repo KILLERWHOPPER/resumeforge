@@ -187,6 +187,10 @@ interface ToastContextValue {
   addToast: (toast: ToastProps) => void;
   removeToast: (index: number) => void;
   clearToasts: () => void;
+  success: (title: string, description?: string, options?: Partial<ToastProps>) => void;
+  error: (title: string, description?: string, options?: Partial<ToastProps>) => void;
+  warning: (title: string, description?: string, options?: Partial<ToastProps>) => void;
+  info: (title: string, description?: string, options?: Partial<ToastProps>) => void;
 }
 
 const ToastContext = React.createContext<ToastContextValue | null>(null);
@@ -206,8 +210,24 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     setToasts([]);
   }, []);
 
+  const success = React.useCallback((title: string, description?: string, options?: Partial<ToastProps>) => {
+    addToast({ title, description, variant: "success", ...options });
+  }, []);
+
+  const error = React.useCallback((title: string, description?: string, options?: Partial<ToastProps>) => {
+    addToast({ title, description, variant: "error", ...options });
+  }, []);
+
+  const warning = React.useCallback((title: string, description?: string, options?: Partial<ToastProps>) => {
+    addToast({ title, description, variant: "warning", ...options });
+  }, []);
+
+  const info = React.useCallback((title: string, description?: string, options?: Partial<ToastProps>) => {
+    addToast({ title, description, variant: "info", ...options });
+  }, []);
+
   return (
-    <ToastContext.Provider value={{ toasts, addToast, removeToast, clearToasts }}>
+    <ToastContext.Provider value={{ toasts, addToast, removeToast, clearToasts, success, error, warning, info }}>
       {children}
       <ToastContainer toasts={toasts} onRemove={removeToast} />
     </ToastContext.Provider>

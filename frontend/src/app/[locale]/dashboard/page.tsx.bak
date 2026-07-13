@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
-import { useRouter, usePathname } from "@/i18n/routing";
+import { useTranslations, useRouter, usePathname } from "next-intl";
 import {
   Plus,
   FileText,
@@ -108,25 +107,9 @@ export default function DashboardPage() {
     return colors[status] || "bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300";
   };
 
-  // Navigation link classNames
-  const dashboardLinkClass = `text-sm font-medium transition-colors ${
-    pathname === `/${locale}/dashboard`
-      ? "text-primary-600 dark:text-primary-400"
-      : "text-text-secondary hover:text-text-primary"
-  }`;
-  const experiencesLinkClass = `text-sm font-medium transition-colors ${
-    pathname.startsWith(`/${locale}/experiences`)
-      ? "text-primary-600 dark:text-primary-400"
-      : "text-text-secondary hover:text-text-primary"
-  }`;
-  const settingsLinkClass = `text-sm font-medium transition-colors ${
-    pathname.startsWith(`/${locale}/settings`)
-      ? "text-primary-600 dark:text-primary-400"
-      : "text-text-secondary hover:text-text-primary"
-  }`;
-
   return (
     <div className="min-h-screen bg-background-primary">
+      {/* Top Navigation */}
       <header className="sticky top-0 z-50 bg-white/80 dark:bg-neutral-950/80 backdrop-blur-sm border-b border-border-light dark:border-border-dark">
         <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8" aria-label="Main navigation">
           <div className="flex h-16 items-center justify-between">
@@ -135,19 +118,42 @@ export default function DashboardPage() {
                 ResumeForge
               </Link>
 
+              {/* Desktop Navigation */}
               <div className="hidden md:flex md:items-center md:gap-6">
-                <Link href={`/${locale}/dashboard`} className={dashboardLinkClass}>
+                <Link
+                  href={`/${locale}/dashboard`}
+                  className={`text-sm font-medium transition-colors ${
+                    pathname === `/${locale}/dashboard`
+                      ? "text-primary-600 dark:text-primary-400"
+                      : "text-text-secondary hover:text-text-primary"
+                  `}
+                >
                   {t("title")}
                 </Link>
-                <Link href={`/${locale}/experiences`} className={experiencesLinkClass}>
+                <Link
+                  href={`/${locale}/experiences`}
+                  className={`text-sm font-medium transition-colors ${
+                    pathname.startsWith(`/${locale}/experiences`)
+                      ? "text-primary-600 dark:text-primary-400"
+                      : "text-text-secondary hover:text-text-primary"
+                  `}
+                >
                   {tCommon("experiences") || "经历管理"}
                 </Link>
-                <Link href={`/${locale}/settings`} className={settingsLinkClass}>
+                <Link
+                  href={`/${locale}/settings`}
+                  className={`text-sm font-medium transition-colors ${
+                    pathname.startsWith(`/${locale}/settings`)
+                      ? "text-primary-600 dark:text-primary-400"
+                      : "text-text-secondary hover:text-text-primary"
+                  `}
+                >
                   {tCommon("settings")}
                 </Link>
               </div>
             </div>
 
+            {/* User Menu */}
             <div className="relative">
               <button
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
@@ -199,6 +205,7 @@ export default function DashboardPage() {
               )}
             </div>
 
+            {/* Mobile menu button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="md:hidden p-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-neutral-100 dark:hover:bg-neutral-800"
@@ -210,6 +217,7 @@ export default function DashboardPage() {
             </button>
           </div>
 
+          {/* Mobile Navigation */}
           {mobileMenuOpen && (
             <div id="mobile-menu" className="md:hidden py-4 border-t border-border-light dark:border-border-dark animate-slide-in-from-top">
               <div className="flex flex-col gap-2">
@@ -247,6 +255,7 @@ export default function DashboardPage() {
         </nav>
       </header>
 
+      {/* Main Content */}
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <h1 className="text-2xl font-bold text-text-primary">{t("title")}</h1>
@@ -258,12 +267,14 @@ export default function DashboardPage() {
         </div>
 
         {loading ? (
+          // Skeleton loading state
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
               <Skeleton key={i} variant="card" />
             ))}
           </div>
         ) : resumes.length === 0 ? (
+          // Empty state
           <EmptyState
             illustration="document"
             title={t("emptyTitle")}
@@ -274,6 +285,7 @@ export default function DashboardPage() {
             }}
           />
         ) : (
+          // Resume grid
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {resumes.map((resume) => (
               <Link

@@ -12,7 +12,8 @@ interface SelectOption {
   icon?: React.ReactNode;
 }
 
-interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
+interface SelectProps {
+  className?: string;
   label?: string;
   error?: string;
   hint?: string;
@@ -21,6 +22,11 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   allowClear?: boolean;
   searchable?: boolean;
   maxHeight?: number;
+  value: string;
+  onChange: (value: string) => void;
+  disabled?: boolean;
+  required?: boolean;
+  id?: string;
 }
 
 export function Select({
@@ -38,14 +44,11 @@ export function Select({
   required,
   value,
   onChange,
-  onBlur,
-  ...props
 }: SelectProps) {
   const [isOpen, setIsOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
   const selectRef = React.useRef<HTMLDivElement>(null);
-  const inputRef = React.useRef<HTMLInputElement>(null);
-  const optionRefs = React.useRef<Map<string, HTMLLIElement>>(new Map());
+  const inputRef = React.useRef<HTMLButtonElement>(null);
 
   const selectId = id || `select-${Math.random().toString(36).slice(2, 9)}`;
   const errorId = `${selectId}-error`;
@@ -107,24 +110,24 @@ export function Select({
 
   const handleOptionClick = (optionValue: string) => {
     if (disabled) return;
-    onChange?.({ target: { value: optionValue } } as React.ChangeEvent<HTMLSelectElement>);
+    onChange(optionValue);
     setIsOpen(false);
   };
 
   const handleClear = (event: React.MouseEvent) => {
     event.stopPropagation();
-    onChange?.({ target: { value: "" } } as React.ChangeEvent<HTMLSelectElement>);
+    onChange("");
     setSearchQuery("");
   };
 
   const describedBy = [error && errorId, hint && hintId].filter(Boolean).join(" ") || undefined;
 
   return (
-    <div className="w-full">
+    <div className="w-full" ref={selectRef}>
       {label && (
         <label
           htmlFor={selectId}
-          className="block text-sm font-medium text-input-label mb-1.5"
+          className="block text-sm font-medium text-text-label mb-1.5"
         >
           {label}
           {required && (
@@ -132,11 +135,7 @@ export function Select({
           )}
         </label>
       )}
-      <div
-        ref={selectRef}
-        className="relative"
-        onKeyDown={handleKeyDown}
-      >
+      <div className="relative" onKeyDown={handleKeyDown}>
         <button
           type="button"
           ref={inputRef}
@@ -147,7 +146,6 @@ export function Select({
           aria-disabled={disabled}
           disabled={disabled}
           onClick={() => !disabled && setIsOpen(!isOpen)}
-          onBlur={onBlur}
           className={cn(
             "w-full flex items-center justify-between px-4 py-2.5 rounded-lg border bg-input-bg text-text-primary",
             "transition-all duration-150",
@@ -171,7 +169,7 @@ export function Select({
               type="button"
               onClick={handleClear}
               className="ml-2 p-1 rounded hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
-              aria-label="清除选择"
+              aria-label="Clear selection"
             >
               <X className="h-4 w-4 text-text-tertiary" />
             </button>
@@ -181,6 +179,7 @@ export function Select({
               "h-4 w-4 text-text-tertiary transition-transform duration-150 flex-shrink-0",
               isOpen && "rotate-180"
             )}
+            aria-hidden="true"
           />
         </button>
 
@@ -216,30 +215,24 @@ export function Select({
                 filteredOptions.map((option) => (
                   <li
                     key={option.value}
-                    ref={(el) => {
-                      if (el) optionRefs.current.set(option.value, el);
-                    }}
                     role="option"
                     aria-selected={option.value === value}
                     aria-disabled={option.disabled}
                     className={cn(
-                      "px-4 py-2 text-sm cursor-pointer transition-colors",
+                      "px-4 py-2 text-sm cursor-pointer transition-colors flex items-center gap-2",
                       "hover:bg-neutral-100 dark:hover:bg-neutral-800",
+                      "focus-visible:outline-none focus-visible:bg-neutral-100 dark:focus-visible:bg-neutral-800",
                       option.value === value
-                        ? "bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 font-medium"
+                        ? "bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-300 font-medium"
                         : "text-text-primary",
                       option.disabled && "opacity-50 cursor-not-allowed"
                     )}
                     onClick={() => !option.disabled && handleOptionClick(option.value)}
                     onMouseDown={(e) => e.preventDefault()}
                   >
-                    <div className="flex items-center gap-2">
-                      {option.icon && <span className="flex-shrink-0">{option.icon}</span>}
-                      <span className="truncate">{option.label}</span>
-                      {option.value === value && (
-                        <Check className="h-4 w-4 flex-shrink-0" />
-                      )}
-                    </div>
+                    {option.icon && <span className="flex-shrink-0">{option.icon}</span>}
+                    <span className="truncate flex-1">{option.label}</span>
+                    {option.value === value && <Check className="h-4 w-4 text-primary-600" aria-hidden="true" />}
                   </li>
                 ))
               )}
@@ -257,11 +250,10 @@ export function Select({
           {hint}
         </p>
       )}
-      {/* Hidden native select for form submission */}
       <select
         id={`${selectId}-native`}
         value={value || ""}
-        onChange={onChange}
+        onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
         required={required}
         className="hidden"
@@ -280,7 +272,19 @@ export function Select({
 }
 
 // Multi-select variant
-interface MultiSelectProps extends Omit<SelectProps, "onChange"> {
+interface MultiSelectProps {
+  className?: string;
+  label?: string;
+  error?: string;
+  hint?: string;
+  placeholder?: string;
+  options: SelectOption[];
+  allowClear?: boolean;
+  searchable?: boolean;
+  maxHeight?: number;
+  id?: string;
+  disabled?: boolean;
+  required?: boolean;
   value: string[];
   onChange: (values: string[]) => void;
   maxSelected?: number;
@@ -301,14 +305,12 @@ export function MultiSelect({
   required,
   value = [],
   onChange,
-  onBlur,
   maxSelected,
-  ...props
 }: MultiSelectProps) {
   const [isOpen, setIsOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
   const selectRef = React.useRef<HTMLDivElement>(null);
-  const inputRef = React.useRef<HTMLInputElement>(null);
+  const inputRef = React.useRef<HTMLButtonElement>(null);
 
   const selectId = id || `multiselect-${Math.random().toString(36).slice(2, 9)}`;
   const errorId = `${selectId}-error`;
@@ -388,11 +390,7 @@ export function MultiSelect({
           )}
         </label>
       )}
-      <div
-        ref={selectRef}
-        className="relative"
-        onKeyDown={handleKeyDown}
-      >
+      <div ref={selectRef} className="relative" onKeyDown={handleKeyDown}>
         <button
           type="button"
           ref={inputRef}
@@ -403,7 +401,6 @@ export function MultiSelect({
           aria-disabled={disabled}
           disabled={disabled}
           onClick={() => !disabled && setIsOpen(!isOpen)}
-          onBlur={onBlur}
           className={cn(
             "w-full flex flex-wrap items-center gap-1.5 px-3 py-2 rounded-lg border bg-input-bg text-text-primary min-h-[44px]",
             "transition-all duration-150",
@@ -491,6 +488,7 @@ export function MultiSelect({
                     className={cn(
                       "px-4 py-2 text-sm cursor-pointer transition-colors flex items-center gap-2",
                       "hover:bg-neutral-100 dark:hover:bg-neutral-800",
+                      "focus-visible:outline-none focus-visible:bg-neutral-100 dark:focus-visible:bg-neutral-800",
                       value.includes(option.value)
                         ? "bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 font-medium"
                         : "text-text-primary",
