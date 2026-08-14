@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { usePathname, useRouter } from '@/i18n/routing';
+import { useRouter } from '@/i18n/routing';
 import {
   ArrowRight,
   Loader2,
@@ -51,8 +51,6 @@ const GENERATION_STAGES = [
 
 export default function NewResumePage() {
   const router = useRouter();
-  const pathname = usePathname();
-  const locale = pathname.split('/')[1];
   const t = useTranslations('resume');
   const tCommon = useTranslations('common');
   const toast = useToast();
@@ -166,7 +164,7 @@ export default function NewResumePage() {
           } else if (event === 'complete') {
             const version = data.version;
             toast.success(t('generation.complete'), t('generation.viewResult'));
-            router.push(`/${locale}/resumes/${resumeId}`);
+            router.push(`/resumes/${resumeId}`);
           } else if (event === 'error') {
             toast.error(tCommon('error'), String(data.message || ''));
             setStep('analysis');
@@ -223,12 +221,12 @@ export default function NewResumePage() {
 
   return (
     <div className="min-h-screen bg-background-primary">
-      <AppHeader activePrefix={`/${locale}/resumes`} />
+      <AppHeader activePrefix="/resumes" />
 
       <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-6 flex items-center gap-3">
           <Link
-            href={`/${locale}/dashboard`}
+            href={`/dashboard`}
             className="inline-flex items-center gap-1 text-sm text-text-secondary transition-colors hover:text-text-primary"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -259,7 +257,7 @@ export default function NewResumePage() {
                 </p>
               )}
               <Link
-                href={`/${locale}/settings?tab=llm`}
+                href={`/settings?tab=llm`}
                 className="mt-1 inline-block text-xs text-primary-600 hover:underline dark:text-primary-400"
               >
                 {tCommon('settings')}

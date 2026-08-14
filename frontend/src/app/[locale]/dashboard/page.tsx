@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useRouter, usePathname } from '@/i18n/routing';
 import {
   Plus,
@@ -34,7 +34,7 @@ interface Resume {
 export default function DashboardPage() {
   const router = useRouter();
   const pathname = usePathname();
-  const locale = pathname.split('/')[1];
+  const locale = useLocale();
   const t = useTranslations('dashboard');
   const tCommon = useTranslations('common');
   const tAuth = useTranslations('auth.login');
@@ -110,17 +110,17 @@ export default function DashboardPage() {
 
   // Navigation link classNames
   const dashboardLinkClass = `text-sm font-medium transition-colors ${
-    pathname === `/${locale}/dashboard`
+    pathname === `/dashboard`
       ? 'text-primary-600 dark:text-primary-400'
       : 'text-text-secondary hover:text-text-primary'
   }`;
   const experiencesLinkClass = `text-sm font-medium transition-colors ${
-    pathname.startsWith(`/${locale}/experiences`)
+    pathname.startsWith(`/experiences`)
       ? 'text-primary-600 dark:text-primary-400'
       : 'text-text-secondary hover:text-text-primary'
   }`;
   const settingsLinkClass = `text-sm font-medium transition-colors ${
-    pathname.startsWith(`/${locale}/settings`)
+    pathname.startsWith(`/settings`)
       ? 'text-primary-600 dark:text-primary-400'
       : 'text-text-secondary hover:text-text-primary'
   }`;
@@ -132,20 +132,20 @@ export default function DashboardPage() {
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center gap-8">
               <Link
-                href={`/${locale}/dashboard`}
+                href={`/dashboard`}
                 className="text-xl font-bold text-primary-600 dark:text-primary-400"
               >
                 ResumeForge
               </Link>
 
               <div className="hidden md:flex md:items-center md:gap-6">
-                <Link href={`/${locale}/dashboard`} className={dashboardLinkClass}>
+                <Link href={`/dashboard`} className={dashboardLinkClass}>
                   {t('title')}
                 </Link>
-                <Link href={`/${locale}/experiences`} className={experiencesLinkClass}>
+                <Link href={`/experiences`} className={experiencesLinkClass}>
                   {tCommon('experiences') || '经历管理'}
                 </Link>
-                <Link href={`/${locale}/settings`} className={settingsLinkClass}>
+                <Link href={`/settings`} className={settingsLinkClass}>
                   {tCommon('settings')}
                 </Link>
               </div>
@@ -174,7 +174,7 @@ export default function DashboardPage() {
                       <p className="truncate text-xs text-text-tertiary">user@example.com</p>
                     </div>
                     <Link
-                      href={`/${locale}/settings?tab=profile`}
+                      href={`/settings?tab=profile`}
                       className="flex items-center gap-3 px-4 py-2 text-sm text-text-secondary hover:bg-neutral-100 hover:text-text-primary dark:hover:bg-neutral-800"
                       onClick={() => setUserMenuOpen(false)}
                     >
@@ -182,7 +182,7 @@ export default function DashboardPage() {
                       {tCommon('profile')}
                     </Link>
                     <Link
-                      href={`/${locale}/settings?tab=llm`}
+                      href={`/settings?tab=llm`}
                       className="flex items-center gap-3 px-4 py-2 text-sm text-text-secondary hover:bg-neutral-100 hover:text-text-primary dark:hover:bg-neutral-800"
                       onClick={() => setUserMenuOpen(false)}
                     >
@@ -220,21 +220,21 @@ export default function DashboardPage() {
             >
               <div className="flex flex-col gap-2">
                 <Link
-                  href={`/${locale}/dashboard`}
+                  href={`/dashboard`}
                   className="rounded-lg px-3 py-2 text-sm font-medium text-text-secondary hover:bg-neutral-100 hover:text-text-primary dark:hover:bg-neutral-800"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {t('title')}
                 </Link>
                 <Link
-                  href={`/${locale}/experiences`}
+                  href={`/experiences`}
                   className="rounded-lg px-3 py-2 text-sm font-medium text-text-secondary hover:bg-neutral-100 hover:text-text-primary dark:hover:bg-neutral-800"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {tCommon('experiences') || '经历管理'}
                 </Link>
                 <Link
-                  href={`/${locale}/settings`}
+                  href={`/settings`}
                   className="rounded-lg px-3 py-2 text-sm font-medium text-text-secondary hover:bg-neutral-100 hover:text-text-primary dark:hover:bg-neutral-800"
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -256,7 +256,7 @@ export default function DashboardPage() {
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="text-2xl font-bold text-text-primary">{t('title')}</h1>
-          <Link href={`/${locale}/resumes/new`}>
+          <Link href={`/resumes/new`}>
             <Button icon={<Plus className="h-4 w-4" />}>{t('createNew')}</Button>
           </Link>
         </div>
@@ -274,7 +274,7 @@ export default function DashboardPage() {
             description={t('emptyDescription')}
             action={{
               label: t('createFirst'),
-              onClick: () => router.push(`/${locale}/resumes/new`),
+              onClick: () => router.push(`/resumes/new`),
             }}
           />
         ) : (

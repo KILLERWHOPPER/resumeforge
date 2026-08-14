@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from '@/i18n/routing';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import {
   Plus,
   GraduationCap,
@@ -107,7 +107,7 @@ const skillCategories = [
 export default function ExperiencesPage() {
   const router = useRouter();
   const pathname = usePathname();
-  const locale = pathname.split('/')[1];
+  const locale = useLocale();
   const t = useTranslations('experiences');
   const tCommon = useTranslations('common');
   const toast = useToast();
@@ -572,26 +572,26 @@ export default function ExperiencesPage() {
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center gap-8">
               <a
-                href={`/${locale}/dashboard`}
+                href={`/dashboard`}
                 className="text-xl font-bold text-primary-600 dark:text-primary-400"
               >
                 ResumeForge
               </a>
               <div className="hidden md:flex md:items-center md:gap-6">
                 <a
-                  href={`/${locale}/dashboard`}
+                  href={`/dashboard`}
                   className="text-sm font-medium text-text-secondary hover:text-text-primary"
                 >
                   {tCommon('dashboard') || 'Dashboard'}
                 </a>
                 <a
-                  href={`/${locale}/experiences`}
+                  href={`/experiences`}
                   className="text-sm font-medium text-primary-600 dark:text-primary-400"
                 >
                   {t('title')}
                 </a>
                 <a
-                  href={`/${locale}/settings`}
+                  href={`/settings`}
                   className="text-sm font-medium text-text-secondary hover:text-text-primary"
                 >
                   {tCommon('settings')}
@@ -599,7 +599,7 @@ export default function ExperiencesPage() {
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <a href={`/${locale}/dashboard`} className="hidden sm:block">
+              <a href={`/dashboard`} className="hidden sm:block">
                 <Button variant="ghost" size="sm">
                   ← {tCommon('back') || '返回'}
                 </Button>

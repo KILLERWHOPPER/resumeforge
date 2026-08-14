@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { usePathname, useRouter } from '@/i18n/routing';
+import { useRouter } from '@/i18n/routing';
 import { ChevronLeft, FileText, RotateCcw, Sparkles } from 'lucide-react';
 import { AppHeader } from '@/components/layout/AppHeader';
 import { Button } from '@/components/ui/Button';
@@ -77,8 +77,6 @@ function renderNode(node: PMNode, key: number): React.ReactNode {
 
 export default function ResumeResultPage({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const pathname = usePathname();
-  const locale = pathname.split('/')[1];
   const t = useTranslations('resume');
   const tCommon = useTranslations('common');
   const toast = useToast();
@@ -136,12 +134,12 @@ export default function ResumeResultPage({ params }: { params: { id: string } })
 
   return (
     <div className="min-h-screen bg-background-primary">
-      <AppHeader activePrefix={`/${locale}/resumes`} />
+      <AppHeader activePrefix="/resumes" />
 
       <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-6 flex items-center gap-3">
           <Link
-            href={`/${locale}/dashboard`}
+            href={`/dashboard`}
             className="inline-flex items-center gap-1 text-sm text-text-secondary transition-colors hover:text-text-primary"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -184,7 +182,7 @@ export default function ResumeResultPage({ params }: { params: { id: string } })
             description={t('result.notGeneratedDesc')}
             action={{
               label: t('generation.title'),
-              onClick: () => router.push(`/${locale}/resumes/new`),
+              onClick: () => router.push(`/resumes/new`),
             }}
           />
         ) : (
@@ -209,7 +207,7 @@ export default function ResumeResultPage({ params }: { params: { id: string } })
                   </Button>
                   <Button
                     fullWidth
-                    onClick={() => router.push(`/${locale}/resumes/new`)}
+                    onClick={() => router.push(`/resumes/new`)}
                     icon={<Sparkles className="h-4 w-4" />}
                   >
                     {t('generation.title')}

@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
+import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -12,8 +12,7 @@ import { setTokens } from '@/lib/api';
 
 export default function LoginPage() {
   const router = useRouter();
-  const pathname = usePathname();
-  const locale = pathname.split('/')[1];
+  const locale = useLocale();
   const t = useTranslations('auth.login');
   const tCommon = useTranslations('common');
 

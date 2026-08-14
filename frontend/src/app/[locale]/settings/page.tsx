@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { usePathname, useRouter } from '@/i18n/routing';
 import {
   Plus,
@@ -51,7 +51,7 @@ const PROVIDER_BASE_URLS: Record<string, string> = {
 
 export default function SettingsPage() {
   const pathname = usePathname();
-  const locale = pathname.split('/')[1];
+  const locale = useLocale();
   const router = useRouter();
   const t = useTranslations('settings');
   const tCommon = useTranslations('common');
@@ -91,25 +91,19 @@ export default function SettingsPage() {
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center gap-8">
               <Link
-                href={`/${locale}/dashboard`}
+                href={`/dashboard`}
                 className="text-xl font-bold text-primary-600 dark:text-primary-400"
               >
                 ResumeForge
               </Link>
               <div className="hidden md:flex md:items-center md:gap-6">
-                <Link
-                  href={`/${locale}/dashboard`}
-                  className={navLinkClass(`/${locale}/dashboard`)}
-                >
+                <Link href={`/dashboard`} className={navLinkClass(`/dashboard`)}>
                   {tCommon('dashboard')}
                 </Link>
-                <Link
-                  href={`/${locale}/experiences`}
-                  className={navLinkClass(`/${locale}/experiences`)}
-                >
+                <Link href={`/experiences`} className={navLinkClass(`/experiences`)}>
                   {tCommon('experiences')}
                 </Link>
-                <Link href={`/${locale}/settings`} className={navLinkClass(`/${locale}/settings`)}>
+                <Link href={`/settings`} className={navLinkClass(`/settings`)}>
                   {tCommon('settings')}
                 </Link>
               </div>
@@ -138,7 +132,7 @@ export default function SettingsPage() {
                       <p className="truncate text-xs text-text-tertiary">user@example.com</p>
                     </div>
                     <Link
-                      href={`/${locale}/settings?tab=profile`}
+                      href={`/settings?tab=profile`}
                       className="flex items-center gap-3 px-4 py-2 text-sm text-text-secondary hover:bg-neutral-100 hover:text-text-primary dark:hover:bg-neutral-800"
                       onClick={() => setUserMenuOpen(false)}
                     >
@@ -146,7 +140,7 @@ export default function SettingsPage() {
                       {tCommon('profile')}
                     </Link>
                     <Link
-                      href={`/${locale}/settings?tab=llm`}
+                      href={`/settings?tab=llm`}
                       className="flex items-center gap-3 px-4 py-2 text-sm text-text-secondary hover:bg-neutral-100 hover:text-text-primary dark:hover:bg-neutral-800"
                       onClick={() => setUserMenuOpen(false)}
                     >
@@ -184,21 +178,21 @@ export default function SettingsPage() {
             >
               <div className="flex flex-col gap-2">
                 <Link
-                  href={`/${locale}/dashboard`}
+                  href={`/dashboard`}
                   className="rounded-lg px-3 py-2 text-sm font-medium text-text-secondary hover:bg-neutral-100 hover:text-text-primary dark:hover:bg-neutral-800"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {tCommon('dashboard')}
                 </Link>
                 <Link
-                  href={`/${locale}/experiences`}
+                  href={`/experiences`}
                   className="rounded-lg px-3 py-2 text-sm font-medium text-text-secondary hover:bg-neutral-100 hover:text-text-primary dark:hover:bg-neutral-800"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {tCommon('experiences')}
                 </Link>
                 <Link
-                  href={`/${locale}/settings`}
+                  href={`/settings`}
                   className="rounded-lg px-3 py-2 text-sm font-medium text-text-secondary hover:bg-neutral-100 hover:text-text-primary dark:hover:bg-neutral-800"
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -638,10 +632,10 @@ function AppearanceTab() {
   const tCommon = useTranslations('common');
   const pathname = usePathname();
   const router = useRouter();
-  const locale = pathname.split('/')[1];
+  const locale = useLocale();
 
   const switchLocale = (nextLocale: string) => {
-    router.push(pathname.replace(`/${locale}`, `/${nextLocale}`));
+    router.replace(pathname, { locale: nextLocale });
   };
 
   return (
