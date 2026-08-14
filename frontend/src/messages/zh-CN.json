@@ -291,8 +291,12 @@
       "created": "{type}创建成功",
       "updated": "{type}更新成功",
       "deleted": "{type}删除成功",
+      "imported": "已识别并添加 {count} 条经历",
       "error": "操作失败，请重试"
-    }
+    },
+    "importResume": "导入简历",
+    "importing": "正在识别...",
+    "importHint": "支持 PDF / DOCX / TXT，AI 自动识别并添加到对应分类"
   },
   "resume": {
     "jdInput": {

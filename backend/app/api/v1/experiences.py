@@ -3,14 +3,16 @@
 from collections.abc import Sequence
 from typing import Any
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, File, Form, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.dependencies import get_current_user_id, get_db
+from app.core.exceptions import BadRequest
 from app.models.experience import Experience
 from app.schemas.experience import (
     CertificateCreate,
     EducationCreate,
+    ExperienceImportResponse,
     ExperienceReorder,
     ExperienceResponse,
     ExperienceUpdate,
@@ -19,6 +21,7 @@ from app.schemas.experience import (
     WorkCreate,
 )
 from app.services.experience_service import ExperienceService
+from app.services.resume_import_service import ResumeImportService
 
 router = APIRouter()
 
@@ -53,6 +56,27 @@ async def create_experience(
     """创建新经历"""
     service = ExperienceService(db)
     return await service.create_experience(user_id, data)
+
+
+@router.post("/import", response_model=ExperienceImportResponse, status_code=201)
+async def import_resume(
+    file: UploadFile = File(...),
+    language: str | None = Form(default=None),
+    db: AsyncSession = Depends(get_db),
+    user_id: int = Depends(get_current_user_id),
+) -> ExperienceImportResponse:
+    """上传简历并自动识别添加经历（支持 PDF / DOCX / TXT）"""
+    content = await file.read()
+    if not content:
+        raise BadRequest("文件内容为空")
+
+    service = ResumeImportService(db)
+    return await service.import_resume(
+        user_id=user_id,
+        filename=file.filename or "resume.txt",
+        content=content,
+        language=language,
+    )
 
 
 @router.put("/reorder", status_code=200)

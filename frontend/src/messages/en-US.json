@@ -291,8 +291,12 @@
       "created": "{type} created successfully",
       "updated": "{type} updated successfully",
       "deleted": "{type} deleted successfully",
+      "imported": "{count} experiences imported",
       "error": "Operation failed, please try again"
-    }
+    },
+    "importResume": "Import Resume",
+    "importing": "Parsing...",
+    "importHint": "Supports PDF / DOCX / TXT. AI auto-extracts and adds to matching categories"
   },
   "resume": {
     "jdInput": {

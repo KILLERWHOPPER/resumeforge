@@ -6,6 +6,7 @@ import pytest
 from httpx import AsyncClient
 
 from app.services.llm_client import LLMClient
+from app.services.resume_import_service import ResumeImportService
 
 from .conftest import FakeLLM
 
@@ -429,3 +430,49 @@ async def test_llm_configs_test_endpoint(client: AsyncClient, monkeypatch):
         },
     )
     assert resp.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_experiences_import_resume(client: AsyncClient, monkeypatch):
+    """上传简历自动识别并添加经历"""
+    extraction_json = (
+        '{"education": [{"school": "清华大学", "degree": "本科"}], '
+        '"work": [{"company": "字节跳动", "position": "后端工程师", "description": "核心服务开发"}], '
+        '"project": [], "skill": [{"name": "Python", "category": "语言", "proficiency": "expert"}], '
+        '"certificate": []}'
+    )
+
+    async def _get_client(self, user_id):
+        return FakeLLM(chat_result=extraction_json)
+
+    monkeypatch.setattr(ResumeImportService, "_get_client", _get_client)
+
+    headers = await register_and_login(client)
+    resume_txt = (
+        "软件工程师\n教育经历：清华大学，计算机，2020 - 2024\n"
+        "工作经历：字节跳动，后端工程师，负责核心服务开发\n"
+        "技能：Python\n"
+    )
+    files = {"file": ("resume.txt", resume_txt.encode("utf-8"), "text/plain")}
+    resp = await client.post("/api/v1/experiences/import", headers=headers, files=files)
+    assert resp.status_code == 201
+
+    data = resp.json()
+    assert data["added_count"] == 3
+    assert data["by_type"]["education"] == 1
+    assert data["by_type"]["skill"] == 1
+    assert data["experiences"]["work"][0]["company"] == "字节跳动"
+
+    resp = await client.get("/api/v1/experiences/", headers=headers)
+    assert resp.status_code == 200
+    assert len(resp.json()) == 3
+
+
+@pytest.mark.asyncio
+async def test_experiences_import_resume_bad_file(client: AsyncClient):
+    """不支持的文件类型返回 400"""
+    headers = await register_and_login(client)
+    files = {"file": ("resume.exe", b"content", "application/octet-stream")}
+    resp = await client.post("/api/v1/experiences/import", headers=headers, files=files)
+    assert resp.status_code == 400
+    assert "仅支持" in resp.json()["detail"]

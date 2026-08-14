@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, usePathname } from '@/i18n/routing';
 import { useLocale, useTranslations } from 'next-intl';
 import {
@@ -14,6 +14,7 @@ import {
   Trash2,
   ChevronDown,
   ChevronUp,
+  Upload,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -132,6 +133,8 @@ export default function ExperiencesPage() {
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [formData, setFormData] = useState<Partial<Experience>>({});
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [importing, setImporting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch experiences for a type
   const fetchExperiences = async (type: ExperienceType) => {
@@ -211,6 +214,31 @@ export default function ExperiencesPage() {
     setFormData({ type: activeTab });
     setFormErrors({});
     setModalOpen(true);
+  };
+
+  const handleImportFile = async (file: File | null) => {
+    if (!file || importing) return;
+    setImporting(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const { data } = await api.post('/experiences/import', formData);
+      const count = data.added_count as number;
+      if (count > 0) {
+        toast.success(tCommon('success'), t('toast.imported', { count }));
+      }
+      // 刷新全部类型的经历列表
+      await Promise.all(
+        (['education', 'work', 'project', 'skill', 'certificate'] as ExperienceType[]).map(
+          fetchExperiences
+        )
+      );
+    } catch (error: any) {
+      toast.error(tCommon('error'), error.response?.data?.detail || tCommon('networkError'));
+    } finally {
+      setImporting(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
   };
 
   const renderFormFields = () => {
@@ -604,6 +632,23 @@ export default function ExperiencesPage() {
                   ← {tCommon('back') || '返回'}
                 </Button>
               </a>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".pdf,.docx,.txt,.md,.text"
+                className="hidden"
+                onChange={(e) => handleImportFile(e.target.files?.[0] ?? null)}
+                aria-label={t('importResume')}
+              />
+              <Button
+                variant="outline"
+                onClick={() => fileInputRef.current?.click()}
+                loading={importing}
+                title={t('importHint')}
+              >
+                <Upload className="mr-1 h-4 w-4" />
+                {importing ? t('importing') : t('importResume')}
+              </Button>
               <Button variant="primary" onClick={openCreateModal}>
                 <Plus className="mr-1 h-4 w-4" /> {tCommon('add')} {typeConfig[activeTab].label}
               </Button>

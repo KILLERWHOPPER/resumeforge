@@ -78,6 +78,41 @@ def build_resume_generation_prompt(
     ]
 
 
+def build_resume_parse_prompt(
+    resume_text: str,
+    language: str | None = None,
+) -> list[dict[str, str]]:
+    """简历解析 Prompt：从简历原文提取结构化经历"""
+    if language:
+        lang_instruction = f"- 所有字段内容使用「{language}」撰写（若原文是其他语言则翻译）。"
+    else:
+        lang_instruction = "- 所有字段内容保留简历原文的语言，只做规范化整理，不要翻译。"
+    system = (
+        "你是一名专业的简历解析助手。请从简历文本中提取完整的个人经历，"
+        "并严格只输出一个 JSON 对象，不要输出任何其他文字、解释或 Markdown 代码块。\n"
+        "输出结构如下：\n"
+        "{\n"
+        '  "education": [{"school": "学校", "degree": "学位", "field_of_study": "专业", "gpa": "GPA", "start_date": "YYYY-MM", "end_date": "YYYY-MM 或 present", "description": "描述"}],\n'
+        '  "work": [{"company": "公司", "position": "职位", "start_date": "YYYY-MM", "end_date": "YYYY-MM 或 present", "description": "职责与成就"}],\n'
+        '  "project": [{"name": "项目名", "role": "角色", "tech_tags": ["技术栈"], "url": "链接", "start_date": "YYYY-MM", "end_date": "YYYY-MM 或 present", "description": "描述"}],\n'
+        '  "skill": [{"name": "技能名", "category": "分类（如 语言/框架/工具）", "proficiency": "beginner 或 intermediate 或 expert"}],\n'
+        '  "certificate": [{"name": "证书名", "issuer": "颁发机构", "credential_url": "证书链接", "description": "描述"}]\n'
+        "}\n"
+        "要求：\n"
+        "- 只从简历原文提取真实信息，不要编造学校、公司、职位、证书或数据。\n"
+        "- 无法识别的字段省略即可，不要填 null 或空字符串。\n"
+        '- start_date / end_date 统一格式化为 YYYY-MM；仍在职/在读用 "present"。\n'
+        "- tech_tags 为项目使用的技术栈列表；无则省略。\n"
+        "- 简历中未出现的类型用空数组表示。\n"
+        f"{lang_instruction}"
+    )
+    user = f"简历文本：\n{resume_text}"
+    return [
+        {"role": "system", "content": system},
+        {"role": "user", "content": user},
+    ]
+
+
 def serialize_experiences(aggregate: dict[str, Any]) -> dict[str, Any]:
     """将经历聚合结果序列化为用于 Prompt 的紧凑结构"""
     serialized: dict[str, list[dict[str, Any]]] = {

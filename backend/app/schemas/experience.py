@@ -7,6 +7,14 @@ class ExperienceReorder(BaseModel):
     order: list[int] = Field(min_length=1)
 
 
+class ExperienceImportResponse(BaseModel):
+    """简历导入结果：各类型新增数量与新增后的经历列表"""
+
+    added_count: int
+    by_type: dict[str, int]
+    experiences: dict[str, list["ExperienceResponse"]]
+
+
 class ExperienceBase(BaseModel):
     type: str = Field(pattern="^(education|work|project|skill|certificate)$")
     sort_order: int = 0
