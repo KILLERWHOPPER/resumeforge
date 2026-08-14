@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { Mail, Lock, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import api from '@/lib/api';
+import api, { getApiErrorMessage } from '@/lib/api';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -42,8 +42,8 @@ export default function RegisterPage() {
         confirm_password: confirmPassword,
       });
       router.push(`/${locale}/auth/login`);
-    } catch (err: any) {
-      setError(err.response?.data?.detail || t('errors.serverError'));
+    } catch (err) {
+      setError(getApiErrorMessage(err, t('errors.serverError')));
     } finally {
       setLoading(false);
     }

@@ -7,8 +7,7 @@ import Link from 'next/link';
 import { Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import api from '@/lib/api';
-import { setTokens } from '@/lib/api';
+import api, { setTokens, getApiErrorMessage } from '@/lib/api';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -32,8 +31,8 @@ export default function LoginPage() {
       setTokens(data.access_token, data.refresh_token);
       router.push(`/${locale}/dashboard`);
       router.refresh();
-    } catch (err: any) {
-      const msg = err.response?.data?.detail || tCommon('networkError');
+    } catch (err) {
+      const msg = getApiErrorMessage(err, tCommon('networkError'));
       setError(typeof msg === 'string' ? msg : t('errors.serverError'));
     } finally {
       setLoading(false);

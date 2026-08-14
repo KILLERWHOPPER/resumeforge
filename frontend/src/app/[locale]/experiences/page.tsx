@@ -24,7 +24,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { ToastProvider, useToast } from '@/components/ui/Toast';
-import api from '@/lib/api';
+import api, { getApiErrorMessage } from '@/lib/api';
 
 type ExperienceType = 'education' | 'work' | 'project' | 'skill' | 'certificate';
 
@@ -185,8 +185,8 @@ export default function ExperiencesPage() {
       toast.success(tCommon('success'), t(`toast.${editingExperience ? 'updated' : 'created'}`));
       setModalOpen(false);
       fetchExperiences(activeTab);
-    } catch (error: any) {
-      toast.error(tCommon('error'), error.response?.data?.detail || tCommon('networkError'));
+    } catch (error) {
+      toast.error(tCommon('error'), getApiErrorMessage(error, tCommon('networkError')));
     }
   };
 
@@ -222,7 +222,9 @@ export default function ExperiencesPage() {
     try {
       const formData = new FormData();
       formData.append('file', file);
-      const { data } = await api.post('/experiences/import', formData);
+      const { data } = await api.post('/experiences/import', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
       const count = data.added_count as number;
       if (count > 0) {
         toast.success(tCommon('success'), t('toast.imported', { count }));
@@ -233,8 +235,8 @@ export default function ExperiencesPage() {
           fetchExperiences
         )
       );
-    } catch (error: any) {
-      toast.error(tCommon('error'), error.response?.data?.detail || tCommon('networkError'));
+    } catch (error) {
+      toast.error(tCommon('error'), getApiErrorMessage(error, tCommon('networkError')));
     } finally {
       setImporting(false);
       if (fileInputRef.current) fileInputRef.current.value = '';

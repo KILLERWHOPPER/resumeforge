@@ -207,3 +207,26 @@ export async function streamSSE(
 }
 
 export default api;
+
+// 从 axios 错误中安全提取可展示的字符串消息
+// （FastAPI 422 校验错误的 detail 是数组/对象，直接渲染会导致 React 报错）
+export function getApiErrorMessage(error: unknown, fallback = '请求失败，请稍后重试'): string {
+  const data = (error as AxiosError)?.response?.data as { detail?: unknown } | undefined;
+  const detail = data?.detail;
+  if (typeof detail === 'string' && detail) return detail;
+  if (Array.isArray(detail)) {
+    const msgs = detail
+      .map((item) =>
+        item && typeof item === 'object' && 'msg' in item
+          ? String((item as { msg: unknown }).msg)
+          : ''
+      )
+      .filter(Boolean);
+    if (msgs.length) return msgs.join('；');
+  }
+  if (detail && typeof detail === 'object') {
+    const message = (detail as { message?: unknown }).message;
+    if (typeof message === 'string' && message) return message;
+  }
+  return fallback;
+}
