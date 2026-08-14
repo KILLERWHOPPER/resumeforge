@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { X } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Modal } from "./Modal";
+import * as React from 'react';
+import { X } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Modal } from './Modal';
 
 interface ToastProps {
   title: string;
   description?: string;
-  variant?: "default" | "success" | "error" | "warning" | "info";
+  variant?: 'default' | 'success' | 'error' | 'warning' | 'info';
   action?: {
     label: string;
     onClick: () => void;
@@ -18,19 +18,19 @@ interface ToastProps {
 }
 
 const toastVariants = {
-  default: "bg-toast-info:bg border-toast-info:border text-toast-info:text",
-  success: "bg-toast-success:bg border-toast-success:border text-toast-success:text",
-  error: "bg-toast-error:bg border-toast-error:border text-toast-error:text",
-  warning: "bg-toast-warning:bg border-toast-warning:border text-toast-warning:text",
-  info: "bg-toast-info:bg border-toast-info:border text-toast-info:text",
+  default: 'bg-toast-info:bg border-toast-info:border text-toast-info:text',
+  success: 'bg-toast-success:bg border-toast-success:border text-toast-success:text',
+  error: 'bg-toast-error:bg border-toast-error:border text-toast-error:text',
+  warning: 'bg-toast-warning:bg border-toast-warning:border text-toast-warning:text',
+  info: 'bg-toast-info:bg border-toast-info:border text-toast-info:text',
 };
 
 const iconVariants = {
-  default: "text-toast-info:icon",
-  success: "text-toast-success:icon",
-  error: "text-toast-error:icon",
-  warning: "text-toast-warning:icon",
-  info: "text-toast-info:icon",
+  default: 'text-toast-info:icon',
+  success: 'text-toast-success:icon',
+  error: 'text-toast-error:icon',
+  warning: 'text-toast-warning:icon',
+  info: 'text-toast-info:icon',
 };
 
 const icons = {
@@ -73,7 +73,7 @@ const icons = {
 export function Toast({
   title,
   description,
-  variant = "default",
+  variant = 'default',
   action,
   duration = 5000,
   onClose,
@@ -99,21 +99,19 @@ export function Toast({
   return (
     <div
       className={cn(
-        "toast-base flex items-start gap-3 min-w-[280px] max-w-[480px] rounded-lg border p-4 shadow-lg",
+        'toast-base flex min-w-[280px] max-w-[480px] items-start gap-3 rounded-lg border p-4 shadow-lg',
         toastVariants[variant],
-        isExiting && "animate-scale-out"
+        isExiting && 'animate-scale-out'
       )}
       role="alert"
       aria-live="polite"
     >
-      <div className={cn("flex-shrink-0 mt-0.5", iconVariants[variant])} aria-hidden="true">
+      <div className={cn('mt-0.5 flex-shrink-0', iconVariants[variant])} aria-hidden="true">
         {icons[variant]}
       </div>
-      <div className="flex-1 min-w-0">
+      <div className="min-w-0 flex-1">
         <p className="text-sm font-medium">{title}</p>
-        {description && (
-          <p className="mt-1 text-sm opacity-90">{description}</p>
-        )}
+        {description && <p className="mt-1 text-sm opacity-90">{description}</p>}
       </div>
       <div className="flex flex-col items-end gap-2">
         {action && (
@@ -132,7 +130,7 @@ export function Toast({
               onClose?.();
             }, 200);
           }}
-          className="flex-shrink-0 p-1 rounded hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+          className="flex-shrink-0 rounded p-1 transition-colors hover:bg-black/10 dark:hover:bg-white/10"
           aria-label="关闭"
         >
           <X className="h-4 w-4 opacity-50 hover:opacity-100" />
@@ -146,27 +144,24 @@ export function Toast({
 interface ToastContainerProps {
   toasts: ToastProps[];
   onRemove: (index: number) => void;
-  position?: "top-right" | "top-left" | "bottom-right" | "bottom-left" | "top-center" | "bottom-center";
+  position?:
+    'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' | 'top-center' | 'bottom-center';
 }
 
 const positionStyles = {
-  "top-right": "top-4 right-4",
-  "top-left": "top-4 left-4",
-  "bottom-right": "bottom-4 right-4",
-  "bottom-left": "bottom-4 left-4",
-  "top-center": "top-4 left-1/2 -translate-x-1/2",
-  "bottom-center": "bottom-4 left-1/2 -translate-x-1/2",
+  'top-right': 'top-4 right-4',
+  'top-left': 'top-4 left-4',
+  'bottom-right': 'bottom-4 right-4',
+  'bottom-left': 'bottom-4 left-4',
+  'top-center': 'top-4 left-1/2 -translate-x-1/2',
+  'bottom-center': 'bottom-4 left-1/2 -translate-x-1/2',
 };
 
-export function ToastContainer({
-  toasts,
-  onRemove,
-  position = "top-right",
-}: ToastContainerProps) {
+export function ToastContainer({ toasts, onRemove, position = 'top-right' }: ToastContainerProps) {
   return (
     <div
       className={cn(
-        "fixed z-[1700] flex flex-col gap-2 pointer-events-none",
+        'pointer-events-none fixed z-[1700] flex flex-col gap-2',
         positionStyles[position]
       )}
       aria-live="polite"
@@ -210,24 +205,38 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     setToasts([]);
   }, []);
 
-  const success = React.useCallback((title: string, description?: string, options?: Partial<ToastProps>) => {
-    addToast({ title, description, variant: "success", ...options });
-  }, []);
+  const success = React.useCallback(
+    (title: string, description?: string, options?: Partial<ToastProps>) => {
+      addToast({ title, description, variant: 'success', ...options });
+    },
+    []
+  );
 
-  const error = React.useCallback((title: string, description?: string, options?: Partial<ToastProps>) => {
-    addToast({ title, description, variant: "error", ...options });
-  }, []);
+  const error = React.useCallback(
+    (title: string, description?: string, options?: Partial<ToastProps>) => {
+      addToast({ title, description, variant: 'error', ...options });
+    },
+    []
+  );
 
-  const warning = React.useCallback((title: string, description?: string, options?: Partial<ToastProps>) => {
-    addToast({ title, description, variant: "warning", ...options });
-  }, []);
+  const warning = React.useCallback(
+    (title: string, description?: string, options?: Partial<ToastProps>) => {
+      addToast({ title, description, variant: 'warning', ...options });
+    },
+    []
+  );
 
-  const info = React.useCallback((title: string, description?: string, options?: Partial<ToastProps>) => {
-    addToast({ title, description, variant: "info", ...options });
-  }, []);
+  const info = React.useCallback(
+    (title: string, description?: string, options?: Partial<ToastProps>) => {
+      addToast({ title, description, variant: 'info', ...options });
+    },
+    []
+  );
 
   return (
-    <ToastContext.Provider value={{ toasts, addToast, removeToast, clearToasts, success, error, warning, info }}>
+    <ToastContext.Provider
+      value={{ toasts, addToast, removeToast, clearToasts, success, error, warning, info }}
+    >
       {children}
       <ToastContainer toasts={toasts} onRemove={removeToast} />
     </ToastContext.Provider>
@@ -237,7 +246,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 export function useToast() {
   const context = React.useContext(ToastContext);
   if (!context) {
-    throw new Error("useToast must be used within a ToastProvider");
+    throw new Error('useToast must be used within a ToastProvider');
   }
   return context;
 }
@@ -245,13 +254,13 @@ export function useToast() {
 // Convenience functions
 export const toast = {
   success: (title: string, description?: string, options?: Partial<ToastProps>) =>
-    ({ title, description, variant: "success", ...options } as ToastProps),
+    ({ title, description, variant: 'success', ...options }) as ToastProps,
   error: (title: string, description?: string, options?: Partial<ToastProps>) =>
-    ({ title, description, variant: "error", ...options } as ToastProps),
+    ({ title, description, variant: 'error', ...options }) as ToastProps,
   warning: (title: string, description?: string, options?: Partial<ToastProps>) =>
-    ({ title, description, variant: "warning", ...options } as ToastProps),
+    ({ title, description, variant: 'warning', ...options }) as ToastProps,
   info: (title: string, description?: string, options?: Partial<ToastProps>) =>
-    ({ title, description, variant: "info", ...options } as ToastProps),
+    ({ title, description, variant: 'info', ...options }) as ToastProps,
   default: (title: string, description?: string, options?: Partial<ToastProps>) =>
-    ({ title, description, variant: "default", ...options } as ToastProps),
+    ({ title, description, variant: 'default', ...options }) as ToastProps,
 };

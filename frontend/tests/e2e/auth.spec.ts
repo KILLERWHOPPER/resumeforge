@@ -104,7 +104,10 @@ test.describe('Language Switching', () => {
 
   test('should have correct translations for auth pages', async ({ page }) => {
     await page.goto('/en-US/auth/login');
-    await expect(page.locator('input[type="email"]')).toHaveAttribute('placeholder', 'Enter your email address');
+    await expect(page.locator('input[type="email"]')).toHaveAttribute(
+      'placeholder',
+      'Enter your email address'
+    );
     await expect(page.locator('button[type="submit"]')).toContainText('Login');
 
     await page.goto('/en-US/auth/register');

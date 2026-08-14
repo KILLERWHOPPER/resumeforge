@@ -2,22 +2,22 @@
  * ResumeForge API 客户端
  * 基于 axios，带 Token 自动刷新和同源代理支持
  */
-import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
+import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
 // 同源代理：通过 Next.js API route 代理到后端，所有流量走 3000 端口
-const API_BASE = "";
+const API_BASE = '';
 
 // Token 持久化：刷新/后退后仍保持登录态
-const ACCESS_TOKEN_KEY = "rf_access_token";
-const REFRESH_TOKEN_KEY = "rf_refresh_token";
+const ACCESS_TOKEN_KEY = 'rf_access_token';
+const REFRESH_TOKEN_KEY = 'rf_refresh_token';
 
 function readStoredToken(key: string): string | null {
-  if (typeof window === "undefined") return null;
+  if (typeof window === 'undefined') return null;
   return window.localStorage.getItem(key);
 }
 
 function storeToken(key: string, value: string | null) {
-  if (typeof window === "undefined") return;
+  if (typeof window === 'undefined') return;
   if (value === null) window.localStorage.removeItem(key);
   else window.localStorage.setItem(key, value);
 }
@@ -32,9 +32,7 @@ let failedQueue: Array<{
   reject: (error: unknown) => void;
 }> = [];
 
-export function setGlobalErrorHandler(
-  handler: ((error: AxiosError) => void) | null
-) {
+export function setGlobalErrorHandler(handler: ((error: AxiosError) => void) | null) {
   globalErrorHandler = handler;
 }
 
@@ -48,7 +46,7 @@ function processQueue(error: unknown, token: string | null) {
 
 const api = axios.create({
   baseURL: `${API_BASE}/api/v1`,
-  headers: { "Content-Type": "application/json" },
+  headers: { 'Content-Type': 'application/json' },
 });
 
 // 请求拦截：自动附加 access token
@@ -68,14 +66,10 @@ api.interceptors.response.use(
     };
 
     const isAuthEndpoint =
-      originalRequest.url?.includes("/auth/login") ||
-      originalRequest.url?.includes("/auth/register");
+      originalRequest.url?.includes('/auth/login') ||
+      originalRequest.url?.includes('/auth/register');
 
-    if (
-      error.response?.status === 401 &&
-      !originalRequest._retry &&
-      !isAuthEndpoint
-    ) {
+    if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -123,12 +117,12 @@ api.interceptors.response.use(
 
 // 从 URL 获取当前 locale
 function getLocale(): string {
-  if (typeof window !== "undefined") {
+  if (typeof window !== 'undefined') {
     const path = window.location.pathname;
     const match = path.match(/^\/(zh-CN|en-US)/);
-    return match ? match[1] : "zh-CN";
+    return match ? match[1] : 'zh-CN';
   }
-  return "zh-CN";
+  return 'zh-CN';
 }
 
 // Token 管理
@@ -152,10 +146,7 @@ export function getAccessToken(): string | null {
 
 // ---- SSE 流式请求（简历生成进度） ----
 
-export type SSEHandler = (
-  event: string,
-  data: Record<string, unknown>
-) => void;
+export type SSEHandler = (event: string, data: Record<string, unknown>) => void;
 
 export async function streamSSE(
   url: string,
@@ -167,22 +158,22 @@ export async function streamSSE(
   const token = getAccessToken();
   try {
     const res = await fetch(url, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        Authorization: `Bearer ${token ?? ""}`,
-        "Content-Type": "application/json",
+        Authorization: `Bearer ${token ?? ''}`,
+        'Content-Type': 'application/json',
       },
-      body: "{}",
+      body: '{}',
     });
 
     if (!res.ok || !res.body) {
-      const text = await res.text().catch(() => "");
+      const text = await res.text().catch(() => '');
       throw new Error(`SSE 请求失败: ${res.status} ${text}`);
     }
 
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
-    let buffer = "";
+    let buffer = '';
 
     while (true) {
       const { done, value } = await reader.read();
@@ -190,15 +181,15 @@ export async function streamSSE(
       buffer += decoder.decode(value, { stream: true });
 
       let idx: number;
-      while ((idx = buffer.indexOf("\n\n")) >= 0) {
+      while ((idx = buffer.indexOf('\n\n')) >= 0) {
         const raw = buffer.slice(0, idx);
         buffer = buffer.slice(idx + 2);
 
-        let event = "message";
-        let data = "";
-        for (const line of raw.split("\n")) {
-          if (line.startsWith("event:")) event = line.slice(6).trim();
-          else if (line.startsWith("data:")) data = line.slice(5).trim();
+        let event = 'message';
+        let data = '';
+        for (const line of raw.split('\n')) {
+          if (line.startsWith('event:')) event = line.slice(6).trim();
+          else if (line.startsWith('data:')) data = line.slice(5).trim();
         }
         if (data) {
           try {

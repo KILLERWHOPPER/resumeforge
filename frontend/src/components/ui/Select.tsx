@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { ChevronDown, Check, X, Search } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Button } from "./Button";
+import * as React from 'react';
+import { ChevronDown, Check, X, Search } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Button } from './Button';
 
 interface SelectOption {
   value: string;
@@ -46,7 +46,7 @@ export function Select({
   onChange,
 }: SelectProps) {
   const [isOpen, setIsOpen] = React.useState(false);
-  const [searchQuery, setSearchQuery] = React.useState("");
+  const [searchQuery, setSearchQuery] = React.useState('');
   const selectRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLButtonElement>(null);
 
@@ -68,41 +68,38 @@ export function Select({
     [options, value]
   );
 
-  const handleClickOutside = React.useCallback(
-    (event: MouseEvent) => {
-      if (selectRef.current && !selectRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    },
-    []
-  );
+  const handleClickOutside = React.useCallback((event: MouseEvent) => {
+    if (selectRef.current && !selectRef.current.contains(event.target as Node)) {
+      setIsOpen(false);
+    }
+  }, []);
 
   React.useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [handleClickOutside]);
 
   const handleKeyDown = (event: React.KeyboardEvent) => {
     switch (event.key) {
-      case "Escape":
+      case 'Escape':
         setIsOpen(false);
         inputRef.current?.blur();
         break;
-      case "ArrowDown":
+      case 'ArrowDown':
         event.preventDefault();
         if (!isOpen) setIsOpen(true);
         break;
-      case "ArrowUp":
+      case 'ArrowUp':
         event.preventDefault();
         break;
-      case "Enter":
-      case " ":
+      case 'Enter':
+      case ' ':
         if (!isOpen) {
           event.preventDefault();
           setIsOpen(true);
         }
         break;
-      case "Tab":
+      case 'Tab':
         setIsOpen(false);
         break;
     }
@@ -116,22 +113,21 @@ export function Select({
 
   const handleClear = (event: React.MouseEvent) => {
     event.stopPropagation();
-    onChange("");
-    setSearchQuery("");
+    onChange('');
+    setSearchQuery('');
   };
 
-  const describedBy = [error && errorId, hint && hintId].filter(Boolean).join(" ") || undefined;
+  const describedBy = [error && errorId, hint && hintId].filter(Boolean).join(' ') || undefined;
 
   return (
     <div className="w-full" ref={selectRef}>
       {label && (
-        <label
-          htmlFor={selectId}
-          className="block text-sm font-medium text-text-label mb-1.5"
-        >
+        <label htmlFor={selectId} className="text-text-label mb-1.5 block text-sm font-medium">
           {label}
           {required && (
-            <span className="text-error-500 ml-1" aria-hidden="true">*</span>
+            <span className="ml-1 text-error-500" aria-hidden="true">
+              *
+            </span>
           )}
         </label>
       )}
@@ -147,28 +143,30 @@ export function Select({
           disabled={disabled}
           onClick={() => !disabled && setIsOpen(!isOpen)}
           className={cn(
-            "w-full flex items-center justify-between px-4 py-2.5 rounded-lg border bg-input-bg text-text-primary",
-            "transition-all duration-150",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
-            "disabled:opacity-50 disabled:cursor-not-allowed",
-            searchable && "pr-12",
+            'flex w-full items-center justify-between rounded-lg border bg-input-bg px-4 py-2.5 text-text-primary',
+            'transition-all duration-150',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+            'disabled:cursor-not-allowed disabled:opacity-50',
+            searchable && 'pr-12',
             error
-              ? "border-input-border-error focus-visible:ring-error-500 focus-visible:ring-offset-white dark:focus-visible:ring-offset-neutral-950"
-              : "border-input-border hover:border-input-border-hover focus-visible:ring-primary-500 focus-visible:ring-offset-white dark:focus-visible:ring-offset-neutral-950",
+              ? 'border-input-border-error focus-visible:ring-error-500 focus-visible:ring-offset-white dark:focus-visible:ring-offset-neutral-950'
+              : 'hover:border-input-border-hover border-input-border focus-visible:ring-primary-500 focus-visible:ring-offset-white dark:focus-visible:ring-offset-neutral-950',
             className
           )}
         >
-          <span className={cn("flex-1 text-left truncate", !selectedOption && "text-text-tertiary")}>
+          <span
+            className={cn('flex-1 truncate text-left', !selectedOption && 'text-text-tertiary')}
+          >
             {selectedOption?.label || placeholder}
           </span>
           {searchable && isOpen && (
-            <Search className="absolute right-10 top-1/2 -translate-y-1/2 h-4 w-4 text-text-tertiary" />
+            <Search className="absolute right-10 top-1/2 h-4 w-4 -translate-y-1/2 text-text-tertiary" />
           )}
           {allowClear && selectedOption && !disabled && (
             <button
               type="button"
               onClick={handleClear}
-              className="ml-2 p-1 rounded hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
+              className="ml-2 rounded p-1 transition-colors hover:bg-neutral-200 dark:hover:bg-neutral-700"
               aria-label="Clear selection"
             >
               <X className="h-4 w-4 text-text-tertiary" />
@@ -176,8 +174,8 @@ export function Select({
           )}
           <ChevronDown
             className={cn(
-              "h-4 w-4 text-text-tertiary transition-transform duration-150 flex-shrink-0",
-              isOpen && "rotate-180"
+              'h-4 w-4 flex-shrink-0 text-text-tertiary transition-transform duration-150',
+              isOpen && 'rotate-180'
             )}
             aria-hidden="true"
           />
@@ -186,22 +184,22 @@ export function Select({
         {isOpen && (
           <div
             className={cn(
-              "absolute z-[1500] w-full mt-1.5 max-h-60 overflow-auto rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-neutral-900 shadow-lg animate-scale-in",
-              { "max-h-[200px]": maxHeight }
+              'absolute z-[1500] mt-1.5 max-h-60 w-full animate-scale-in overflow-auto rounded-lg border border-border-light bg-white shadow-lg dark:border-border-dark dark:bg-neutral-900',
+              { 'max-h-[200px]': maxHeight }
             )}
             style={{ maxHeight: maxHeight }}
             role="listbox"
-            aria-label={label || "选择选项"}
+            aria-label={label || '选择选项'}
           >
             {searchable && (
-              <div className="p-2 border-b border-border-light dark:border-border-dark sticky top-0 bg-white dark:bg-neutral-900 z-10">
+              <div className="sticky top-0 z-10 border-b border-border-light bg-white p-2 dark:border-border-dark dark:bg-neutral-900">
                 <input
                   type="text"
                   placeholder="搜索..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onClick={(e) => e.stopPropagation()}
-                  className="w-full px-3 py-1.5 text-sm border border-input-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+                  className="w-full rounded-lg border border-input-border px-3 py-1.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                   autoFocus
                 />
               </div>
@@ -209,7 +207,7 @@ export function Select({
             <ul className="py-1" role="listbox">
               {filteredOptions.length === 0 ? (
                 <li className="px-4 py-3 text-center text-sm text-text-tertiary">
-                  {searchable ? "无匹配选项" : "暂无选项"}
+                  {searchable ? '无匹配选项' : '暂无选项'}
                 </li>
               ) : (
                 filteredOptions.map((option) => (
@@ -219,20 +217,22 @@ export function Select({
                     aria-selected={option.value === value}
                     aria-disabled={option.disabled}
                     className={cn(
-                      "px-4 py-2 text-sm cursor-pointer transition-colors flex items-center gap-2",
-                      "hover:bg-neutral-100 dark:hover:bg-neutral-800",
-                      "focus-visible:outline-none focus-visible:bg-neutral-100 dark:focus-visible:bg-neutral-800",
+                      'flex cursor-pointer items-center gap-2 px-4 py-2 text-sm transition-colors',
+                      'hover:bg-neutral-100 dark:hover:bg-neutral-800',
+                      'focus-visible:bg-neutral-100 focus-visible:outline-none dark:focus-visible:bg-neutral-800',
                       option.value === value
-                        ? "bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-300 font-medium"
-                        : "text-text-primary",
-                      option.disabled && "opacity-50 cursor-not-allowed"
+                        ? 'bg-primary-50 font-medium text-primary-600 dark:bg-primary-900/30 dark:text-primary-300'
+                        : 'text-text-primary',
+                      option.disabled && 'cursor-not-allowed opacity-50'
                     )}
                     onClick={() => !option.disabled && handleOptionClick(option.value)}
                     onMouseDown={(e) => e.preventDefault()}
                   >
                     {option.icon && <span className="flex-shrink-0">{option.icon}</span>}
-                    <span className="truncate flex-1">{option.label}</span>
-                    {option.value === value && <Check className="h-4 w-4 text-primary-600" aria-hidden="true" />}
+                    <span className="flex-1 truncate">{option.label}</span>
+                    {option.value === value && (
+                      <Check className="h-4 w-4 text-primary-600" aria-hidden="true" />
+                    )}
                   </li>
                 ))
               )}
@@ -252,7 +252,7 @@ export function Select({
       )}
       <select
         id={`${selectId}-native`}
-        value={value || ""}
+        value={value || ''}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
         required={required}
@@ -295,7 +295,7 @@ export function MultiSelect({
   label,
   error,
   hint,
-  placeholder = "请选择...",
+  placeholder = '请选择...',
   options,
   allowClear = true,
   searchable = true,
@@ -308,7 +308,7 @@ export function MultiSelect({
   maxSelected,
 }: MultiSelectProps) {
   const [isOpen, setIsOpen] = React.useState(false);
-  const [searchQuery, setSearchQuery] = React.useState("");
+  const [searchQuery, setSearchQuery] = React.useState('');
   const selectRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLButtonElement>(null);
 
@@ -330,26 +330,23 @@ export function MultiSelect({
     [options, value]
   );
 
-  const handleClickOutside = React.useCallback(
-    (event: MouseEvent) => {
-      if (selectRef.current && !selectRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    },
-    []
-  );
+  const handleClickOutside = React.useCallback((event: MouseEvent) => {
+    if (selectRef.current && !selectRef.current.contains(event.target as Node)) {
+      setIsOpen(false);
+    }
+  }, []);
 
   React.useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [handleClickOutside]);
 
   const handleKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === "Escape") {
+    if (event.key === 'Escape') {
       setIsOpen(false);
       inputRef.current?.blur();
     }
-    if (event.key === "Backspace" && value.length > 0 && !searchQuery) {
+    if (event.key === 'Backspace' && value.length > 0 && !searchQuery) {
       event.preventDefault();
       onChange(value.slice(0, -1));
     }
@@ -375,18 +372,17 @@ export function MultiSelect({
     onChange([]);
   };
 
-  const describedBy = [error && errorId, hint && hintId].filter(Boolean).join(" ") || undefined;
+  const describedBy = [error && errorId, hint && hintId].filter(Boolean).join(' ') || undefined;
 
   return (
     <div className="w-full">
       {label && (
-        <label
-          htmlFor={selectId}
-          className="block text-sm font-medium text-input-label mb-1.5"
-        >
+        <label htmlFor={selectId} className="mb-1.5 block text-sm font-medium text-input-label">
           {label}
           {required && (
-            <span className="text-error-500 ml-1" aria-hidden="true">*</span>
+            <span className="ml-1 text-error-500" aria-hidden="true">
+              *
+            </span>
           )}
         </label>
       )}
@@ -402,27 +398,27 @@ export function MultiSelect({
           disabled={disabled}
           onClick={() => !disabled && setIsOpen(!isOpen)}
           className={cn(
-            "w-full flex flex-wrap items-center gap-1.5 px-3 py-2 rounded-lg border bg-input-bg text-text-primary min-h-[44px]",
-            "transition-all duration-150",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
-            "disabled:opacity-50 disabled:cursor-not-allowed",
+            'flex min-h-[44px] w-full flex-wrap items-center gap-1.5 rounded-lg border bg-input-bg px-3 py-2 text-text-primary',
+            'transition-all duration-150',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+            'disabled:cursor-not-allowed disabled:opacity-50',
             error
-              ? "border-input-border-error focus-visible:ring-error-500 focus-visible:ring-offset-white dark:focus-visible:ring-offset-neutral-950"
-              : "border-input-border hover:border-input-border-hover focus-visible:ring-primary-500 focus-visible:ring-offset-white dark:focus-visible:ring-offset-neutral-950",
+              ? 'border-input-border-error focus-visible:ring-error-500 focus-visible:ring-offset-white dark:focus-visible:ring-offset-neutral-950'
+              : 'hover:border-input-border-hover border-input-border focus-visible:ring-primary-500 focus-visible:ring-offset-white dark:focus-visible:ring-offset-neutral-950',
             className
           )}
         >
           {selectedOptions.map((option) => (
             <span
               key={option.value}
-              className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-medium"
+              className="inline-flex items-center gap-1.5 rounded bg-primary-100 px-2 py-1 text-xs font-medium text-primary-700 dark:bg-primary-900/30 dark:text-primary-300"
             >
               {option.label}
               {!disabled && (
                 <button
                   type="button"
                   onClick={(e) => handleRemove(option.value, e)}
-                  className="p-0.5 rounded hover:bg-primary-200/50 dark:hover:bg-primary-800/50"
+                  className="rounded p-0.5 hover:bg-primary-200/50 dark:hover:bg-primary-800/50"
                   aria-label={`移除 ${option.label}`}
                 >
                   <X className="h-3 w-3" />
@@ -430,14 +426,12 @@ export function MultiSelect({
               )}
             </span>
           ))}
-          {value.length === 0 && (
-            <span className="flex-1 text-text-tertiary">{placeholder}</span>
-          )}
+          {value.length === 0 && <span className="flex-1 text-text-tertiary">{placeholder}</span>}
           {allowClear && value.length > 0 && !disabled && (
             <button
               type="button"
               onClick={handleClearAll}
-              className="p-1 rounded hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
+              className="rounded p-1 transition-colors hover:bg-neutral-200 dark:hover:bg-neutral-700"
               aria-label="清除所有"
             >
               <X className="h-4 w-4 text-text-tertiary" />
@@ -445,8 +439,8 @@ export function MultiSelect({
           )}
           <ChevronDown
             className={cn(
-              "h-4 w-4 text-text-tertiary transition-transform duration-150 flex-shrink-0 ml-auto",
-              isOpen && "rotate-180"
+              'ml-auto h-4 w-4 flex-shrink-0 text-text-tertiary transition-transform duration-150',
+              isOpen && 'rotate-180'
             )}
           />
         </button>
@@ -454,21 +448,21 @@ export function MultiSelect({
         {isOpen && (
           <div
             className={cn(
-              "absolute z-[1500] w-full mt-1.5 max-h-60 overflow-auto rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-neutral-900 shadow-lg animate-scale-in"
+              'absolute z-[1500] mt-1.5 max-h-60 w-full animate-scale-in overflow-auto rounded-lg border border-border-light bg-white shadow-lg dark:border-border-dark dark:bg-neutral-900'
             )}
             style={{ maxHeight: maxHeight }}
             role="listbox"
-            aria-label={label || "选择选项"}
+            aria-label={label || '选择选项'}
           >
             {searchable && (
-              <div className="p-2 border-b border-border-light dark:border-border-dark sticky top-0 bg-white dark:bg-neutral-900 z-10">
+              <div className="sticky top-0 z-10 border-b border-border-light bg-white p-2 dark:border-border-dark dark:bg-neutral-900">
                 <input
                   type="text"
                   placeholder="搜索..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onClick={(e) => e.stopPropagation()}
-                  className="w-full px-3 py-1.5 text-sm border border-input-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+                  className="w-full rounded-lg border border-input-border px-3 py-1.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                   autoFocus
                 />
               </div>
@@ -476,7 +470,7 @@ export function MultiSelect({
             <ul className="py-1" role="listbox">
               {filteredOptions.length === 0 ? (
                 <li className="px-4 py-3 text-center text-sm text-text-tertiary">
-                  {searchable ? "无匹配选项" : "暂无选项"}
+                  {searchable ? '无匹配选项' : '暂无选项'}
                 </li>
               ) : (
                 filteredOptions.map((option) => (
@@ -486,27 +480,27 @@ export function MultiSelect({
                     aria-selected={value.includes(option.value)}
                     aria-disabled={option.disabled}
                     className={cn(
-                      "px-4 py-2 text-sm cursor-pointer transition-colors flex items-center gap-2",
-                      "hover:bg-neutral-100 dark:hover:bg-neutral-800",
-                      "focus-visible:outline-none focus-visible:bg-neutral-100 dark:focus-visible:bg-neutral-800",
+                      'flex cursor-pointer items-center gap-2 px-4 py-2 text-sm transition-colors',
+                      'hover:bg-neutral-100 dark:hover:bg-neutral-800',
+                      'focus-visible:bg-neutral-100 focus-visible:outline-none dark:focus-visible:bg-neutral-800',
                       value.includes(option.value)
-                        ? "bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 font-medium"
-                        : "text-text-primary",
-                      option.disabled && "opacity-50 cursor-not-allowed"
+                        ? 'bg-primary-50 font-medium text-primary-600 dark:bg-primary-900/30 dark:text-primary-400'
+                        : 'text-text-primary',
+                      option.disabled && 'cursor-not-allowed opacity-50'
                     )}
                     onClick={() => !option.disabled && handleOptionClick(option.value)}
                     onMouseDown={(e) => e.preventDefault()}
                   >
                     <Check
                       className={cn(
-                        "h-4 w-4 flex-shrink-0",
+                        'h-4 w-4 flex-shrink-0',
                         value.includes(option.value)
-                          ? "text-primary-600 dark:text-primary-400"
-                          : "text-transparent"
+                          ? 'text-primary-600 dark:text-primary-400'
+                          : 'text-transparent'
                       )}
                     />
                     {option.icon && <span className="flex-shrink-0">{option.icon}</span>}
-                    <span className="truncate flex-1">{option.label}</span>
+                    <span className="flex-1 truncate">{option.label}</span>
                   </li>
                 ))
               )}

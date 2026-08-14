@@ -43,11 +43,11 @@ test.describe('UI Component Rendering', () => {
       await page.goto(url);
       // Check no console errors
       const errors: string[] = [];
-      page.on('console', msg => {
+      page.on('console', (msg) => {
         if (msg.type() === 'error') errors.push(msg.text());
       });
       await page.waitForLoadState('networkidle');
-      expect(errors.filter(e => !e.includes('favicon'))).toHaveLength(0);
+      expect(errors.filter((e) => !e.includes('favicon'))).toHaveLength(0);
     }
   });
 });

@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { NextIntlClientProvider } from "next-intl";
-import { getMessages } from "next-intl/server";
-import { notFound } from "next/navigation";
+import { NextIntlClientProvider } from 'next-intl';
+import { getMessages } from 'next-intl/server';
+import { notFound } from 'next/navigation';
 
 interface LocaleProviderProps {
   children: React.ReactNode;
@@ -10,11 +10,7 @@ interface LocaleProviderProps {
   messages: Record<string, string>;
 }
 
-export function LocaleProvider({
-  children,
-  locale,
-  messages,
-}: LocaleProviderProps) {
+export function LocaleProvider({ children, locale, messages }: LocaleProviderProps) {
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
       {children}

@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useRouter, usePathname } from "@/i18n/routing";
-import { useTranslations } from "next-intl";
+import { useState, useEffect } from 'react';
+import { useRouter, usePathname } from '@/i18n/routing';
+import { useTranslations } from 'next-intl';
 import {
   Plus,
   GraduationCap,
@@ -14,18 +14,18 @@ import {
   Trash2,
   ChevronDown,
   ChevronUp,
-} from "lucide-react";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Select } from "@/components/ui/Select";
-import { Modal } from "@/components/ui/Modal";
-import { EmptyState } from "@/components/ui/EmptyState";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
-import { Skeleton } from "@/components/ui/Skeleton";
-import { ToastProvider, useToast } from "@/components/ui/Toast";
-import api from "@/lib/api";
+} from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
+import { Modal } from '@/components/ui/Modal';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { ToastProvider, useToast } from '@/components/ui/Toast';
+import api from '@/lib/api';
 
-type ExperienceType = "education" | "work" | "project" | "skill" | "certificate";
+type ExperienceType = 'education' | 'work' | 'project' | 'skill' | 'certificate';
 
 interface Experience {
   id: number;
@@ -52,39 +52,67 @@ interface Experience {
   credential_url?: string;
 }
 
-const typeConfig: Record<ExperienceType, { label: string; icon: React.ReactNode; emptyTitle: string; emptyDesc: string }> = {
-  education: { label: "教育经历", icon: <GraduationCap className="h-5 w-5" />, emptyTitle: "暂无教育经历", emptyDesc: "添加您的第一条教育经历，丰富简历内容" },
-  work: { label: "工作经历", icon: <Briefcase className="h-5 w-5" />, emptyTitle: "暂无工作经历", emptyDesc: "添加您的第一条工作经历，展示职业历程" },
-  project: { label: "项目经历", icon: <FolderKanban className="h-5 w-5" />, emptyTitle: "暂无项目经历", emptyDesc: "添加您的第一个项目经历，突出技术实力" },
-  skill: { label: "技能", icon: <Code className="h-5 w-5" />, emptyTitle: "暂无技能", emptyDesc: "添加您的核心技能，让 HR 一眼看到您的优势" },
-  certificate: { label: "证书", icon: <Award className="h-5 w-5" />, emptyTitle: "暂无证书", emptyDesc: "添加您的证书资质，增加简历可信度" },
+const typeConfig: Record<
+  ExperienceType,
+  { label: string; icon: React.ReactNode; emptyTitle: string; emptyDesc: string }
+> = {
+  education: {
+    label: '教育经历',
+    icon: <GraduationCap className="h-5 w-5" />,
+    emptyTitle: '暂无教育经历',
+    emptyDesc: '添加您的第一条教育经历，丰富简历内容',
+  },
+  work: {
+    label: '工作经历',
+    icon: <Briefcase className="h-5 w-5" />,
+    emptyTitle: '暂无工作经历',
+    emptyDesc: '添加您的第一条工作经历，展示职业历程',
+  },
+  project: {
+    label: '项目经历',
+    icon: <FolderKanban className="h-5 w-5" />,
+    emptyTitle: '暂无项目经历',
+    emptyDesc: '添加您的第一个项目经历，突出技术实力',
+  },
+  skill: {
+    label: '技能',
+    icon: <Code className="h-5 w-5" />,
+    emptyTitle: '暂无技能',
+    emptyDesc: '添加您的核心技能，让 HR 一眼看到您的优势',
+  },
+  certificate: {
+    label: '证书',
+    icon: <Award className="h-5 w-5" />,
+    emptyTitle: '暂无证书',
+    emptyDesc: '添加您的证书资质，增加简历可信度',
+  },
 };
 
 const proficiencyOptions = [
-  { value: "beginner", label: "入门" },
-  { value: "intermediate", label: "熟练" },
-  { value: "advanced", label: "精通" },
-  { value: "expert", label: "专家" },
+  { value: 'beginner', label: '入门' },
+  { value: 'intermediate', label: '熟练' },
+  { value: 'advanced', label: '精通' },
+  { value: 'expert', label: '专家' },
 ];
 
 const skillCategories = [
-  { value: "language", label: "编程语言" },
-  { value: "framework", label: "框架/库" },
-  { value: "tool", label: "工具/平台" },
-  { value: "database", label: "数据库" },
-  { value: "cloud", label: "云服务" },
-  { value: "other", label: "其他" },
+  { value: 'language', label: '编程语言' },
+  { value: 'framework', label: '框架/库' },
+  { value: 'tool', label: '工具/平台' },
+  { value: 'database', label: '数据库' },
+  { value: 'cloud', label: '云服务' },
+  { value: 'other', label: '其他' },
 ];
 
 export default function ExperiencesPage() {
   const router = useRouter();
   const pathname = usePathname();
-  const locale = pathname.split("/")[1];
-  const t = useTranslations("experiences");
-  const tCommon = useTranslations("common");
+  const locale = pathname.split('/')[1];
+  const t = useTranslations('experiences');
+  const tCommon = useTranslations('common');
   const toast = useToast();
 
-  const [activeTab, setActiveTab] = useState<ExperienceType>("education");
+  const [activeTab, setActiveTab] = useState<ExperienceType>('education');
   const [experiences, setExperiences] = useState<Record<ExperienceType, Experience[]>>({
     education: [],
     work: [],
@@ -109,11 +137,11 @@ export default function ExperiencesPage() {
   const fetchExperiences = async (type: ExperienceType) => {
     setLoading((prev) => ({ ...prev, [type]: true }));
     try {
-      const { data } = await api.get("/experiences/", { params: { type } });
+      const { data } = await api.get('/experiences/', { params: { type } });
       setExperiences((prev) => ({ ...prev, [type]: data }));
     } catch (error) {
       console.error(`Failed to fetch ${type}:`, error);
-      toast.error(tCommon("error"), tCommon("networkError"));
+      toast.error(tCommon('error'), tCommon('networkError'));
     } finally {
       setLoading((prev) => ({ ...prev, [type]: false }));
     }
@@ -130,11 +158,16 @@ export default function ExperiencesPage() {
 
     // Validation
     const errors: Record<string, string> = {};
-    if (activeTab === "education" && !formData.school) errors.school = t("education.school") + " " + tCommon("required");
-    if (activeTab === "work" && !formData.company) errors.company = t("work.company") + " " + tCommon("required");
-    if (activeTab === "project" && !formData.name) errors.name = t("project.name") + " " + tCommon("required");
-    if (activeTab === "skill" && !formData.name) errors.name = t("skill.name") + " " + tCommon("required");
-    if (activeTab === "certificate" && !formData.name) errors.name = t("certificate.name") + " " + tCommon("required");
+    if (activeTab === 'education' && !formData.school)
+      errors.school = t('education.school') + ' ' + tCommon('required');
+    if (activeTab === 'work' && !formData.company)
+      errors.company = t('work.company') + ' ' + tCommon('required');
+    if (activeTab === 'project' && !formData.name)
+      errors.name = t('project.name') + ' ' + tCommon('required');
+    if (activeTab === 'skill' && !formData.name)
+      errors.name = t('skill.name') + ' ' + tCommon('required');
+    if (activeTab === 'certificate' && !formData.name)
+      errors.name = t('certificate.name') + ' ' + tCommon('required');
 
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
@@ -142,15 +175,15 @@ export default function ExperiencesPage() {
     }
 
     try {
-      const endpoint = editingExperience ? `/experiences/${editingExperience.id}` : "/experiences/";
-      const method = editingExperience ? "put" : "post";
+      const endpoint = editingExperience ? `/experiences/${editingExperience.id}` : '/experiences/';
+      const method = editingExperience ? 'put' : 'post';
       await api[method](endpoint, { ...formData, type: activeTab });
 
-      toast.success(tCommon("success"), t(`toast.${editingExperience ? "updated" : "created"}`));
+      toast.success(tCommon('success'), t(`toast.${editingExperience ? 'updated' : 'created'}`));
       setModalOpen(false);
       fetchExperiences(activeTab);
     } catch (error: any) {
-      toast.error(tCommon("error"), error.response?.data?.detail || tCommon("networkError"));
+      toast.error(tCommon('error'), error.response?.data?.detail || tCommon('networkError'));
     }
   };
 
@@ -164,10 +197,10 @@ export default function ExperiencesPage() {
     if (!deletingId) return;
     try {
       await api.delete(`/experiences/${deletingId}`);
-      toast.success(tCommon("success"), t("toast.deleted"));
+      toast.success(tCommon('success'), t('toast.deleted'));
       fetchExperiences(activeTab);
     } catch (error) {
-      toast.error(tCommon("error"), tCommon("networkError"));
+      toast.error(tCommon('error'), tCommon('networkError'));
     } finally {
       setDeletingId(null);
     }
@@ -186,205 +219,221 @@ export default function ExperiencesPage() {
         <Input
           label={t(`${activeTab}.startDate`)}
           type="date"
-          value={formData.start_date || ""}
+          value={formData.start_date || ''}
           onChange={(e) => setFormData((prev) => ({ ...prev, start_date: e.target.value }))}
         />
         <Input
           label={t(`${activeTab}.endDate`)}
           type="date"
-          value={formData.end_date || ""}
+          value={formData.end_date || ''}
           onChange={(e) => setFormData((prev) => ({ ...prev, end_date: e.target.value }))}
         />
         <div className="flex items-center gap-2">
           <input
             type="checkbox"
             id="current"
-            checked={formData.end_date === "present" || formData.end_date === "current"}
-            onChange={(e) => setFormData((prev) => ({ ...prev, end_date: e.target.checked ? "present" : "" }))}
+            checked={formData.end_date === 'present' || formData.end_date === 'current'}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, end_date: e.target.checked ? 'present' : '' }))
+            }
             className="h-4 w-4 rounded border-border-medium"
           />
-          <label htmlFor="current" className="text-sm text-text-secondary">{t(`${activeTab}.current`)}</label>
+          <label htmlFor="current" className="text-sm text-text-secondary">
+            {t(`${activeTab}.current`)}
+          </label>
         </div>
       </>
     );
 
     switch (activeTab) {
-      case "education":
+      case 'education':
         return (
           <>
             <Input
-              label={t("education.school")}
-              value={formData.school || ""}
+              label={t('education.school')}
+              value={formData.school || ''}
               onChange={(e) => setFormData((prev) => ({ ...prev, school: e.target.value }))}
-              placeholder={t("education.schoolPlaceholder")}
+              placeholder={t('education.schoolPlaceholder')}
               required
               error={formErrors.school}
             />
             <Input
-              label={t("education.degree")}
-              value={formData.degree || ""}
+              label={t('education.degree')}
+              value={formData.degree || ''}
               onChange={(e) => setFormData((prev) => ({ ...prev, degree: e.target.value }))}
-              placeholder={t("education.degreePlaceholder")}
+              placeholder={t('education.degreePlaceholder')}
             />
             <Input
-              label={t("education.fieldOfStudy")}
-              value={formData.field_of_study || ""}
+              label={t('education.fieldOfStudy')}
+              value={formData.field_of_study || ''}
               onChange={(e) => setFormData((prev) => ({ ...prev, field_of_study: e.target.value }))}
-              placeholder={t("education.fieldOfStudyPlaceholder")}
+              placeholder={t('education.fieldOfStudyPlaceholder')}
             />
             <Input
-              label={t("education.gpa")}
-              value={formData.gpa || ""}
+              label={t('education.gpa')}
+              value={formData.gpa || ''}
               onChange={(e) => setFormData((prev) => ({ ...prev, gpa: e.target.value }))}
-              placeholder={t("education.gpaPlaceholder")}
+              placeholder={t('education.gpaPlaceholder')}
             />
             {commonFields}
             <div className="space-y-2">
-              <label className="label-base">{t("education.description")} <span className="text-text-tertiary">({tCommon("optional")})</span></label>
+              <label className="label-base">
+                {t('education.description')}{' '}
+                <span className="text-text-tertiary">({tCommon('optional')})</span>
+              </label>
               <textarea
-                value={formData.description || ""}
+                value={formData.description || ''}
                 onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
                 rows={4}
                 className="input-base min-h-[100px]"
-                placeholder={t("education.descriptionPlaceholder")}
+                placeholder={t('education.descriptionPlaceholder')}
               />
             </div>
           </>
         );
 
-      case "work":
+      case 'work':
         return (
           <>
             <Input
-              label={t("work.company")}
-              value={formData.company || ""}
+              label={t('work.company')}
+              value={formData.company || ''}
               onChange={(e) => setFormData((prev) => ({ ...prev, company: e.target.value }))}
-              placeholder={t("work.companyPlaceholder")}
+              placeholder={t('work.companyPlaceholder')}
               required
               error={formErrors.company}
             />
             <Input
-              label={t("work.position")}
-              value={formData.position || ""}
+              label={t('work.position')}
+              value={formData.position || ''}
               onChange={(e) => setFormData((prev) => ({ ...prev, position: e.target.value }))}
-              placeholder={t("work.positionPlaceholder")}
+              placeholder={t('work.positionPlaceholder')}
             />
             {commonFields}
             <div className="space-y-2">
-              <label className="label-base">{t("work.description")} <span className="text-text-tertiary">({tCommon("optional")})</span></label>
+              <label className="label-base">
+                {t('work.description')}{' '}
+                <span className="text-text-tertiary">({tCommon('optional')})</span>
+              </label>
               <textarea
-                value={formData.description || ""}
+                value={formData.description || ''}
                 onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
                 rows={5}
                 className="input-base min-h-[120px]"
-                placeholder={t("work.descriptionPlaceholder")}
+                placeholder={t('work.descriptionPlaceholder')}
               />
             </div>
           </>
         );
 
-      case "project":
+      case 'project':
         return (
           <>
             <Input
-              label={t("project.name")}
-              value={formData.name || ""}
+              label={t('project.name')}
+              value={formData.name || ''}
               onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
-              placeholder={t("project.namePlaceholder")}
+              placeholder={t('project.namePlaceholder')}
               required
               error={formErrors.name}
             />
             <Input
-              label={t("project.role")}
-              value={formData.role || ""}
+              label={t('project.role')}
+              value={formData.role || ''}
               onChange={(e) => setFormData((prev) => ({ ...prev, role: e.target.value }))}
-              placeholder={t("project.rolePlaceholder")}
+              placeholder={t('project.rolePlaceholder')}
             />
             {commonFields}
             <div className="space-y-2">
-              <label className="label-base">{t("project.description")} <span className="text-text-tertiary">({tCommon("optional")})</span></label>
+              <label className="label-base">
+                {t('project.description')}{' '}
+                <span className="text-text-tertiary">({tCommon('optional')})</span>
+              </label>
               <textarea
-                value={formData.description || ""}
+                value={formData.description || ''}
                 onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
                 rows={5}
                 className="input-base min-h-[120px]"
-                placeholder={t("project.descriptionPlaceholder")}
+                placeholder={t('project.descriptionPlaceholder')}
               />
             </div>
             <div className="space-y-2">
-              <label className="label-base">{t("project.techTags")} <span className="text-text-tertiary">({tCommon("optional")})</span></label>
+              <label className="label-base">
+                {t('project.techTags')}{' '}
+                <span className="text-text-tertiary">({tCommon('optional')})</span>
+              </label>
               <TechTagsInput
                 value={formData.tech_tags || []}
                 onChange={(tags) => setFormData((prev) => ({ ...prev, tech_tags: tags }))}
               />
             </div>
             <Input
-              label={t("project.url")}
+              label={t('project.url')}
               type="url"
-              value={formData.url || ""}
+              value={formData.url || ''}
               onChange={(e) => setFormData((prev) => ({ ...prev, url: e.target.value }))}
-              placeholder={t("project.urlPlaceholder")}
+              placeholder={t('project.urlPlaceholder')}
             />
           </>
         );
 
-      case "skill":
+      case 'skill':
         return (
           <>
             <Input
-              label={t("skill.name")}
-              value={formData.name || ""}
+              label={t('skill.name')}
+              value={formData.name || ''}
               onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
-              placeholder={t("skill.namePlaceholder")}
+              placeholder={t('skill.namePlaceholder')}
               required
               error={formErrors.name}
             />
             <Select
-              label={t("skill.category")}
-              value={formData.category || ""}
+              label={t('skill.category')}
+              value={formData.category || ''}
               onChange={(value) => setFormData((prev) => ({ ...prev, category: value }))}
               options={skillCategories.map((c) => ({ value: c.value, label: c.label }))}
-              placeholder={t("skill.category")}
+              placeholder={t('skill.category')}
             />
             <Select
-              label={t("skill.proficiency")}
-              value={formData.proficiency || ""}
+              label={t('skill.proficiency')}
+              value={formData.proficiency || ''}
               onChange={(value) => setFormData((prev) => ({ ...prev, proficiency: value }))}
               options={proficiencyOptions.map((p) => ({ value: p.value, label: p.label }))}
-              placeholder={t("skill.proficiency")}
+              placeholder={t('skill.proficiency')}
             />
           </>
         );
 
-      case "certificate":
+      case 'certificate':
         return (
           <>
             <Input
-              label={t("certificate.name")}
-              value={formData.name || ""}
+              label={t('certificate.name')}
+              value={formData.name || ''}
               onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
-              placeholder={t("certificate.namePlaceholder")}
+              placeholder={t('certificate.namePlaceholder')}
               required
               error={formErrors.name}
             />
             <Input
-              label={t("certificate.issuer")}
-              value={formData.issuer || ""}
+              label={t('certificate.issuer')}
+              value={formData.issuer || ''}
               onChange={(e) => setFormData((prev) => ({ ...prev, issuer: e.target.value }))}
-              placeholder={t("certificate.issuerPlaceholder")}
+              placeholder={t('certificate.issuerPlaceholder')}
             />
             <Input
-              label={t("certificate.date")}
+              label={t('certificate.date')}
               type="date"
-              value={formData.start_date || ""}
+              value={formData.start_date || ''}
               onChange={(e) => setFormData((prev) => ({ ...prev, start_date: e.target.value }))}
             />
             <Input
-              label={t("certificate.credentialUrl")}
+              label={t('certificate.credentialUrl')}
               type="url"
-              value={formData.credential_url || ""}
+              value={formData.credential_url || ''}
               onChange={(e) => setFormData((prev) => ({ ...prev, credential_url: e.target.value }))}
-              placeholder={t("certificate.credentialUrlPlaceholder")}
+              placeholder={t('certificate.credentialUrlPlaceholder')}
             />
           </>
         );
@@ -398,84 +447,117 @@ export default function ExperiencesPage() {
     const config = typeConfig[activeTab];
 
     return (
-      <div key={exp.id} className="card-base p-5 space-y-4">
+      <div key={exp.id} className="card-base space-y-4 p-5">
         <div className="flex items-start justify-between gap-4">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400">
+          <div className="min-w-0 flex-1">
+            <div className="mb-2 flex items-center gap-2">
+              <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary-100 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400">
                 {config.icon}
               </span>
-              <h4 className="font-semibold text-text-primary truncate">
-                {activeTab === "education"
+              <h4 className="truncate font-semibold text-text-primary">
+                {activeTab === 'education'
                   ? exp.school
-                  : activeTab === "work"
+                  : activeTab === 'work'
                     ? exp.company
-                    : activeTab === "project"
+                    : activeTab === 'project'
                       ? exp.name
-                      : activeTab === "skill"
+                      : activeTab === 'skill'
                         ? exp.name
                         : exp.name}
               </h4>
             </div>
 
-            {activeTab === "education" && exp.degree && (
-              <p className="text-sm text-text-secondary">{exp.degree}{exp.field_of_study ? ` · ${exp.field_of_study}` : ""}</p>
+            {activeTab === 'education' && exp.degree && (
+              <p className="text-sm text-text-secondary">
+                {exp.degree}
+                {exp.field_of_study ? ` · ${exp.field_of_study}` : ''}
+              </p>
             )}
-            {activeTab === "work" && exp.position && (
+            {activeTab === 'work' && exp.position && (
               <p className="text-sm text-text-secondary">{exp.position}</p>
             )}
-            {activeTab === "project" && exp.role && (
-              <p className="text-sm text-text-secondary">{t("project.role")}: {exp.role}</p>
+            {activeTab === 'project' && exp.role && (
+              <p className="text-sm text-text-secondary">
+                {t('project.role')}: {exp.role}
+              </p>
             )}
-            {activeTab === "skill" && (
-              <div className="flex flex-wrap gap-1.5 mt-1">
+            {activeTab === 'skill' && (
+              <div className="mt-1 flex flex-wrap gap-1.5">
                 {exp.category && <span className="badge-primary text-xs">{exp.category}</span>}
-                {exp.proficiency && <span className="badge-info text-xs">{proficiencyOptions.find((p) => p.value === exp.proficiency)?.label}</span>}
+                {exp.proficiency && (
+                  <span className="badge-info text-xs">
+                    {proficiencyOptions.find((p) => p.value === exp.proficiency)?.label}
+                  </span>
+                )}
               </div>
             )}
-            {activeTab === "certificate" && exp.issuer && (
-              <p className="text-sm text-text-secondary">{t("certificate.issuer")}: {exp.issuer}</p>
+            {activeTab === 'certificate' && exp.issuer && (
+              <p className="text-sm text-text-secondary">
+                {t('certificate.issuer')}: {exp.issuer}
+              </p>
             )}
 
             <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-text-tertiary">
               {exp.start_date && (
                 <span>
-                  {new Date(exp.start_date).toLocaleDateString(locale === "zh-CN" ? "zh-CN" : "en-US", { year: "numeric", month: "short" })}
+                  {new Date(exp.start_date).toLocaleDateString(
+                    locale === 'zh-CN' ? 'zh-CN' : 'en-US',
+                    { year: 'numeric', month: 'short' }
+                  )}
                   {exp.end_date
-                    ? ` - ${exp.end_date === "present" || exp.end_date === "current" ? t(`${activeTab}.current`) : new Date(exp.end_date).toLocaleDateString(locale === "zh-CN" ? "zh-CN" : "en-US", { year: "numeric", month: "short" })}`
-                    : ""}
+                    ? ` - ${exp.end_date === 'present' || exp.end_date === 'current' ? t(`${activeTab}.current`) : new Date(exp.end_date).toLocaleDateString(locale === 'zh-CN' ? 'zh-CN' : 'en-US', { year: 'numeric', month: 'short' })}`
+                    : ''}
                 </span>
               )}
             </div>
 
             {exp.description && (
-              <p className="mt-3 text-sm text-text-secondary line-clamp-3">{exp.description}</p>
+              <p className="mt-3 line-clamp-3 text-sm text-text-secondary">{exp.description}</p>
             )}
 
-            {activeTab === "project" && exp.tech_tags && exp.tech_tags.length > 0 && (
+            {activeTab === 'project' && exp.tech_tags && exp.tech_tags.length > 0 && (
               <div className="mt-3 flex flex-wrap gap-1">
                 {exp.tech_tags.slice(0, 5).map((tag, i) => (
-                  <span key={i} className="badge-default text-xs">{tag}</span>
+                  <span key={i} className="badge-default text-xs">
+                    {tag}
+                  </span>
                 ))}
-                {exp.tech_tags.length > 5 && <span className="badge-default text-xs">+{exp.tech_tags.length - 5}</span>}
+                {exp.tech_tags.length > 5 && (
+                  <span className="badge-default text-xs">+{exp.tech_tags.length - 5}</span>
+                )}
               </div>
             )}
 
-            {activeTab === "certificate" && exp.credential_url && (
-              <a href={exp.credential_url} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center gap-1 text-xs text-primary-600 hover:text-primary-500">
+            {activeTab === 'certificate' && exp.credential_url && (
+              <a
+                href={exp.credential_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-flex items-center gap-1 text-xs text-primary-600 hover:text-primary-500"
+              >
                 <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                  />
                 </svg>
-                {t("certificate.viewCredential")}
+                {t('certificate.viewCredential')}
               </a>
             )}
           </div>
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-border-light dark:border-border-dark">
+          <div className="flex items-center justify-end gap-2 border-t border-border-light pt-3 dark:border-border-dark">
             <Button variant="ghost" size="sm" onClick={() => handleEdit(exp)}>
-              <Edit className="h-4 w-4 mr-1" /> {tCommon("edit")}
+              <Edit className="mr-1 h-4 w-4" /> {tCommon('edit')}
             </Button>
-            <Button variant="ghost" size="sm" className="text-error-600 hover:text-error-700 hover:bg-error-50" onClick={() => setDeletingId(exp.id)}>
-              <Trash2 className="h-4 w-4 mr-1" /> {tCommon("delete")}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-error-600 hover:bg-error-50 hover:text-error-700"
+              onClick={() => setDeletingId(exp.id)}
+            >
+              <Trash2 className="mr-1 h-4 w-4" /> {tCommon('delete')}
             </Button>
           </div>
         </div>
@@ -485,75 +567,97 @@ export default function ExperiencesPage() {
 
   return (
     <div className="min-h-screen bg-background-primary">
-      <header className="sticky top-0 z-50 bg-white/80 dark:bg-neutral-950/80 backdrop-blur-sm border-b border-border-light dark:border-border-dark">
+      <header className="sticky top-0 z-50 border-b border-border-light bg-white/80 backdrop-blur-sm dark:border-border-dark dark:bg-neutral-950/80">
         <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8" aria-label="Main navigation">
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center gap-8">
-              <a href={`/${locale}/dashboard`} className="text-xl font-bold text-primary-600 dark:text-primary-400">
+              <a
+                href={`/${locale}/dashboard`}
+                className="text-xl font-bold text-primary-600 dark:text-primary-400"
+              >
                 ResumeForge
               </a>
               <div className="hidden md:flex md:items-center md:gap-6">
-                <a href={`/${locale}/dashboard`} className="text-sm font-medium text-text-secondary hover:text-text-primary">
-                  {tCommon("dashboard") || "Dashboard"}
+                <a
+                  href={`/${locale}/dashboard`}
+                  className="text-sm font-medium text-text-secondary hover:text-text-primary"
+                >
+                  {tCommon('dashboard') || 'Dashboard'}
                 </a>
-                <a href={`/${locale}/experiences`} className="text-sm font-medium text-primary-600 dark:text-primary-400">
-                  {t("title")}
+                <a
+                  href={`/${locale}/experiences`}
+                  className="text-sm font-medium text-primary-600 dark:text-primary-400"
+                >
+                  {t('title')}
                 </a>
-                <a href={`/${locale}/settings`} className="text-sm font-medium text-text-secondary hover:text-text-primary">
-                  {tCommon("settings")}
+                <a
+                  href={`/${locale}/settings`}
+                  className="text-sm font-medium text-text-secondary hover:text-text-primary"
+                >
+                  {tCommon('settings')}
                 </a>
               </div>
             </div>
             <div className="flex items-center gap-4">
               <a href={`/${locale}/dashboard`} className="hidden sm:block">
                 <Button variant="ghost" size="sm">
-                  ← {tCommon("back") || "返回"}
+                  ← {tCommon('back') || '返回'}
                 </Button>
               </a>
               <Button variant="primary" onClick={openCreateModal}>
-                <Plus className="h-4 w-4 mr-1" /> {tCommon("add")} {typeConfig[activeTab].label}
+                <Plus className="mr-1 h-4 w-4" /> {tCommon('add')} {typeConfig[activeTab].label}
               </Button>
             </div>
           </div>
         </nav>
       </header>
 
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab as (value: string) => void} className="mb-6">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab as (value: string) => void}
+          className="mb-6"
+        >
           <TabsList aria-label="Experience types">
-            {(["education", "work", "project", "skill", "certificate"] as ExperienceType[]).map((type) => (
-              <TabsTrigger key={type} value={type}>
-                {typeConfig[type].icon}
-                <span className="hidden sm:inline">{typeConfig[type].label}</span>
-              </TabsTrigger>
-            ))}
+            {(['education', 'work', 'project', 'skill', 'certificate'] as ExperienceType[]).map(
+              (type) => (
+                <TabsTrigger key={type} value={type}>
+                  {typeConfig[type].icon}
+                  <span className="hidden sm:inline">{typeConfig[type].label}</span>
+                </TabsTrigger>
+              )
+            )}
           </TabsList>
 
-        {/* Content */}
-        <TabsContent value={activeTab} forceMount>
-          {loading[activeTab] ? (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <Skeleton key={i} variant="card" />
-              ))}
-            </div>
-          ) : experiences[activeTab].length === 0 ? (
-            <EmptyState
-              illustration={["education", "work", "project", "certificate"].includes(activeTab) ? "document" : "search"}
-              title={typeConfig[activeTab].emptyTitle}
-              description={typeConfig[activeTab].emptyDesc}
-              action={{
-                label: tCommon("add") + typeConfig[activeTab].label,
-                onClick: openCreateModal,
-              }}
-            />
-          ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {experiences[activeTab].map(renderExperienceCard)}
-            </div>
-          )}
-        </TabsContent>
+          {/* Content */}
+          <TabsContent value={activeTab} forceMount>
+            {loading[activeTab] ? (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <Skeleton key={i} variant="card" />
+                ))}
+              </div>
+            ) : experiences[activeTab].length === 0 ? (
+              <EmptyState
+                illustration={
+                  ['education', 'work', 'project', 'certificate'].includes(activeTab)
+                    ? 'document'
+                    : 'search'
+                }
+                title={typeConfig[activeTab].emptyTitle}
+                description={typeConfig[activeTab].emptyDesc}
+                action={{
+                  label: tCommon('add') + typeConfig[activeTab].label,
+                  onClick: openCreateModal,
+                }}
+              />
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {experiences[activeTab].map(renderExperienceCard)}
+              </div>
+            )}
+          </TabsContent>
         </Tabs>
       </main>
 
@@ -561,17 +665,21 @@ export default function ExperiencesPage() {
       <Modal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
-        title={editingExperience ? t("form.editTitle", { type: typeConfig[activeTab].label }) : t("form.createTitle", { type: typeConfig[activeTab].label })}
+        title={
+          editingExperience
+            ? t('form.editTitle', { type: typeConfig[activeTab].label })
+            : t('form.createTitle', { type: typeConfig[activeTab].label })
+        }
         size="lg"
       >
         <form onSubmit={handleSubmit} className="space-y-6">
           {renderFormFields()}
-          <div className="flex justify-end gap-3 pt-4 border-t border-border-light dark:border-border-dark">
+          <div className="flex justify-end gap-3 border-t border-border-light pt-4 dark:border-border-dark">
             <Button variant="ghost" onClick={() => setModalOpen(false)}>
-              {tCommon("cancel")}
+              {tCommon('cancel')}
             </Button>
             <Button type="submit" variant="primary">
-              {editingExperience ? tCommon("update") : tCommon("create")}
+              {editingExperience ? tCommon('update') : tCommon('create')}
             </Button>
           </div>
         </form>
@@ -581,16 +689,18 @@ export default function ExperiencesPage() {
       <Modal
         isOpen={!!deletingId}
         onClose={() => setDeletingId(null)}
-        title={tCommon("confirmDelete") || "确认删除"}
+        title={tCommon('confirmDelete') || '确认删除'}
         size="sm"
       >
-        <p className="text-text-secondary mb-6">{t("actions.confirmDelete", { type: typeConfig[activeTab].label })}</p>
+        <p className="mb-6 text-text-secondary">
+          {t('actions.confirmDelete', { type: typeConfig[activeTab].label })}
+        </p>
         <div className="flex justify-end gap-3">
           <Button variant="ghost" onClick={() => setDeletingId(null)}>
-            {tCommon("cancel")}
+            {tCommon('cancel')}
           </Button>
           <Button variant="destructive" onClick={handleDelete} loading={!!deletingId}>
-            {tCommon("delete")}
+            {tCommon('delete')}
           </Button>
         </div>
       </Modal>
@@ -599,8 +709,14 @@ export default function ExperiencesPage() {
 }
 
 // TechTagsInput component
-function TechTagsInput({ value, onChange }: { value: string[]; onChange: (tags: string[]) => void }) {
-  const [inputValue, setInputValue] = useState("");
+function TechTagsInput({
+  value,
+  onChange,
+}: {
+  value: string[];
+  onChange: (tags: string[]) => void;
+}) {
+  const [inputValue, setInputValue] = useState('');
   const [tags, setTags] = useState<string[]>(value);
 
   useEffect(() => {
@@ -613,7 +729,7 @@ function TechTagsInput({ value, onChange }: { value: string[]; onChange: (tags: 
       const newTags = [...tags, tag];
       setTags(newTags);
       onChange(newTags);
-      setInputValue("");
+      setInputValue('');
     }
   };
 
@@ -624,7 +740,7 @@ function TechTagsInput({ value, onChange }: { value: string[]; onChange: (tags: 
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" || e.key === ",") {
+    if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault();
       addTag();
     }
@@ -634,16 +750,21 @@ function TechTagsInput({ value, onChange }: { value: string[]; onChange: (tags: 
     <div className="flex flex-wrap gap-2">
       <div className="flex flex-wrap gap-1.5">
         {tags.map((tag) => (
-          <span key={tag} className="inline-flex items-center gap-1 badge-default">
+          <span key={tag} className="badge-default inline-flex items-center gap-1">
             {tag}
             <button
               type="button"
               onClick={() => removeTag(tag)}
-              className="ml-1 p-0.5 hover:text-text-primary transition-colors"
+              className="ml-1 p-0.5 transition-colors hover:text-text-primary"
               aria-label={`Remove ${tag}`}
             >
               <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           </span>
@@ -656,7 +777,7 @@ function TechTagsInput({ value, onChange }: { value: string[]; onChange: (tags: 
         onKeyDown={handleKeyDown}
         onBlur={addTag}
         placeholder="输入技术栈，按回车确认"
-        className="flex-1 min-w-[150px] input-base py-2"
+        className="input-base min-w-[150px] flex-1 py-2"
       />
     </div>
   );

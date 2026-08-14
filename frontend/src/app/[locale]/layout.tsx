@@ -1,18 +1,14 @@
-import type { Metadata } from "next";
-import { NextIntlClientProvider } from "next-intl";
-import { getMessages, getLocale } from "next-intl/server";
-import { Providers } from "@/components/providers/Providers";
+import type { Metadata } from 'next';
+import { NextIntlClientProvider } from 'next-intl';
+import { getMessages, getLocale } from 'next-intl/server';
+import { Providers } from '@/components/providers/Providers';
 
 export const metadata: Metadata = {
-  title: "ResumeForge — 智能简历生成工具",
-  description: "基于 AI 的结构化简历生成与优化平台",
+  title: 'ResumeForge — 智能简历生成工具',
+  description: '基于 AI 的结构化简历生成与优化平台',
 };
 
-export default async function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const locale = await getLocale();
   const messages = await getMessages();
 

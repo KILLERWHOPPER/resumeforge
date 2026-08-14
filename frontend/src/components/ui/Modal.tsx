@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { X } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Button } from "./Button";
+import * as React from 'react';
+import { X } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Button } from './Button';
 
 interface ModalProps {
   isOpen: boolean;
@@ -11,18 +11,18 @@ interface ModalProps {
   title?: string;
   description?: string;
   children: React.ReactNode;
-  size?: "sm" | "md" | "lg" | "xl" | "full";
+  size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
   showCloseButton?: boolean;
   closeOnOverlayClick?: boolean;
   closeOnEscape?: boolean;
 }
 
 const sizeStyles = {
-  sm: "max-w-sm",
-  md: "max-w-md",
-  lg: "max-w-lg",
-  xl: "max-w-xl",
-  full: "max-w-[95vw]",
+  sm: 'max-w-sm',
+  md: 'max-w-md',
+  lg: 'max-w-lg',
+  xl: 'max-w-xl',
+  full: 'max-w-[95vw]',
 };
 
 export function Modal({
@@ -31,7 +31,7 @@ export function Modal({
   title,
   description,
   children,
-  size = "md",
+  size = 'md',
   showCloseButton = true,
   closeOnOverlayClick = true,
   closeOnEscape = true,
@@ -49,21 +49,21 @@ export function Modal({
     if (!isOpen || !closeOnEscape) return;
 
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+      if (event.key === 'Escape') onClose();
     };
 
-    document.addEventListener("keydown", handleEscape);
-    return () => document.removeEventListener("keydown", handleEscape);
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, closeOnEscape, onClose]);
 
   React.useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = "hidden";
+      document.body.style.overflow = 'hidden';
     } else {
-      document.body.style.overflow = "";
+      document.body.style.overflow = '';
     }
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflow = '';
     };
   }, [isOpen]);
 
@@ -72,13 +72,13 @@ export function Modal({
   return (
     <div className="fixed inset-0 z-[1400] flex items-center justify-center p-4">
       <div
-        className="fixed inset-0 bg-overlay-backdrop backdrop-blur-sm animate-fade-in"
+        className="fixed inset-0 animate-fade-in bg-overlay-backdrop backdrop-blur-sm"
         onClick={closeOnOverlayClick ? onClose : undefined}
         aria-hidden="true"
       />
       <div
         className={cn(
-          "relative w-full bg-overlay-modal-bg border border-overlay-modal-border rounded-2xl shadow-xl animate-scale-in",
+          'bg-overlay-modal-bg border-overlay-modal-border relative w-full animate-scale-in rounded-2xl border shadow-xl',
           sizeStyles[size]
         )}
         role="dialog"
@@ -87,7 +87,7 @@ export function Modal({
         aria-describedby={description ? descriptionId : undefined}
       >
         {(title || showCloseButton) && (
-          <div className="flex items-start justify-between p-6 border-b border-overlay-modal-border">
+          <div className="border-overlay-modal-border flex items-start justify-between border-b p-6">
             <div>
               {title && (
                 <h2 id={titleId} className="text-lg font-semibold text-text-primary">
@@ -95,10 +95,7 @@ export function Modal({
                 </h2>
               )}
               {description && (
-                <p
-                  id={descriptionId}
-                  className="mt-1 text-sm text-text-secondary"
-                >
+                <p id={descriptionId} className="mt-1 text-sm text-text-secondary">
                   {description}
                 </p>
               )}
@@ -130,7 +127,7 @@ interface ConfirmModalProps {
   message: string;
   confirmText?: string;
   cancelText?: string;
-  variant?: "danger" | "primary";
+  variant?: 'danger' | 'primary';
   loading?: boolean;
 }
 
@@ -140,20 +137,20 @@ export function ConfirmModal({
   onConfirm,
   title,
   message,
-  confirmText = "确认",
-  cancelText = "取消",
-  variant = "danger",
+  confirmText = '确认',
+  cancelText = '取消',
+  variant = 'danger',
   loading = false,
 }: ConfirmModalProps) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={title} size="sm">
-      <p className="text-text-secondary mb-6">{message}</p>
+      <p className="mb-6 text-text-secondary">{message}</p>
       <div className="flex justify-end gap-3">
         <Button variant="ghost" onClick={onClose} disabled={loading}>
           {cancelText}
         </Button>
         <Button
-          variant={variant === "danger" ? "destructive" : "primary"}
+          variant={variant === 'danger' ? 'destructive' : 'primary'}
           onClick={onConfirm}
           loading={loading}
         >

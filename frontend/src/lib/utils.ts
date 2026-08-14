@@ -1,21 +1,21 @@
-import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { type ClassValue, clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatDate(date: Date | string, locale: string = "zh-CN"): string {
-  const d = typeof date === "string" ? new Date(date) : date;
+export function formatDate(date: Date | string, locale: string = 'zh-CN'): string {
+  const d = typeof date === 'string' ? new Date(date) : date;
   return d.toLocaleDateString(locale, {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
   });
 }
 
-export function formatRelativeTime(date: Date | string, locale: string = "zh-CN"): string {
-  const d = typeof date === "string" ? new Date(date) : date;
+export function formatRelativeTime(date: Date | string, locale: string = 'zh-CN'): string {
+  const d = typeof date === 'string' ? new Date(date) : date;
   const now = new Date();
   const diffMs = now.getTime() - d.getTime();
   const diffSecs = Math.floor(diffMs / 1000);
@@ -27,49 +27,37 @@ export function formatRelativeTime(date: Date | string, locale: string = "zh-CN"
   const diffYears = Math.floor(diffDays / 365);
 
   if (diffSecs < 60) {
-    return locale.startsWith("zh") ? "刚刚" : "just now";
+    return locale.startsWith('zh') ? '刚刚' : 'just now';
   }
   if (diffMins < 60) {
-    return locale.startsWith("zh")
-      ? `${diffMins}分钟前`
-      : `${diffMins}m ago`;
+    return locale.startsWith('zh') ? `${diffMins}分钟前` : `${diffMins}m ago`;
   }
   if (diffHours < 24) {
-    return locale.startsWith("zh")
-      ? `${diffHours}小时前`
-      : `${diffHours}h ago`;
+    return locale.startsWith('zh') ? `${diffHours}小时前` : `${diffHours}h ago`;
   }
   if (diffDays < 7) {
-    return locale.startsWith("zh")
-      ? `${diffDays}天前`
-      : `${diffDays}d ago`;
+    return locale.startsWith('zh') ? `${diffDays}天前` : `${diffDays}d ago`;
   }
   if (diffWeeks < 4) {
-    return locale.startsWith("zh")
-      ? `${diffWeeks}周前`
-      : `${diffWeeks}w ago`;
+    return locale.startsWith('zh') ? `${diffWeeks}周前` : `${diffWeeks}w ago`;
   }
   if (diffMonths < 12) {
-    return locale.startsWith("zh")
-      ? `${diffMonths}个月前`
-      : `${diffMonths}mo ago`;
+    return locale.startsWith('zh') ? `${diffMonths}个月前` : `${diffMonths}mo ago`;
   }
-  return locale.startsWith("zh")
-    ? `${diffYears}年前`
-    : `${diffYears}y ago`;
+  return locale.startsWith('zh') ? `${diffYears}年前` : `${diffYears}y ago`;
 }
 
 export function truncate(str: string, length: number): string {
   if (str.length <= length) return str;
-  return str.slice(0, length - 1) + "…";
+  return str.slice(0, length - 1) + '…';
 }
 
-export function generateId(prefix: string = "id"): string {
+export function generateId(prefix: string = 'id'): string {
   return `${prefix}-${Math.random().toString(36).slice(2, 11)}`;
 }
 
 export function classNames(...classes: (string | boolean | undefined | null)[]): string {
-  return classes.filter(Boolean).join(" ");
+  return classes.filter(Boolean).join(' ');
 }
 
 export function debounce<T extends (...args: unknown[]) => unknown>(
@@ -144,24 +132,34 @@ export function pick<T extends Record<string, unknown>, K extends keyof T>(
 }
 
 export function groupBy<T>(array: T[], key: keyof T | ((item: T) => string)): Record<string, T[]> {
-  return array.reduce((groups, item) => {
-    const groupKey = typeof key === "function" ? key(item) : String(item[key]);
-    if (!groups[groupKey]) groups[groupKey] = [];
-    groups[groupKey].push(item);
-    return groups;
-  }, {} as Record<string, T[]>);
+  return array.reduce(
+    (groups, item) => {
+      const groupKey = typeof key === 'function' ? key(item) : String(item[key]);
+      if (!groups[groupKey]) groups[groupKey] = [];
+      groups[groupKey].push(item);
+      return groups;
+    },
+    {} as Record<string, T[]>
+  );
 }
 
-export function sortBy<T>(array: T[], key: keyof T | ((item: T) => string | number), order: "asc" | "desc" = "asc"): T[] {
-  const getValue = typeof key === "function" ? key : (item: T) => {
-    const val = item[key];
-    return typeof val === "string" || typeof val === "number" ? val : String(val);
-  };
+export function sortBy<T>(
+  array: T[],
+  key: keyof T | ((item: T) => string | number),
+  order: 'asc' | 'desc' = 'asc'
+): T[] {
+  const getValue =
+    typeof key === 'function'
+      ? key
+      : (item: T) => {
+          const val = item[key];
+          return typeof val === 'string' || typeof val === 'number' ? val : String(val);
+        };
   return [...array].sort((a, b) => {
     const aVal = getValue(a);
     const bVal = getValue(b);
-    if (aVal < bVal) return order === "asc" ? -1 : 1;
-    if (aVal > bVal) return order === "asc" ? 1 : -1;
+    if (aVal < bVal) return order === 'asc' ? -1 : 1;
+    if (aVal > bVal) return order === 'asc' ? 1 : -1;
     return 0;
   });
 }
@@ -169,7 +167,7 @@ export function sortBy<T>(array: T[], key: keyof T | ((item: T) => string | numb
 export function uniqueBy<T>(array: T[], key: keyof T | ((item: T) => unknown)): T[] {
   const seen = new Set();
   return array.filter((item) => {
-    const value = typeof key === "function" ? key(item) : item[key];
+    const value = typeof key === 'function' ? key(item) : item[key];
     if (seen.has(value)) return false;
     seen.add(value);
     return true;
@@ -201,13 +199,17 @@ export function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
 }
 
-export function formatNumber(num: number, locale: string = "zh-CN"): string {
+export function formatNumber(num: number, locale: string = 'zh-CN'): string {
   return new Intl.NumberFormat(locale).format(num);
 }
 
-export function formatCurrency(amount: number, currency: string = "CNY", locale: string = "zh-CN"): string {
+export function formatCurrency(
+  amount: number,
+  currency: string = 'CNY',
+  locale: string = 'zh-CN'
+): string {
   return new Intl.NumberFormat(locale, {
-    style: "currency",
+    style: 'currency',
     currency,
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
@@ -216,9 +218,9 @@ export function formatCurrency(amount: number, currency: string = "CNY", locale:
 
 export function getInitials(name: string): string {
   return name
-    .split(" ")
+    .split(' ')
     .map((part) => part[0])
-    .join("")
+    .join('')
     .toUpperCase()
     .slice(0, 2);
 }

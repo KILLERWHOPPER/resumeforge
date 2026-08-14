@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { cn } from "@/lib/utils";
+import * as React from 'react';
+import { cn } from '@/lib/utils';
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
   hint?: string;
   icon?: React.ReactNode;
-  iconPosition?: "left" | "right";
+  iconPosition?: 'left' | 'right';
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
@@ -19,11 +19,11 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       error,
       hint,
       icon,
-      iconPosition = "left",
+      iconPosition = 'left',
       id,
       disabled,
       required,
-      type = "text",
+      type = 'text',
       ...props
     },
     ref
@@ -33,24 +33,24 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const hintId = `${inputId}-hint`;
 
     const hasError = !!error;
-    const describedBy = [hasError && errorId, hint && hintId].filter(Boolean).join(" ") || undefined;
+    const describedBy =
+      [hasError && errorId, hint && hintId].filter(Boolean).join(' ') || undefined;
 
     return (
       <div className="w-full">
         {label && (
-          <label
-            htmlFor={inputId}
-            className="block text-sm font-medium text-text-label mb-1.5"
-          >
+          <label htmlFor={inputId} className="text-text-label mb-1.5 block text-sm font-medium">
             {label}
             {required && (
-              <span className="text-error-500 ml-1" aria-hidden="true">*</span>
+              <span className="ml-1 text-error-500" aria-hidden="true">
+                *
+              </span>
             )}
           </label>
         )}
         <div className="relative">
-          {icon && iconPosition === "left" && (
-            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-text-tertiary">
+          {icon && iconPosition === 'left' && (
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-text-tertiary">
               {icon}
             </div>
           )}
@@ -63,21 +63,21 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             aria-invalid={hasError}
             aria-describedby={describedBy}
             className={cn(
-              "w-full rounded-lg border bg-input-bg text-text-primary placeholder:text-input-placeholder",
-              "transition-all duration-150",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
-              "disabled:opacity-50 disabled:cursor-not-allowed",
-              icon && iconPosition === "left" && "pl-10",
-              icon && iconPosition === "right" && "pr-10",
+              'w-full rounded-lg border bg-input-bg text-text-primary placeholder:text-input-placeholder',
+              'transition-all duration-150',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+              'disabled:cursor-not-allowed disabled:opacity-50',
+              icon && iconPosition === 'left' && 'pl-10',
+              icon && iconPosition === 'right' && 'pr-10',
               hasError
-                ? "border-input-border-error focus-visible:ring-error-500 focus-visible:ring-offset-white dark:focus-visible:ring-offset-neutral-950"
-                : "border-input-border hover:border-input-border-hover focus-visible:ring-primary-500 focus-visible:ring-offset-white dark:focus-visible:ring-offset-neutral-950",
+                ? 'border-input-border-error focus-visible:ring-error-500 focus-visible:ring-offset-white dark:focus-visible:ring-offset-neutral-950'
+                : 'hover:border-input-border-hover border-input-border focus-visible:ring-primary-500 focus-visible:ring-offset-white dark:focus-visible:ring-offset-neutral-950',
               className
             )}
             {...props}
           />
-          {icon && iconPosition === "right" && (
-            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-text-tertiary">
+          {icon && iconPosition === 'right' && (
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-text-tertiary">
               {icon}
             </div>
           )}
@@ -101,6 +101,6 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
   }
 );
 
-Input.displayName = "Input";
+Input.displayName = 'Input';
 
 export { Input };
