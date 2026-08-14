@@ -1,0 +1,58 @@
+# Pre-commit hooks for ResumeForge
+# Install: pip install pre-commit && pre-commit install
+# Run: pre-commit run --all-files
+
+repos:
+  # Python - Ruff (lint + format)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.5.7
+    hooks:
+      - id: ruff
+        args: [--fix]
+        types_or: [python, pyi]
+      - id: ruff-format
+        types_or: [python, pyi]
+
+  # Python - MyPy (type checking)
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.11.2
+    hooks:
+      - id: mypy
+        additional_dependencies: [pydantic, fastapi, sqlalchemy, alembic, pytest, httpx]
+        args: [--strict, --ignore-missing-imports]
+        types: [python]
+
+  # Python - Bandit (security)
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.8
+    hooks:
+      - id: bandit
+        args: [-r, app, -ll, --skip, B101,B601]
+        types: [python]
+
+  # General - Trailing whitespace
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-json
+      - id: check-merge-conflict
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      - id: detect-private-key
+
+  # Python - Debug statements
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: debug-statements
+
+  # Secrets detection
+  - repo: https://github.com/trufflesecurity/trufflehog
+    rev: v3.81.0
+    hooks:
+      - id: trufflehog
+        args: [--no-verification, --fail]

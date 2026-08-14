@@ -1,6 +1,6 @@
 /**
  * ResumeForge API 客户端
- * 基于 axios，带 Token 自动刷新
+ * 基于 axios，带 Token 自动刷新和同源代理支持
  */
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 
@@ -45,8 +45,15 @@ api.interceptors.response.use(
       _retry?: boolean;
     };
 
-    const isAuthEndpoint = originalRequest.url?.includes("/auth/login") || originalRequest.url?.includes("/auth/register");
-    if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
+    const isAuthEndpoint =
+      originalRequest.url?.includes("/auth/login") ||
+      originalRequest.url?.includes("/auth/register");
+
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !isAuthEndpoint
+    ) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -63,12 +70,12 @@ api.interceptors.response.use(
 
       if (!refreshToken) {
         isRefreshing = false;
-        window.location.href = "/auth/login";
+        window.location.href = `/${getLocale()}/auth/login`;
         return Promise.reject(error);
       }
 
       try {
-        const { data } = await axios.post(`/api/v1/auth/refresh`, {
+        const { data } = await axios.post(`${API_BASE}/api/v1/auth/refresh`, {
           refresh_token: refreshToken,
         });
         accessToken = data.access_token;
@@ -80,7 +87,7 @@ api.interceptors.response.use(
         processQueue(refreshError, null);
         accessToken = null;
         refreshToken = null;
-        window.location.href = "/auth/login";
+        window.location.href = `/${getLocale()}/auth/login`;
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
@@ -89,6 +96,16 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+// 从 URL 获取当前 locale
+function getLocale(): string {
+  if (typeof window !== "undefined") {
+    const path = window.location.pathname;
+    const match = path.match(/^\/(zh-CN|en-US)/);
+    return match ? match[1] : "zh-CN";
+  }
+  return "zh-CN";
+}
 
 // Token 管理
 export function setTokens(access: string, refresh: string) {
@@ -99,6 +116,10 @@ export function setTokens(access: string, refresh: string) {
 export function clearTokens() {
   accessToken = null;
   refreshToken = null;
+}
+
+export function getAccessToken(): string | null {
+  return accessToken;
 }
 
 export default api;

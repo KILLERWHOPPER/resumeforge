@@ -1,0 +1,94 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: resumeforge-db-staging
+    environment:
+      POSTGRES_DB: resumeforge_staging
+      POSTGRES_USER: resumeforge
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_staging_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U resumeforge"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - resumeforge-staging-internal
+
+  backend:
+    image: ${REGISTRY:-ghcr.io}/${{ github.repository }}-backend:${TAG:-develop}
+    container_name: resumeforge-api-staging
+    environment:
+      DATABASE_URL: postgresql+asyncpg://resumeforge:${POSTGRES_PASSWORD}@postgres:5432/resumeforge_staging
+      SECRET_KEY: ${SECRET_KEY}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      CORS_ORIGINS: ${CORS_ORIGINS}
+      AUTO_MIGRATE: "true"
+      LLM_REQUEST_TIMEOUT: "120"
+      LLM_STREAM_TIMEOUT: "300"
+      PDF_TEMP_DIR: "/tmp/resumeforge-pdf"
+      PDF_MAX_CONCURRENT: "2"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - pdf_temp:/tmp/resumeforge-pdf
+    restart: unless-stopped
+    networks:
+      - resumeforge-staging-internal
+      - resumeforge-staging-external
+
+  frontend:
+    image: ${REGISTRY:-ghcr.io}/${{ github.repository }}-frontend:${TAG:-develop}
+    container_name: resumeforge-web-staging
+    environment:
+      NEXT_PUBLIC_API_URL: https://staging-api.resumeforge.com
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - resumeforge-staging-internal
+      - resumeforge-staging-external
+
+  nginx:
+    image: nginx:alpine
+    container_name: resumeforge-proxy-staging
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.staging.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - certbot-www:/var/www/certbot
+      - certbot-etc:/etc/letsencrypt
+    depends_on:
+      - frontend
+      - backend
+    restart: unless-stopped
+    networks:
+      - resumeforge-staging-external
+
+  certbot:
+    image: certbot/certbot
+    container_name: resumeforge-certbot-staging
+    volumes:
+      - certbot-etc:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done'"
+
+volumes:
+  postgres_staging_data:
+  pdf_temp:
+  certbot-www:
+  certbot-etc:
+
+networks:
+  resumeforge-staging-internal:
+    driver: bridge
+    internal: true
+  resumeforge-staging-external:
+    driver: bridge
