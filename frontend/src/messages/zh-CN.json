@@ -333,7 +333,30 @@
       },
       "waiting": "请稍候，AI 正在为您定制简历...",
       "complete": "生成完成",
-      "viewResult": "查看结果"
+      "viewResult": "查看结果",
+      "livePreview": "实时内容预览"
+    },
+    "provider": {
+      "defaultInfo": "当前使用 OpenCode 匿名免费模型（DeepSeek V4 Flash），无需 API Key。您可以在设置中配置自定义 LLM 模型。",
+      "customInfo": "当前使用已配置的模型：{name}"
+    },
+    "completeness": {
+      "title": "经历完整性检查",
+      "workCount": "{count} 段工作/项目经历",
+      "educationCount": "{count} 段教育经历",
+      "skillCount": "{count} 项技能",
+      "workMissing": "缺少工作或项目经历，生成内容可能较单薄",
+      "educationMissing": "缺少教育经历",
+      "skillMissing": "缺少技能",
+      "complete": "经历数据完整，已准备好生成"
+    },
+    "result": {
+      "version": "当前版本",
+      "notGenerated": "该简历尚未生成内容",
+      "notGeneratedDesc": "返回新建页面输入职位描述，AI 将为您生成针对性简历",
+      "regenerate": "重新生成",
+      "actions": "操作",
+      "editComingSoon": "编辑器即将上线"
     },
     "editor": {
       "title": "简历编辑器",

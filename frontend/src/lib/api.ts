@@ -150,4 +150,69 @@ export function getAccessToken(): string | null {
   return accessToken;
 }
 
+// ---- SSE 流式请求（简历生成进度） ----
+
+export type SSEHandler = (
+  event: string,
+  data: Record<string, unknown>
+) => void;
+
+export async function streamSSE(
+  url: string,
+  handlers: {
+    onEvent: SSEHandler;
+    onError?: (err: Error) => void;
+  }
+): Promise<void> {
+  const token = getAccessToken();
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token ?? ""}`,
+        "Content-Type": "application/json",
+      },
+      body: "{}",
+    });
+
+    if (!res.ok || !res.body) {
+      const text = await res.text().catch(() => "");
+      throw new Error(`SSE 请求失败: ${res.status} ${text}`);
+    }
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+
+      let idx: number;
+      while ((idx = buffer.indexOf("\n\n")) >= 0) {
+        const raw = buffer.slice(0, idx);
+        buffer = buffer.slice(idx + 2);
+
+        let event = "message";
+        let data = "";
+        for (const line of raw.split("\n")) {
+          if (line.startsWith("event:")) event = line.slice(6).trim();
+          else if (line.startsWith("data:")) data = line.slice(5).trim();
+        }
+        if (data) {
+          try {
+            handlers.onEvent(event, JSON.parse(data));
+          } catch {
+            handlers.onEvent(event, { raw: data });
+          }
+        }
+      }
+    }
+  } catch (err) {
+    handlers.onError?.(err as Error);
+    throw err;
+  }
+}
+
 export default api;

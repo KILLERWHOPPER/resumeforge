@@ -1,0 +1,224 @@
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { usePathname, useRouter } from "@/i18n/routing";
+import { ChevronLeft, FileText, RotateCcw, Sparkles } from "lucide-react";
+import { AppHeader } from "@/components/layout/AppHeader";
+import { Button } from "@/components/ui/Button";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { useToast } from "@/components/ui/Toast";
+import api, { streamSSE } from "@/lib/api";
+
+interface Resume {
+  id: number;
+  company_name: string | null;
+  target_language: string;
+  status: string;
+  created_at: string;
+}
+
+interface ResumeContent {
+  content: Record<string, unknown> | null;
+  version: number | null;
+}
+
+interface PMNode {
+  type: string;
+  text?: string;
+  attrs?: { level?: number };
+  content?: PMNode[];
+}
+
+function renderInline(node: PMNode): React.ReactNode {
+  if (node.type === "text") return node.text || "";
+  return "";
+}
+
+function renderNode(node: PMNode, key: number): React.ReactNode {
+  switch (node.type) {
+    case "paragraph":
+      return (
+        <p key={key} className="text-sm leading-relaxed text-text-secondary">
+          {node.content?.map((c, i) => renderInline(c))}
+        </p>
+      );
+    case "heading": {
+      const level = node.attrs?.level || 2;
+      const cls =
+        level === 1
+          ? "text-xl font-bold text-text-primary"
+          : level === 2
+            ? "text-lg font-semibold text-text-primary mt-6 mb-3"
+            : "text-base font-semibold text-text-primary mt-4 mb-2";
+      return (
+        <div key={key} className={cls}>
+          {node.content?.map((c, i) => renderInline(c))}
+        </div>
+      );
+    }
+    case "bulletList":
+      return (
+        <ul key={key} className="space-y-1.5 mb-4">
+          {node.content?.map((li, i) => (
+            <li key={i} className="flex gap-2 text-sm leading-relaxed text-text-secondary">
+              <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-primary-500 flex-shrink-0" />
+              <span>
+                {li.content?.map((c, j) => renderInline(c))}
+              </span>
+            </li>
+          ))}
+        </ul>
+      );
+    default:
+      return null;
+  }
+}
+
+export default function ResumeResultPage({ params }: { params: { id: string } }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const locale = pathname.split("/")[1];
+  const t = useTranslations("resume");
+  const tCommon = useTranslations("common");
+  const toast = useToast();
+
+  const resumeId = params.id;
+  const [resume, setResume] = useState<Resume | null>(null);
+  const [content, setContent] = useState<ResumeContent | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [resumeRes, contentRes] = await Promise.all([
+        api.get(`/resumes/${resumeId}`),
+        api.get(`/resumes/${resumeId}/content`),
+      ]);
+      setResume(resumeRes.data);
+      setContent(contentRes.data);
+    } catch {
+      toast.error(tCommon("error"), tCommon("networkError"));
+    } finally {
+      setLoading(false);
+    }
+  }, [resumeId, tCommon, toast]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const handleRegenerate = async () => {
+    setGenerating(true);
+    try {
+      await streamSSE(`/api/v1/resumes/${resumeId}/generate`, {
+        onEvent: (event, data) => {
+          if (event === "complete") {
+            toast.success(t("generation.complete"), t("generation.viewResult"));
+            fetchData();
+          } else if (event === "error") {
+            toast.error(tCommon("error"), String(data.message || ""));
+          }
+        },
+        onError: (err) => {
+          toast.error(tCommon("error"), String(err.message));
+        },
+      });
+    } catch {
+      toast.error(tCommon("error"), tCommon("networkError"));
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const doc = content?.content as PMNode | null;
+
+  return (
+    <div className="min-h-screen bg-background-primary">
+      <AppHeader activePrefix={`/${locale}/resumes`} />
+
+      <main className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-6 flex items-center gap-3">
+          <Link
+            href={`/${locale}/dashboard`}
+            className="inline-flex items-center gap-1 text-sm text-text-secondary hover:text-text-primary transition-colors"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            {tCommon("back")}
+          </Link>
+        </div>
+
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-text-primary">
+              {resume?.company_name || t("jdInput.title")}
+            </h1>
+            {content?.version && (
+              <p className="text-sm text-text-secondary mt-1">
+                {t("result.version")} v{content.version}
+              </p>
+            )}
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="secondary"
+              loading={generating}
+              onClick={handleRegenerate}
+              icon={<RotateCcw className="h-4 w-4" />}
+            >
+              {t("result.regenerate")}
+            </Button>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="space-y-4">
+            <Skeleton variant="card" height={120} />
+            <Skeleton variant="card" height={200} />
+          </div>
+        ) : !doc ? (
+          <EmptyState
+            illustration="document"
+            title={t("result.notGenerated")}
+            description={t("result.notGeneratedDesc")}
+            action={{
+              label: t("generation.title"),
+              onClick: () => router.push(`/${locale}/resumes/new`),
+            }}
+          />
+        ) : (
+          <div className="grid gap-6 lg:grid-cols-[1fr_260px]">
+            <div className="bg-white dark:bg-neutral-900 border border-border-light dark:border-border-dark rounded-xl p-8 shadow-sm">
+              <div className="max-w-[700px] mx-auto">
+                {doc.content?.map((node, i) => renderNode(node, i))}
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="bg-white dark:bg-neutral-900 border border-border-light dark:border-border-dark rounded-xl p-5">
+                <p className="text-sm font-medium text-text-primary mb-3">
+                  {t("result.actions")}
+                </p>
+                <div className="flex flex-col gap-2">
+                  <Button variant="secondary" fullWidth disabled icon={<FileText className="h-4 w-4" />}>
+                    {t("result.editComingSoon")}
+                  </Button>
+                  <Button
+                    fullWidth
+                    onClick={() => router.push(`/${locale}/resumes/new`)}
+                    icon={<Sparkles className="h-4 w-4" />}
+                  >
+                    {t("generation.title")}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
+    </div>
+  );
+}

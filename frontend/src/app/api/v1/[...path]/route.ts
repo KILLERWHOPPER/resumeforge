@@ -24,7 +24,11 @@ function sendToBackend(
   path: string,
   headers: Record<string, string>,
   body: Buffer
-): Promise<{ status: number; headers: Record<string, string>; body: Buffer }> {
+): Promise<{
+  status: number;
+  headers: Record<string, string>;
+  body: ReadableStream<Uint8Array> | null;
+}> {
   return new Promise((resolve, reject) => {
     const options: http.RequestOptions = {
       hostname: BACKEND_HOST,
@@ -42,14 +46,28 @@ function sendToBackend(
         }
       }
 
-      const chunks: Buffer[] = [];
-      proxyRes.on("data", (chunk) => chunks.push(chunk));
-      proxyRes.on("end", () => {
-        resolve({
-          status: proxyRes.statusCode || 500,
-          headers: resHeaders,
-          body: Buffer.concat(chunks),
-        });
+      // 流式转发响应体（支持 SSE 实时推送，避免整体缓冲）
+      const stream = new ReadableStream<Uint8Array>({
+        start(controller) {
+          proxyRes.on("data", (chunk) => {
+            try {
+              controller.enqueue(new Uint8Array(chunk));
+            } catch {
+              // ignore post-cancel enqueue
+            }
+          });
+          proxyRes.on("end", () => controller.close());
+          proxyRes.on("error", (err) => controller.error(err));
+        },
+        cancel() {
+          proxyRes.destroy();
+        },
+      });
+
+      resolve({
+        status: proxyRes.statusCode || 500,
+        headers: resHeaders,
+        body: stream,
       });
     });
 
@@ -104,10 +122,9 @@ async function proxyRequest(
       }
     }
 
+    const isNoBody = res.status === 204 || res.status === 205 || res.status === 304;
     return new NextResponse(
-      res.status === 204 || res.status === 205 || res.status === 304
-        ? null
-        : (res.body as unknown as ReadableStream<Uint8Array> | null),
+      isNoBody ? null : (res.body as unknown as ReadableStream<Uint8Array> | null),
       {
         status: res.status,
         headers: res.headers,

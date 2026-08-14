@@ -333,7 +333,30 @@
       },
       "waiting": "Please wait, AI is crafting your resume...",
       "complete": "Generation Complete",
-      "viewResult": "View Result"
+      "viewResult": "View Result",
+      "livePreview": "Live Content Preview"
+    },
+    "provider": {
+      "defaultInfo": "Currently using the OpenCode anonymous free model (DeepSeek V4 Flash) — no API Key needed. You can configure a custom LLM in Settings.",
+      "customInfo": "Using configured model: {name}"
+    },
+    "completeness": {
+      "title": "Experience Completeness",
+      "workCount": "{count} work/project entries",
+      "educationCount": "{count} education entries",
+      "skillCount": "{count} skills",
+      "workMissing": "No work or project experience — generated content may be thin",
+      "educationMissing": "No education entries",
+      "skillMissing": "No skills added",
+      "complete": "Experience data is complete and ready for generation"
+    },
+    "result": {
+      "version": "Version",
+      "notGenerated": "No content generated for this resume yet",
+      "notGeneratedDesc": "Go back and paste a job description to have AI generate a tailored resume",
+      "regenerate": "Regenerate",
+      "actions": "Actions",
+      "editComingSoon": "Editor coming soon"
     },
     "editor": {
       "title": "Resume Editor",
