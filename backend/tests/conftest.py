@@ -9,11 +9,48 @@ import pytest
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from app.core.database import Base, get_db
+from app.core.database import Base
 from app.main import app
+from app.services.ai_resume_service import AIResumeService
 
 # 使用内存 SQLite 进行测试
 TEST_DATABASE_URL = "sqlite+aiosqlite:///./test.db"
+
+
+class FakeLLM:
+    """用于测试的假 LLM 客户端（不发起真实网络请求）"""
+
+    def __init__(
+        self,
+        chat_result: str = '{"core_responsibilities": ["开发核心服务"], "required_skills": ["Python"], "preferred_skills": ["Docker"], "experience_level": "3-5年", "soft_skills": ["沟通"], "keywords": ["FastAPI"]}',
+        stream_chunks: list[str] | None = None,
+    ):
+        self.chat_result = chat_result
+        self.stream_chunks = stream_chunks or ['{"summary": "职业摘要", "sections": []}']
+
+    async def chat(self, messages, *, temperature=0.7, max_tokens=None) -> str:
+        return self.chat_result
+
+    async def chat_stream(self, messages, *, temperature=0.7, max_tokens=None) -> AsyncGenerator[str, None]:
+        for chunk in self.stream_chunks:
+            yield chunk
+
+    async def test_connection(self) -> None:
+        return None
+
+
+@pytest.fixture
+def fake_llm(monkeypatch):
+    """将 AIResumeService 的 LLM 客户端替换为 FakeLLM"""
+
+    def _install(client: FakeLLM):
+        async def _get_client(self, user_id):
+            return client
+
+        monkeypatch.setattr(AIResumeService, "_get_client", _get_client)
+        return client
+
+    return _install
 
 
 @pytest.fixture(scope="session")
@@ -47,6 +84,8 @@ async def db_session() -> AsyncGenerator[AsyncSession, None]:
 async def client(db_session: AsyncSession) -> AsyncGenerator[Any, None]:
     """创建测试 HTTP 客户端"""
     from httpx import ASGITransport, AsyncClient
+
+    from app.core.dependencies import get_db
 
     # 注入测试 DB
     async def override_get_db():

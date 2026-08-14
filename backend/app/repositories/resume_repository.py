@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from typing import Sequence
+from collections.abc import Sequence
 
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from app.models.resume import Resume, ResumeVersion, JDAnalysis
+from app.models.resume import JDAnalysis, Resume, ResumeVersion
 from app.repositories.base import BaseRepository
 
 
@@ -68,3 +68,21 @@ class ResumeRepository(BaseRepository[Resume]):
             select(JDAnalysis).where(JDAnalysis.resume_id == resume_id)
         )
         return result.scalar_one_or_none()
+
+    async def save_jd_analysis(self, resume_id: int, analysis: dict) -> JDAnalysis:
+        """保存（覆盖）JD 分析结果"""
+        existing = await self.get_jd_analysis(resume_id)
+        if existing:
+            existing.analysis = analysis
+            analysis_obj = existing
+        else:
+            analysis_obj = JDAnalysis(resume_id=resume_id, analysis=analysis)
+            self.db.add(analysis_obj)
+        await self.db.flush()
+        await self.db.refresh(analysis_obj)
+        return analysis_obj
+
+    async def next_version_number(self, resume: Resume) -> int:
+        """计算下一个版本号"""
+        current = await self.get_current_version(resume)
+        return (current.version_number + 1) if current else 1

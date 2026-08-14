@@ -25,6 +25,17 @@ class ResumeContentUpdate(BaseModel):
     content: dict  # ProseMirror JSON
 
 
+class JDAnalysisResponse(BaseModel):
+    resume_id: int
+    core_responsibilities: list[str]
+    required_skills: list[str]
+    preferred_skills: list[str]
+    experience_level: str
+    soft_skills: list[str]
+    keywords: list[str]
+    created_at: datetime
+
+
 class LLMConfigCreate(BaseModel):
     name: str = Field(max_length=100)
     base_url: str = Field(max_length=500)

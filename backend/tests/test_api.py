@@ -7,6 +7,8 @@ from httpx import AsyncClient
 
 from app.services.llm_client import LLMClient
 
+from .conftest import FakeLLM
+
 
 async def register_and_login(
     client: AsyncClient,
@@ -205,9 +207,10 @@ async def test_experiences_crud(client: AsyncClient):
 
 
 @pytest.mark.asyncio
-async def test_resumes_crud(client: AsyncClient):
+async def test_resumes_crud(client: AsyncClient, fake_llm):
     """简历 CRUD + 内容 + 生成"""
     headers = await register_and_login(client)
+    fake_llm(FakeLLM())
 
     # 创建
     resp = await client.post(
@@ -215,7 +218,7 @@ async def test_resumes_crud(client: AsyncClient):
         headers=headers,
         json={
             "company_name": "Acme Corp",
-            "jd_text": "Looking for a senior backend engineer",
+            "jd_text": "Looking for a senior backend engineer with experience in Python and distributed systems",
             "target_language": "english",
         },
     )
@@ -256,17 +259,96 @@ async def test_resumes_crud(client: AsyncClient):
     assert resp.status_code == 200
     assert resp.json()["version"] == 1
 
-    # 生成（假 SSE）
+    # 生成（SSE）
     resp = await client.post(
         f"/api/v1/resumes/{resume_id}/generate",
         headers=headers,
     )
     assert resp.status_code == 200
-    assert "event:" in resp.text
+    assert "text/event-stream" in resp.headers["content-type"]
+    assert "event: complete" in resp.text
+
+    # 再次生成（并发锁 -> 上一轮已置为 generated，可再次生成）
+    resp = await client.post(
+        f"/api/v1/resumes/{resume_id}/generate",
+        headers=headers,
+    )
+    assert resp.status_code == 200
+    assert "event: complete" in resp.text
 
     # 删除
     resp = await client.delete(f"/api/v1/resumes/{resume_id}", headers=headers)
     assert resp.status_code == 204
+
+
+@pytest.mark.asyncio
+async def test_analyze_jd_endpoint(client: AsyncClient, fake_llm):
+    """JD 分析 API + 结果读取"""
+    headers = await register_and_login(client)
+    fake_llm(FakeLLM())
+
+    resp = await client.post(
+        "/api/v1/resumes/",
+        headers=headers,
+        json={
+            "company_name": "Corp",
+            "jd_text": "We are hiring a Python backend developer to build scalable APIs for our platform with FastAPI, PostgreSQL, Docker and AWS.",
+            "target_language": "english",
+        },
+    )
+    resume_id = resp.json()["id"]
+
+    resp = await client.post(f"/api/v1/resumes/{resume_id}/analyze-jd", headers=headers)
+    assert resp.status_code == 200
+    analysis = resp.json()
+    assert analysis["resume_id"] == resume_id
+    assert analysis["core_responsibilities"]
+    assert analysis["required_skills"]
+
+    # 读取已保存分析
+    resp = await client.get(f"/api/v1/resumes/{resume_id}/analysis", headers=headers)
+    assert resp.status_code == 200
+    assert resp.json()["required_skills"] == ["Python"]
+
+    # 过短的 JD -> 400
+    short = await client.post(
+        "/api/v1/resumes/",
+        headers=headers,
+        json={"company_name": "X", "jd_text": "short jd", "target_language": "english"},
+    )
+    resp = await client.post(f"/api/v1/resumes/{short.json()['id']}/analyze-jd", headers=headers)
+    assert resp.status_code == 400
+
+
+@pytest.mark.asyncio
+async def test_effective_provider(client: AsyncClient):
+    """默认 LLM 提供方 = OpenCode 匿名免费模型"""
+    headers = await register_and_login(client)
+
+    resp = await client.get("/api/v1/llm-configs/effective", headers=headers)
+    assert resp.status_code == 200
+    provider = resp.json()
+    assert provider["source"] == "opencode_free"
+    assert provider["model_name"] == "deepseek-v4-flash-free"
+
+    # 配置并激活自定义模型后，生效提供方切换
+    resp = await client.post(
+        "/api/v1/llm-configs/",
+        headers=headers,
+        json={
+            "name": "Custom",
+            "base_url": "https://api.example.com/v1",
+            "api_key": "sk-custom-key",
+            "model_name": "my-model",
+        },
+    )
+    config_id = resp.json()["id"]
+    await client.put(f"/api/v1/llm-configs/{config_id}/activate", headers=headers)
+
+    resp = await client.get("/api/v1/llm-configs/effective", headers=headers)
+    provider = resp.json()
+    assert provider["source"] == "custom"
+    assert provider["model_name"] == "my-model"
 
 
 @pytest.mark.asyncio

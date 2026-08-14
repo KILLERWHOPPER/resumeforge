@@ -5,9 +5,20 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.dependencies import get_current_user_id, get_db
 from app.schemas.resume import LLMConfigCreate, LLMConfigResponse, LLMConfigTest
+from app.services.ai_resume_service import AIResumeService
 from app.services.llm_config_service import LLMConfigService
 
 router = APIRouter()
+
+
+@router.get("/effective")
+async def get_effective_provider(
+    db: AsyncSession = Depends(get_db),
+    user_id: int = Depends(get_current_user_id),
+):
+    """获取当前生效的 LLM 提供方（用户激活配置或 OpenCode 匿名免费默认）"""
+    service = AIResumeService(db)
+    return await service.get_effective_provider(user_id)
 
 
 @router.post("/test")

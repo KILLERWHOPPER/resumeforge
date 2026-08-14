@@ -21,6 +21,12 @@ class Settings(BaseSettings):
     LLM_REQUEST_TIMEOUT: int = 120
     LLM_STREAM_TIMEOUT: int = 300
 
+    # OpenCode Zen 匿名免费模型（无需 API Key 的默认 LLM 提供方）
+    OPENCODE_ANON_BASE_URL: str = "https://opencode.ai/zen/v1"
+    OPENCODE_ANON_API_KEY: str = "public"
+    OPENCODE_ANON_MODEL: str = "deepseek-v4-flash-free"
+    OPENCODE_ANON_NAME: str = "OpenCode DeepSeek V4 Flash (免费)"
+
     # PDF
     PDF_TEMP_DIR: str = "/tmp/resumeforge-pdf"
     PDF_MAX_CONCURRENT: int = 2

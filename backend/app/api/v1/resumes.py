@@ -1,11 +1,14 @@
 """API v1 — 简历管理路由（使用 Service 层）"""
 
+import json
+
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.dependencies import get_current_user_id, get_db
-from app.schemas.resume import ResumeContentUpdate, ResumeCreate, ResumeResponse
+from app.schemas.resume import JDAnalysisResponse, ResumeContentUpdate, ResumeCreate, ResumeResponse
+from app.services.ai_resume_service import AIResumeService
 from app.services.resume_service import ResumeService
 
 router = APIRouter()
@@ -68,24 +71,51 @@ async def update_resume_content(
     return await service.update_resume_content(resume_id, user_id, data, if_match)
 
 
+@router.post("/{resume_id}/analyze-jd", response_model=JDAnalysisResponse)
+async def analyze_jd(
+    resume_id: int,
+    db: AsyncSession = Depends(get_db),
+    user_id: int = Depends(get_current_user_id),
+):
+    """AI 分析职位描述（结果缓存到 jd_analyses）"""
+    service = AIResumeService(db)
+    return await service.analyze_jd(resume_id, user_id)
+
+
+@router.get("/{resume_id}/analysis", response_model=JDAnalysisResponse | None)
+async def get_jd_analysis(
+    resume_id: int,
+    db: AsyncSession = Depends(get_db),
+    user_id: int = Depends(get_current_user_id),
+):
+    """获取已保存的 JD 分析结果"""
+    service = AIResumeService(db)
+    return await service.get_analysis(resume_id, user_id)
+
+
 @router.post("/{resume_id}/generate")
 async def generate_resume(
     resume_id: int,
     db: AsyncSession = Depends(get_db),
     user_id: int = Depends(get_current_user_id),
 ):
-    """AI 生成简历（SSE 流式）"""
-    # 验证简历存在
-    service = ResumeService(db)
-    await service.get_resume(resume_id, user_id)
+    """AI 生成简历（SSE 流式，带并发生成锁）"""
+    service = AIResumeService(db)
 
-    # TODO: 实际的 LLM 调用和 SSE 流式返回
     async def event_stream():
-        yield "event: status\ndata: 正在分析职位描述...\n\n"
-        yield "event: status\ndata: 正在生成简历内容...\n\n"
-        yield "event: complete\ndata: {}\n\n"
+        try:
+            async for item in service.generate_resume(resume_id, user_id):
+                event = item["event"]
+                payload = {k: v for k, v in item.items() if k != "event"}
+                yield f"event: {event}\ndata: {json.dumps(payload, ensure_ascii=False)}\n\n"
+        except Exception as exc:  # noqa: BLE001 — 需要把异常转成 SSE error 事件
+            yield f"event: error\ndata: {json.dumps({'message': str(exc)}, ensure_ascii=False)}\n\n"
 
-    return StreamingResponse(event_stream(), media_type="text/event-stream")
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
 
 
 @router.delete("/{resume_id}", status_code=204)
