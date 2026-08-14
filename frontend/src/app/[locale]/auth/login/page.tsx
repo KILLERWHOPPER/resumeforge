@@ -119,14 +119,6 @@ export default function LoginPage() {
                   {t("registerLink")}
                 </Link>
               </p>
-              <p className="mt-2 text-sm text-text-secondary">
-                <Link
-                  href={`/${locale}/auth/forgot-password`}
-                  className="text-primary-600 hover:text-primary-500"
-                >
-                  {t("forgotPassword")}
-                </Link>
-              </p>
             </div>
           </div>
         </div>

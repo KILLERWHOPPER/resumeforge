@@ -1,13 +1,9 @@
 "use client";
 
-import { redirect, useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/routing";
 
 export default function Home() {
   const router = useRouter();
-  const t = useTranslations("common");
-
-  // Redirect to dashboard or login
   router.push("/dashboard");
   return null;
 }

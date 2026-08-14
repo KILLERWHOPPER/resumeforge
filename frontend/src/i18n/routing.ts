@@ -7,7 +7,7 @@ export const defaultLocale = "zh-CN" as const;
 export const routing = defineRouting({
   locales,
   defaultLocale,
-  localePrefix: "as-needed",
+  localePrefix: "always",
 });
 
 export const { Link, redirect, usePathname, useRouter, getPathname } =
