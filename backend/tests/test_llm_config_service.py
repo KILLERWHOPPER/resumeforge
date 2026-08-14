@@ -3,10 +3,14 @@
 from __future__ import annotations
 
 import pytest
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.crypto import decrypt
 from app.core.exceptions import NotFound
-from app.schemas.resume import LLMConfigCreate
+from app.models.llm_config import LLMConfig
+from app.schemas.resume import LLMConfigCreate, LLMConfigTest
+from app.services.llm_client import LLMClient
 from app.services.llm_config_service import LLMConfigService
 
 
@@ -25,6 +29,44 @@ async def test_create_llm_config(db_session: AsyncSession):
     assert result.name == "GPT-4o"
     assert result.api_key_masked is not None
     assert result.api_key_masked.startswith("sk-test")
+
+
+@pytest.mark.asyncio
+async def test_create_config_encrypts_api_key(db_session: AsyncSession):
+    """测试 API Key 以 AES-256-GCM 加密存储，可还原"""
+    service = LLMConfigService(db_session)
+    data = LLMConfigCreate(
+        name="Secret",
+        base_url="https://api.secret.com/v1",
+        api_key="sk-super-secret-value-123",
+        model_name="secret-model",
+    )
+    await service.create_config(1, data)
+
+    result = await db_session.execute(select(LLMConfig).where(LLMConfig.name == "Secret"))
+    config = result.scalar_one()
+
+    assert config.api_key_encrypted != "sk-super-secret-value-123"
+    assert "sk-super-secret-value-123" not in config.api_key_encrypted
+    assert decrypt(config.api_key_encrypted) == "sk-super-secret-value-123"
+
+
+@pytest.mark.asyncio
+async def test_test_connection_success(db_session: AsyncSession, monkeypatch):
+    """测试连接接口返回成功"""
+
+    async def fake_test(self: LLMClient) -> None:
+        return None
+
+    monkeypatch.setattr(LLMClient, "test_connection", fake_test)
+    service = LLMConfigService(db_session)
+    data = LLMConfigTest(
+        base_url="https://api.openai.com/v1",
+        api_key="sk-test",
+        model_name="gpt-4o",
+    )
+    result = await service.test_connection(1, data)
+    assert result["success"] is True
 
 
 @pytest.mark.asyncio

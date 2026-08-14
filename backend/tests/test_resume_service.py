@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import BadRequest, NotFound
 from app.repositories.resume_repository import ResumeRepository
-from app.schemas.resume import ResumeCreate, ResumeContentUpdate
+from app.schemas.resume import ResumeContentUpdate, ResumeCreate
 from app.services.resume_service import ResumeService
 
 

@@ -34,6 +34,20 @@ class ExperienceService:
         """获取用户所有经历"""
         return await self.repo.list_by_user(user_id, type_filter)
 
+    async def aggregate(self, user_id: int) -> dict:
+        """按类型分组返回所有经历"""
+        experiences = await self.repo.list_by_user(user_id)
+        grouped: dict[str, list[Experience]] = {
+            "education": [],
+            "work": [],
+            "project": [],
+            "skill": [],
+            "certificate": [],
+        }
+        for exp in experiences:
+            grouped.setdefault(exp.type, []).append(exp)
+        return grouped
+
     async def create_experience(
         self,
         user_id: int,

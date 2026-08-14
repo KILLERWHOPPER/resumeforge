@@ -6,9 +6,8 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import NotFound
-from app.models.experience import Experience
 from app.repositories.experience_repository import ExperienceRepository
-from app.schemas.experience import EducationCreate, WorkCreate, ExperienceUpdate
+from app.schemas.experience import EducationCreate, ExperienceUpdate
 from app.services.experience_service import ExperienceService
 
 
@@ -46,6 +45,25 @@ async def test_list_experiences(db_session: AsyncSession):
     # 按类型筛选
     edu = await service.list_experiences(1, type_filter="education")
     assert len(edu) == 1
+
+
+@pytest.mark.asyncio
+async def test_aggregate_experiences(db_session: AsyncSession):
+    """测试按类型分组的聚合接口"""
+    service = ExperienceService(db_session)
+    repo = ExperienceRepository(db_session)
+
+    await repo.create(user_id=1, type="work", company="Company A", sort_order=0)
+    await repo.create(user_id=1, type="education", school="Uni B", sort_order=0)
+    await repo.create(user_id=1, type="skill", name="Python", sort_order=0)
+
+    result = await service.aggregate(1)
+
+    assert len(result["work"]) == 1
+    assert len(result["education"]) == 1
+    assert len(result["skill"]) == 1
+    assert result["project"] == []
+    assert result["certificate"] == []
 
 
 @pytest.mark.asyncio

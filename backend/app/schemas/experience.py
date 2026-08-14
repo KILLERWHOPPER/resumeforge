@@ -2,6 +2,10 @@
 from pydantic import BaseModel, Field
 
 
+class ExperienceReorder(BaseModel):
+    order: list[int] = Field(min_length=1)
+
+
 class ExperienceBase(BaseModel):
     type: str = Field(pattern="^(education|work|project|skill|certificate)$")
     sort_order: int = 0

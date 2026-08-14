@@ -7,9 +7,7 @@ from typing import Any
 
 import pytest
 import pytest_asyncio
-from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.orm import sessionmaker
 
 from app.core.database import Base, get_db
 from app.main import app

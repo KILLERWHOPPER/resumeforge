@@ -4,10 +4,21 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.dependencies import get_current_user_id, get_db
-from app.schemas.resume import LLMConfigCreate, LLMConfigResponse
+from app.schemas.resume import LLMConfigCreate, LLMConfigResponse, LLMConfigTest
 from app.services.llm_config_service import LLMConfigService
 
 router = APIRouter()
+
+
+@router.post("/test")
+async def test_llm_config(
+    data: LLMConfigTest,
+    db: AsyncSession = Depends(get_db),
+    user_id: int = Depends(get_current_user_id),
+):
+    """测试 LLM 配置连接"""
+    service = LLMConfigService(db)
+    return await service.test_connection(user_id, data)
 
 
 @router.get("/", response_model=list[LLMConfigResponse])
@@ -51,4 +62,3 @@ async def delete_llm_config(
     """删除 LLM 配置"""
     service = LLMConfigService(db)
     await service.delete_config(config_id, user_id)
-    return None

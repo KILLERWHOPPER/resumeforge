@@ -43,3 +43,9 @@ class LLMConfigResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class LLMConfigTest(BaseModel):
+    base_url: str = Field(max_length=500)
+    api_key: str
+    model_name: str = Field(max_length=200)

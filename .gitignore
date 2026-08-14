@@ -22,5 +22,10 @@ docker-compose.override.yml
 # Database
 *.db
 
+# Test coverage
+.coverage
+htmlcov/
+coverage.xml
+
 # PDF temp files
 /tmp/

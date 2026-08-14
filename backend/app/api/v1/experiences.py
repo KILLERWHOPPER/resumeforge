@@ -7,6 +7,7 @@ from app.core.dependencies import get_current_user_id, get_db
 from app.schemas.experience import (
     CertificateCreate,
     EducationCreate,
+    ExperienceReorder,
     ExperienceResponse,
     ExperienceUpdate,
     ProjectCreate,
@@ -29,6 +30,16 @@ async def list_experiences(
     return await service.list_experiences(user_id, type)
 
 
+@router.get("/aggregate")
+async def aggregate_experiences(
+    db: AsyncSession = Depends(get_db),
+    user_id: int = Depends(get_current_user_id),
+):
+    """获取所有经历（按类型分组）"""
+    service = ExperienceService(db)
+    return await service.aggregate(user_id)
+
+
 @router.post("/", response_model=ExperienceResponse, status_code=201)
 async def create_experience(
     data: EducationCreate | WorkCreate | ProjectCreate | SkillCreate | CertificateCreate,
@@ -38,6 +49,18 @@ async def create_experience(
     """创建新经历"""
     service = ExperienceService(db)
     return await service.create_experience(user_id, data)
+
+
+@router.put("/reorder", status_code=200)
+async def reorder_experiences(
+    data: ExperienceReorder,
+    db: AsyncSession = Depends(get_db),
+    user_id: int = Depends(get_current_user_id),
+):
+    """批量更新排序"""
+    service = ExperienceService(db)
+    await service.reorder_experiences(user_id, data.order)
+    return {"message": "排序更新成功"}
 
 
 @router.get("/{experience_id}", response_model=ExperienceResponse)
@@ -72,16 +95,3 @@ async def delete_experience(
     """删除经历"""
     service = ExperienceService(db)
     await service.delete_experience(experience_id, user_id)
-    return None
-
-
-@router.put("/reorder", status_code=200)
-async def reorder_experiences(
-    order: list[int],
-    db: AsyncSession = Depends(get_db),
-    user_id: int = Depends(get_current_user_id),
-):
-    """批量更新排序"""
-    service = ExperienceService(db)
-    await service.reorder_experiences(user_id, order)
-    return {"message": "排序更新成功"}

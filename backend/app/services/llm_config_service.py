@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
-from typing import Sequence
-
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.crypto import decrypt_or_plaintext, encrypt
 from app.core.exceptions import NotFound
 from app.models.llm_config import LLMConfig
 from app.repositories.llm_config_repository import LLMConfigRepository
-from app.schemas.resume import LLMConfigCreate, LLMConfigResponse
+from app.schemas.resume import LLMConfigCreate, LLMConfigResponse, LLMConfigTest
+from app.services.llm_client import LLMClient
 
 
 class LLMConfigService:
@@ -28,19 +28,25 @@ class LLMConfigService:
                 base_url=c.base_url,
                 model_name=c.model_name,
                 is_active=c.is_active,
-                api_key_masked=c.api_key_encrypted[:8] + "..." if c.api_key_encrypted else None,
+                api_key_masked=self._mask(decrypt_or_plaintext(c.api_key_encrypted)),
             )
             for c in configs
         ]
+
+    def _mask(self, plaintext: str) -> str:
+        """脱敏 API Key"""
+        mask_len = 8
+        if not plaintext:
+            return "未配置"
+        return plaintext[:mask_len] + "..." if len(plaintext) > mask_len else plaintext
 
     async def create_config(
         self,
         user_id: int,
         data: LLMConfigCreate,
     ) -> LLMConfigResponse:
-        """创建 LLM 配置"""
-        # TODO: 实际的 AES-256-GCM 加密
-        api_key_encrypted = data.api_key
+        """创建 LLM 配置（API Key 使用 AES-256-GCM 加密存储）"""
+        api_key_encrypted = encrypt(data.api_key)
 
         config = await self.repo.create(
             user_id=user_id,
@@ -56,7 +62,7 @@ class LLMConfigService:
             base_url=config.base_url,
             model_name=config.model_name,
             is_active=config.is_active,
-            api_key_masked=data.api_key[:8] + "...",
+            api_key_masked=self._mask(data.api_key),
         )
 
     async def activate_config(self, config_id: int, user_id: int) -> dict:
@@ -83,3 +89,20 @@ class LLMConfigService:
     async def get_active_config(self, user_id: int) -> LLMConfig | None:
         """获取用户当前激活的配置"""
         return await self.repo.get_active(user_id)
+
+    async def test_connection(self, user_id: int, data: LLMConfigTest) -> dict:
+        """测试 LLM 配置连接（不落库）"""
+        client = LLMClient(
+            base_url=data.base_url,
+            api_key=data.api_key,
+            model_name=data.model_name,
+        )
+        await client.test_connection()
+        return {"success": True, "message": f"连接成功: {data.model_name}"}
+
+    async def get_decrypted_api_key(self, config_id: int, user_id: int) -> str:
+        """获取已解密（或历史明文）的 API Key"""
+        config = await self.repo.get(config_id)
+        if not config or config.user_id != user_id:
+            raise NotFound("配置不存在")
+        return decrypt_or_plaintext(config.api_key_encrypted)

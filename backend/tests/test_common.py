@@ -2,9 +2,14 @@
 
 from __future__ import annotations
 
-import pytest
-
-from app.core.exceptions import AppException, NotFound, Unauthorized, Forbidden, BadRequest, Conflict
+from app.core.exceptions import (
+    AppException,
+    BadRequest,
+    Conflict,
+    Forbidden,
+    NotFound,
+    Unauthorized,
+)
 from app.core.pagination import PaginationParams, paginate
 
 
