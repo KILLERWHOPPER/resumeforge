@@ -65,7 +65,11 @@
     "language": "Language",
     "chinese": "中文",
     "english": "English",
-    "bilingual": "Bilingual"
+    "bilingual": "Bilingual",
+    "networkError": "Network error, please try again",
+    "confirmDelete": "Confirm delete",
+    "dashboard": "Dashboard",
+    "experiences": "Experiences"
   },
   "auth": {
     "login": {
@@ -202,7 +206,9 @@
     "form": {
       "title": "{type} Information",
       "required": "Required",
-      "optional": "Optional"
+      "optional": "Optional",
+      "createTitle": "Create {type}",
+      "editTitle": "Edit {type}"
     },
     "education": {
       "school": "School",
@@ -493,7 +499,33 @@
       "datetime": "YYYY-MM-DD HH:mm",
       "relative": "relative"
     },
-    "months": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-    "monthsShort": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    "months": [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December"
+    ],
+    "monthsShort": [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec"
+    ]
   }
 }

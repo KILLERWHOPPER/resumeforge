@@ -1,4 +1,6 @@
 """Pydantic Schemas — 简历"""
+from datetime import datetime
+
 from pydantic import BaseModel, Field
 
 
@@ -13,7 +15,7 @@ class ResumeResponse(BaseModel):
     company_name: str | None = None
     target_language: str
     status: str
-    created_at: str
+    created_at: datetime
 
     class Config:
         from_attributes = True

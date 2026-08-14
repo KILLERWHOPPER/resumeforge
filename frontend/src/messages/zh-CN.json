@@ -65,7 +65,11 @@
     "language": "语言",
     "chinese": "中文",
     "english": "English",
-    "bilingual": "中英双语"
+    "bilingual": "中英双语",
+    "networkError": "网络错误，请稍后重试",
+    "confirmDelete": "确认删除",
+    "dashboard": "仪表盘",
+    "experiences": "经历管理"
   },
   "auth": {
     "login": {
@@ -202,7 +206,9 @@
     "form": {
       "title": "{type}信息",
       "required": "必填",
-      "optional": "选填"
+      "optional": "选填",
+      "createTitle": "创建{type}",
+      "editTitle": "编辑{type}"
     },
     "education": {
       "school": "学校",
@@ -493,7 +499,33 @@
       "datetime": "YYYY-MM-DD HH:mm",
       "relative": "relative"
     },
-    "months": ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"],
-    "monthsShort": ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"]
+    "months": [
+      "1月",
+      "2月",
+      "3月",
+      "4月",
+      "5月",
+      "6月",
+      "7月",
+      "8月",
+      "9月",
+      "10月",
+      "11月",
+      "12月"
+    ],
+    "monthsShort": [
+      "1月",
+      "2月",
+      "3月",
+      "4月",
+      "5月",
+      "6月",
+      "7月",
+      "8月",
+      "9月",
+      "10月",
+      "11月",
+      "12月"
+    ]
   }
 }

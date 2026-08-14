@@ -529,7 +529,6 @@ export default function ExperiencesPage() {
               </TabsTrigger>
             ))}
           </TabsList>
-        </Tabs>
 
         {/* Content */}
         <TabsContent value={activeTab} forceMount>
@@ -555,6 +554,7 @@ export default function ExperiencesPage() {
             </div>
           )}
         </TabsContent>
+        </Tabs>
       </main>
 
       {/* Create/Edit Modal */}
