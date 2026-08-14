@@ -7,14 +7,36 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 // 同源代理：通过 Next.js API route 代理到后端，所有流量走 3000 端口
 const API_BASE = "";
 
-// Token 存储（内存）
-let accessToken: string | null = null;
-let refreshToken: string | null = null;
+// Token 持久化：刷新/后退后仍保持登录态
+const ACCESS_TOKEN_KEY = "rf_access_token";
+const REFRESH_TOKEN_KEY = "rf_refresh_token";
+
+function readStoredToken(key: string): string | null {
+  if (typeof window === "undefined") return null;
+  return window.localStorage.getItem(key);
+}
+
+function storeToken(key: string, value: string | null) {
+  if (typeof window === "undefined") return;
+  if (value === null) window.localStorage.removeItem(key);
+  else window.localStorage.setItem(key, value);
+}
+
+// Token 存储（内存 + localStorage）
+let accessToken: string | null = readStoredToken(ACCESS_TOKEN_KEY);
+let refreshToken: string | null = readStoredToken(REFRESH_TOKEN_KEY);
 let isRefreshing = false;
+let globalErrorHandler: ((error: AxiosError) => void) | null = null;
 let failedQueue: Array<{
   resolve: (token: string) => void;
   reject: (error: unknown) => void;
 }> = [];
+
+export function setGlobalErrorHandler(
+  handler: ((error: AxiosError) => void) | null
+) {
+  globalErrorHandler = handler;
+}
 
 function processQueue(error: unknown, token: string | null) {
   failedQueue.forEach((prom) => {
@@ -70,6 +92,7 @@ api.interceptors.response.use(
 
       if (!refreshToken) {
         isRefreshing = false;
+        clearTokens();
         window.location.href = `/${getLocale()}/auth/login`;
         return Promise.reject(error);
       }
@@ -78,20 +101,21 @@ api.interceptors.response.use(
         const { data } = await axios.post(`${API_BASE}/api/v1/auth/refresh`, {
           refresh_token: refreshToken,
         });
-        accessToken = data.access_token;
-        refreshToken = data.refresh_token;
+        setTokens(data.access_token, data.refresh_token);
         processQueue(null, accessToken);
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return api(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);
-        accessToken = null;
-        refreshToken = null;
+        clearTokens();
         window.location.href = `/${getLocale()}/auth/login`;
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
       }
+    }
+    if (globalErrorHandler && error.response?.status !== 401) {
+      globalErrorHandler(error);
     }
     return Promise.reject(error);
   }
@@ -111,11 +135,15 @@ function getLocale(): string {
 export function setTokens(access: string, refresh: string) {
   accessToken = access;
   refreshToken = refresh;
+  storeToken(ACCESS_TOKEN_KEY, access);
+  storeToken(REFRESH_TOKEN_KEY, refresh);
 }
 
 export function clearTokens() {
   accessToken = null;
   refreshToken = null;
+  storeToken(ACCESS_TOKEN_KEY, null);
+  storeToken(REFRESH_TOKEN_KEY, null);
 }
 
 export function getAccessToken(): string | null {

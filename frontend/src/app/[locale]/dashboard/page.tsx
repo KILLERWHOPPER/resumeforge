@@ -21,7 +21,7 @@ import {
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Skeleton } from "@/components/ui/Skeleton";
-import api from "@/lib/api";
+import api, { clearTokens } from "@/lib/api";
 
 interface Resume {
   id: number;
@@ -62,10 +62,11 @@ export default function DashboardPage() {
   const handleLogout = async () => {
     try {
       await api.post("/auth/logout");
-      window.location.href = `/${locale}/auth/login`;
     } catch {
-      window.location.href = `/${locale}/auth/login`;
+      // ignore
     }
+    clearTokens();
+    window.location.href = `/${locale}/auth/login`;
   };
 
   const formatDate = (dateString: string) => {

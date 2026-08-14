@@ -5,6 +5,9 @@
 /* CSS Custom Properties (Design Tokens) */
 @layer base {
   :root {
+    /* 默认强制浅色外观（系统深色时表单控件/滚动条仍保持浅色） */
+    color-scheme: light;
+
     /* Light mode semantic colors */
     --background-primary: #fafafa;
     --background-secondary: #f5f5f5;

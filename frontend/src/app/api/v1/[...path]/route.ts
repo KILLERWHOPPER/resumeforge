@@ -107,7 +107,7 @@ async function proxyRequest(
     return new NextResponse(
       res.status === 204 || res.status === 205 || res.status === 304
         ? null
-        : res.body,
+        : (res.body as unknown as ReadableStream<Uint8Array> | null),
       {
         status: res.status,
         headers: res.headers,
