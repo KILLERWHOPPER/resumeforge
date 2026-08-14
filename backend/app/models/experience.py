@@ -1,52 +1,67 @@
 """SQLAlchemy 模型 — 个人经历"""
-from datetime import datetime, timezone
+
+from datetime import UTC, datetime
+from typing import Any
 
 from sqlalchemy import (
-    Column, DateTime, ForeignKey, Integer, JSON, String, Text,
+    JSON,
+    DateTime,
+    ForeignKey,
+    String,
+    Text,
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
 
 
 class Experience(Base):
     """统一经历基类"""
+
     __tablename__ = "experiences"
 
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    type = Column(String(20), nullable=False)  # education / work / project / skill / certificate
-    sort_order = Column(Integer, default=0)
-    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
-    updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    type: Mapped[str] = mapped_column(
+        String(20)
+    )  # education / work / project / skill / certificate
+    sort_order: Mapped[int] = mapped_column(default=0)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC)
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+    )
 
     # 教育
-    school = Column(String(300))
-    degree = Column(String(100))
-    field_of_study = Column(String(200))
-    gpa = Column(String(20))
+    school: Mapped[str | None] = mapped_column(String(300))
+    degree: Mapped[str | None] = mapped_column(String(100))
+    field_of_study: Mapped[str | None] = mapped_column(String(200))
+    gpa: Mapped[str | None] = mapped_column(String(20))
 
     # 工作
-    company = Column(String(300))
-    position = Column(String(200))
+    company: Mapped[str | None] = mapped_column(String(300))
+    position: Mapped[str | None] = mapped_column(String(200))
 
     # 通用
-    start_date = Column(String(10))  # YYYY-MM-DD
-    end_date = Column(String(10), nullable=True)  # null = 至今
-    description = Column(Text)  # Markdown
+    start_date: Mapped[str | None] = mapped_column(String(10))  # YYYY-MM-DD
+    end_date: Mapped[str | None] = mapped_column(String(10))  # null = 至今
+    description: Mapped[str | None] = mapped_column(Text)  # Markdown
 
     # 项目
-    role = Column(String(200))
-    tech_tags = Column(JSON)  # ["Python", "FastAPI"]
-    url = Column(String(500))
+    role: Mapped[str | None] = mapped_column(String(200))
+    tech_tags: Mapped[list[Any] | None] = mapped_column(JSON)  # ["Python", "FastAPI"]
+    url: Mapped[str | None] = mapped_column(String(500))
 
     # 技能
-    name = Column(String(200))
-    category = Column(String(100))
-    proficiency = Column(String(20))  # beginner / intermediate / expert
+    name: Mapped[str | None] = mapped_column(String(200))
+    category: Mapped[str | None] = mapped_column(String(100))
+    proficiency: Mapped[str | None] = mapped_column(String(20))  # beginner / intermediate / expert
 
     # 证书
-    issuer = Column(String(200))
-    credential_url = Column(String(500))
+    issuer: Mapped[str | None] = mapped_column(String(200))
+    credential_url: Mapped[str | None] = mapped_column(String(500))
 
     user = relationship("User", back_populates="experiences")

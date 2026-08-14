@@ -1,10 +1,15 @@
 """SQLAlchemy 模型 — LLM 配置"""
-from datetime import datetime, timezone
+
+from datetime import UTC, datetime
 
 from sqlalchemy import (
-    Boolean, Column, DateTime, ForeignKey, Integer, String, Text,
+    Boolean,
+    DateTime,
+    ForeignKey,
+    String,
+    Text,
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
 
@@ -12,14 +17,20 @@ from app.core.database import Base
 class LLMConfig(Base):
     __tablename__ = "llm_configs"
 
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    name = Column(String(100), nullable=False)  # "GPT-4o", "DeepSeek-V3", etc.
-    base_url = Column(String(500), nullable=False)
-    api_key_encrypted = Column(Text, nullable=False)  # AES-256-GCM 加密
-    model_name = Column(String(200), nullable=False)
-    is_active = Column(Boolean, default=False)
-    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
-    updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    name: Mapped[str] = mapped_column(String(100))  # "GPT-4o", "DeepSeek-V3", etc.
+    base_url: Mapped[str] = mapped_column(String(500))
+    api_key_encrypted: Mapped[str] = mapped_column(Text)  # AES-256-GCM 加密
+    model_name: Mapped[str] = mapped_column(String(200))
+    is_active: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC)
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+    )
 
     user = relationship("User", back_populates="llm_configs")

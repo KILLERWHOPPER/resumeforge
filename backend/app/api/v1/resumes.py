@@ -1,12 +1,15 @@
 """API v1 — 简历管理路由（使用 Service 层）"""
 
 import json
+from collections.abc import AsyncIterator, Sequence
+from typing import Any
 
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.dependencies import get_current_user_id, get_db
+from app.models.resume import Resume
 from app.schemas.resume import JDAnalysisResponse, ResumeContentUpdate, ResumeCreate, ResumeResponse
 from app.services.ai_resume_service import AIResumeService
 from app.services.resume_service import ResumeService
@@ -18,7 +21,7 @@ router = APIRouter()
 async def list_resumes(
     db: AsyncSession = Depends(get_db),
     user_id: int = Depends(get_current_user_id),
-):
+) -> Sequence[Resume]:
     """获取所有简历"""
     service = ResumeService(db)
     return await service.list_resumes(user_id)
@@ -29,7 +32,7 @@ async def create_resume(
     data: ResumeCreate,
     db: AsyncSession = Depends(get_db),
     user_id: int = Depends(get_current_user_id),
-):
+) -> Resume:
     """创建新简历"""
     service = ResumeService(db)
     return await service.create_resume(user_id, data)
@@ -40,7 +43,7 @@ async def get_resume(
     resume_id: int,
     db: AsyncSession = Depends(get_db),
     user_id: int = Depends(get_current_user_id),
-):
+) -> Resume:
     """获取单个简历"""
     service = ResumeService(db)
     return await service.get_resume(resume_id, user_id)
@@ -51,7 +54,7 @@ async def get_resume_content(
     resume_id: int,
     db: AsyncSession = Depends(get_db),
     user_id: int = Depends(get_current_user_id),
-):
+) -> dict[str, Any]:
     """获取简历内容（ProseMirror JSON）"""
     service = ResumeService(db)
     return await service.get_resume_content(resume_id, user_id)
@@ -64,7 +67,7 @@ async def update_resume_content(
     request: Request,
     db: AsyncSession = Depends(get_db),
     user_id: int = Depends(get_current_user_id),
-):
+) -> dict[str, Any]:
     """更新简历内容（带乐观锁）"""
     if_match = request.headers.get("If-Match")
     service = ResumeService(db)
@@ -76,7 +79,7 @@ async def analyze_jd(
     resume_id: int,
     db: AsyncSession = Depends(get_db),
     user_id: int = Depends(get_current_user_id),
-):
+) -> JDAnalysisResponse:
     """AI 分析职位描述（结果缓存到 jd_analyses）"""
     service = AIResumeService(db)
     return await service.analyze_jd(resume_id, user_id)
@@ -87,7 +90,7 @@ async def get_jd_analysis(
     resume_id: int,
     db: AsyncSession = Depends(get_db),
     user_id: int = Depends(get_current_user_id),
-):
+) -> JDAnalysisResponse | None:
     """获取已保存的 JD 分析结果"""
     service = AIResumeService(db)
     return await service.get_analysis(resume_id, user_id)
@@ -98,11 +101,11 @@ async def generate_resume(
     resume_id: int,
     db: AsyncSession = Depends(get_db),
     user_id: int = Depends(get_current_user_id),
-):
+) -> StreamingResponse:
     """AI 生成简历（SSE 流式，带并发生成锁）"""
     service = AIResumeService(db)
 
-    async def event_stream():
+    async def event_stream() -> AsyncIterator[str]:
         try:
             async for item in service.generate_resume(resume_id, user_id):
                 event = item["event"]
@@ -123,8 +126,7 @@ async def delete_resume(
     resume_id: int,
     db: AsyncSession = Depends(get_db),
     user_id: int = Depends(get_current_user_id),
-):
+) -> None:
     """删除简历"""
     service = ResumeService(db)
     await service.delete_resume(resume_id, user_id)
-    return None

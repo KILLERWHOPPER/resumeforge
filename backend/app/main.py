@@ -1,4 +1,6 @@
 """ResumeForge FastAPI 应用入口"""
+
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
@@ -7,11 +9,11 @@ from fastapi.responses import JSONResponse
 
 from app.api.v1 import auth, experiences, llm_configs, resumes
 from app.core.config import settings
-from app.core.exceptions import AppException
+from app.core.exceptions import AppError
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """应用生命周期：启动和关闭"""
     # 启动时可以做初始化
     yield
@@ -42,12 +44,12 @@ app.include_router(llm_configs.router, prefix="/api/v1/llm-configs", tags=["LLM 
 
 
 # 全局异常处理：将业务异常映射为对应 HTTP 状态码
-@app.exception_handler(AppException)
-async def app_exception_handler(request: Request, exc: AppException):
+@app.exception_handler(AppError)
+async def app_exception_handler(request: Request, exc: AppError) -> JSONResponse:
     return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
 
 
 @app.get("/api/health")
-async def health_check():
+async def health_check() -> dict[str, str]:
     """健康检查端点"""
     return {"status": "ok", "service": "resumeforge-api"}

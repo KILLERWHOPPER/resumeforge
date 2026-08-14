@@ -1,19 +1,21 @@
 """通用 Repository 基类（CRUD）"""
 
+# ruff: noqa: TRY003
+
 from __future__ import annotations
 
-from typing import Any, Generic, Sequence, TypeVar
+from collections.abc import Sequence
+from typing import Any, cast
 
-from sqlalchemy import select, func
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import Base
+from app.core.exceptions import NotFound
 from app.core.pagination import Page, PaginationParams, paginate
 
-ModelType = TypeVar("ModelType", bound=Base)
 
-
-class BaseRepository(Generic[ModelType]):
+class BaseRepository[ModelType: Base]:
     """通用 Repository 基类，提供基础 CRUD 操作"""
 
     def __init__(self, model: type[ModelType], db: AsyncSession):
@@ -30,15 +32,11 @@ class BaseRepository(Generic[ModelType]):
 
     async def get(self, id: int) -> ModelType | None:
         """根据主键获取单条记录"""
-        result = await self.db.execute(
-            select(self.model).where(self.model.id == id)
-        )
+        result = await self.db.execute(select(self.model).where(cast(Any, self.model).id == id))
         return result.scalar_one_or_none()
 
     async def get_or_404(self, id: int) -> ModelType:
         """获取记录，不存在则抛出 NotFound"""
-        from app.core.exceptions import NotFound
-
         instance = await self.get(id)
         if not instance:
             raise NotFound(f"{self.model.__name__} 不存在")

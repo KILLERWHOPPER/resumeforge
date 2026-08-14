@@ -4,7 +4,8 @@
 from __future__ import annotations
 
 import json
-from typing import AsyncIterator
+from collections.abc import AsyncIterator
+from typing import Any
 from uuid import uuid4
 
 import httpx
@@ -32,7 +33,7 @@ class LLMClient:
         self.extra_headers: dict[str, str] = {}
 
     @classmethod
-    def for_opencode_anon(cls, model_name: str | None = None, **kwargs) -> "LLMClient":
+    def for_opencode_anon(cls, model_name: str | None = None, **kwargs: Any) -> LLMClient:
         """OpenCode Zen 匿名免费模型（无需 API Key，使用 Bearer public + 标识头）"""
         client = cls(
             base_url=settings.OPENCODE_ANON_BASE_URL,
@@ -62,13 +63,13 @@ class LLMClient:
 
     async def chat(
         self,
-        messages: list[dict],
+        messages: list[dict[str, str]],
         *,
         temperature: float = 0.7,
         max_tokens: int | None = None,
     ) -> str:
         """非流式对话，返回模型回复文本"""
-        payload: dict = {
+        payload: dict[str, Any] = {
             "model": self.model_name,
             "messages": messages,
             "temperature": temperature,
@@ -96,13 +97,13 @@ class LLMClient:
 
     async def chat_stream(
         self,
-        messages: list[dict],
+        messages: list[dict[str, str]],
         *,
         temperature: float = 0.7,
         max_tokens: int | None = None,
     ) -> AsyncIterator[str]:
         """流式对话，逐个产出 content 文本块（忽略 reasoning_content）"""
-        payload: dict = {
+        payload: dict[str, Any] = {
             "model": self.model_name,
             "messages": messages,
             "temperature": temperature,
@@ -112,21 +113,24 @@ class LLMClient:
             payload["max_tokens"] = max_tokens
 
         try:
-            async with self._client() as client, client.stream(
-                "POST",
-                self._chat_url(),
-                json=payload,
-                headers=self._build_headers(),
-            ) as resp:
+            async with (
+                self._client() as client,
+                client.stream(
+                    "POST",
+                    self._chat_url(),
+                    json=payload,
+                    headers=self._build_headers(),
+                ) as resp,
+            ):
                 if resp.is_error:
                     body = await resp.aread()
                     raise BadRequest(
-                        f"LLM 请求失败 ({resp.status_code}): {body[:200]}"
+                        f"LLM 请求失败 ({resp.status_code}): {body[:200].decode(errors='replace')}"
                     )
                 async for line in resp.aiter_lines():
                     if not line or not line.startswith("data:"):
                         continue
-                    data = line[len("data:"):].strip()
+                    data = line[len("data:") :].strip()
                     if data == "[DONE]":
                         break
                     try:

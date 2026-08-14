@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Sequence
+from collections.abc import Sequence
 
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.experience import Experience
 from app.repositories.base import BaseRepository
@@ -13,7 +14,7 @@ from app.repositories.base import BaseRepository
 class ExperienceRepository(BaseRepository[Experience]):
     """经历 Repository"""
 
-    def __init__(self, db):
+    def __init__(self, db: AsyncSession):
         super().__init__(Experience, db)
 
     async def list_by_user(

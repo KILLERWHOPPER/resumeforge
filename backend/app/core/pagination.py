@@ -1,16 +1,12 @@
 """分页工具"""
 
-from __future__ import annotations
-
+from collections.abc import Sequence
 from math import ceil
-from typing import Generic, Sequence, TypeVar
 
 from pydantic import BaseModel
 
-T = TypeVar("T")
 
-
-class Page(BaseModel, Generic[T]):
+class Page[T](BaseModel):
     """分页响应模型"""
 
     items: list[T]
@@ -39,7 +35,7 @@ class PaginationParams:
         return self.page_size
 
 
-def paginate(items: Sequence[T], total: int, params: PaginationParams) -> Page[T]:
+def paginate[T](items: Sequence[T], total: int, params: PaginationParams) -> Page[T]:
     """构建分页响应"""
     return Page(
         items=list(items),

@@ -1,4 +1,5 @@
 """Service 层导出"""
+
 from app.services.ai_resume_service import AIResumeService
 from app.services.auth_service import AuthService
 from app.services.experience_service import ExperienceService

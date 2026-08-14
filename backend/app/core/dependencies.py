@@ -1,15 +1,18 @@
 """FastAPI 依赖注入"""
 
-from fastapi import Depends, Request
+# ruff: noqa: TRY003
+
+from collections.abc import AsyncGenerator
+
+from fastapi import Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db as _get_db
 from app.core.exceptions import Unauthorized
 from app.core.security import decode_token
-from app.models.user import User
 
 
-async def get_db() -> AsyncSession:
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
     """获取数据库会话"""
     async for session in _get_db():
         yield session

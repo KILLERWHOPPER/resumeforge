@@ -1,15 +1,18 @@
 """简历管理服务 — 不包含 AI 生成"""
 
+# ruff: noqa: TRY003
+
 from __future__ import annotations
 
-from typing import Sequence
+from collections.abc import Sequence
+from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import BadRequest, NotFound
 from app.models.resume import Resume
 from app.repositories.resume_repository import ResumeRepository
-from app.schemas.resume import ResumeCreate, ResumeResponse, ResumeContentUpdate
+from app.schemas.resume import ResumeContentUpdate, ResumeCreate
 
 
 class ResumeService:
@@ -49,7 +52,7 @@ class ResumeService:
         resume = await self.get_resume(resume_id, user_id)
         await self.repo.db.delete(resume)
 
-    async def get_resume_content(self, resume_id: int, user_id: int) -> dict:
+    async def get_resume_content(self, resume_id: int, user_id: int) -> dict[str, Any]:
         """获取简历内容"""
         resume = await self.get_resume(resume_id, user_id)
         if not resume.current_version_id:
@@ -70,7 +73,7 @@ class ResumeService:
         user_id: int,
         data: ResumeContentUpdate,
         if_match: str | None,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """更新简历内容（带乐观锁）"""
         if not if_match:
             raise BadRequest("缺少 If-Match 头")

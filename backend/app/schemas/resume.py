@@ -1,5 +1,7 @@
 """Pydantic Schemas — 简历"""
+
 from datetime import datetime
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -22,7 +24,7 @@ class ResumeResponse(BaseModel):
 
 
 class ResumeContentUpdate(BaseModel):
-    content: dict  # ProseMirror JSON
+    content: dict[str, Any]  # ProseMirror JSON
 
 
 class JDAnalysisResponse(BaseModel):

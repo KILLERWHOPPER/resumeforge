@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Sequence
+from collections.abc import Sequence
+from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -12,7 +13,6 @@ from app.repositories.experience_repository import ExperienceRepository
 from app.schemas.experience import (
     CertificateCreate,
     EducationCreate,
-    ExperienceResponse,
     ExperienceUpdate,
     ProjectCreate,
     SkillCreate,
@@ -34,7 +34,7 @@ class ExperienceService:
         """获取用户所有经历"""
         return await self.repo.list_by_user(user_id, type_filter)
 
-    async def aggregate(self, user_id: int) -> dict:
+    async def aggregate(self, user_id: int) -> dict[str, Any]:
         """按类型分组返回所有经历"""
         experiences = await self.repo.list_by_user(user_id)
         grouped: dict[str, list[Experience]] = {

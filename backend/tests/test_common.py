@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from app.core.exceptions import (
-    AppException,
+    AppError,
     BadRequest,
     Conflict,
     Forbidden,
@@ -17,7 +17,7 @@ class TestExceptions:
     """测试自定义异常"""
 
     def test_app_exception(self):
-        exc = AppException("test error", 400)
+        exc = AppError("test error", 400)
         assert exc.detail == "test error"
         assert exc.status_code == 400
 

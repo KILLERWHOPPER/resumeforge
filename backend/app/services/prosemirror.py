@@ -2,18 +2,22 @@
 
 from __future__ import annotations
 
+from typing import Any
 
-def text_node(text: str) -> dict:
+PMNode = dict[str, Any]
+
+
+def text_node(text: str) -> PMNode:
     return {"type": "text", "text": text}
 
 
-def paragraph(text: str | None) -> dict | None:
+def paragraph(text: str | None) -> PMNode | None:
     if not text or not text.strip():
         return None
     return {"type": "paragraph", "content": [text_node(text.strip())]}
 
 
-def heading(level: int, text: str | None) -> dict | None:
+def heading(level: int, text: str | None) -> PMNode | None:
     if not text or not text.strip():
         return None
     return {
@@ -23,8 +27,8 @@ def heading(level: int, text: str | None) -> dict | None:
     }
 
 
-def bullet_list(bullets: list[str]) -> dict | None:
-    items = []
+def bullet_list(bullets: list[str]) -> PMNode | None:
+    items: list[PMNode] = []
     for bullet in bullets or []:
         if not bullet or not bullet.strip():
             continue
@@ -39,9 +43,9 @@ def bullet_list(bullets: list[str]) -> dict | None:
     return {"type": "bulletList", "content": items}
 
 
-def build_prose_mirror(content: dict) -> dict:
+def build_prose_mirror(content: PMNode) -> PMNode:
     """构建标准 ProseMirror 文档（doc -> paragraph/heading/bulletList）"""
-    doc: dict = {"type": "doc", "content": []}
+    doc: PMNode = {"type": "doc", "content": []}
 
     summary = paragraph(content.get("summary"))
     if summary:

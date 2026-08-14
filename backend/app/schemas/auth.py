@@ -1,4 +1,5 @@
 """Pydantic Schemas — 认证"""
+
 from pydantic import BaseModel, EmailStr, Field
 
 

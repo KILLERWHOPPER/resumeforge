@@ -1,4 +1,5 @@
 """Pydantic Schemas — 经历"""
+
 from pydantic import BaseModel, Field
 
 

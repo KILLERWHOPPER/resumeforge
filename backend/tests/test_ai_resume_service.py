@@ -111,11 +111,7 @@ async def test_generate_resume_success(db_session: AsyncSession, fake_llm):
 async def test_generate_resume_reuses_analysis(db_session: AsyncSession, fake_llm):
     """已有 JD 分析时生成直接复用，不重复分析"""
     resume_id = await create_resume(db_session)
-    fake_llm(
-        FakeLLM(
-            stream_chunks=['{"summary": "s", "sections": []}']
-        )
-    )
+    fake_llm(FakeLLM(stream_chunks=['{"summary": "s", "sections": []}']))
 
     service = AIResumeService(db_session)
     await service.analyze_jd(resume_id, 1)

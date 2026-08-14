@@ -1,4 +1,5 @@
 """Alembic env — 异步模式"""
+
 import asyncio
 import sys
 from logging.config import fileConfig

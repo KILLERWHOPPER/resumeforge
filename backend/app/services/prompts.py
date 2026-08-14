@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import json
+from typing import Any
 
 
-def build_jd_analysis_prompt(jd_text: str, target_language: str) -> list[dict]:
+def build_jd_analysis_prompt(jd_text: str, target_language: str) -> list[dict[str, str]]:
     """JD 分析 Prompt：提取核心职责、技能、经验类型、软技能与 ATS 关键词"""
     system = (
         "你是一名资深招聘分析师与简历顾问。请分析给定的职位描述（JD），"
@@ -33,11 +34,11 @@ def build_jd_analysis_prompt(jd_text: str, target_language: str) -> list[dict]:
 
 
 def build_resume_generation_prompt(
-    analysis: dict,
-    experiences: dict,
+    analysis: dict[str, Any],
+    experiences: dict[str, Any],
     target_language: str,
     company_name: str | None,
-) -> list[dict]:
+) -> list[dict[str, str]]:
     """简历生成 Prompt：基于 JD 分析与用户经历，生成针对性简历内容"""
     system = (
         "你是一名顶尖的简历优化专家。根据职位描述（JD）分析结果和用户的个人经历，"
@@ -77,9 +78,15 @@ def build_resume_generation_prompt(
     ]
 
 
-def serialize_experiences(aggregate: dict) -> dict:
+def serialize_experiences(aggregate: dict[str, Any]) -> dict[str, Any]:
     """将经历聚合结果序列化为用于 Prompt 的紧凑结构"""
-    serialized: dict[str, list] = {"education": [], "work": [], "project": [], "skill": [], "certificate": []}
+    serialized: dict[str, list[dict[str, Any]]] = {
+        "education": [],
+        "work": [],
+        "project": [],
+        "skill": [],
+        "certificate": [],
+    }
 
     for exp in aggregate.get("education", []):
         serialized["education"].append(
@@ -134,9 +141,12 @@ def serialize_experiences(aggregate: dict) -> dict:
     return serialized
 
 
-def completeness_check(aggregate: dict) -> dict:
+def completeness_check(aggregate: dict[str, Any]) -> dict[str, Any]:
     """经历完整性检查：返回各类型数量与缺失提醒"""
-    counts = {key: len(aggregate.get(key, [])) for key in ("education", "work", "project", "skill", "certificate")}
+    counts: dict[str, int] = {
+        key: len(aggregate.get(key, []))
+        for key in ("education", "work", "project", "skill", "certificate")
+    }
     missing = []
     if counts["work"] == 0 and counts["project"] == 0:
         missing.append("工作或项目经历")

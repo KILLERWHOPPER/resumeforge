@@ -80,12 +80,15 @@ async def test_list_configs(db_session: AsyncSession):
         model_name="deepseek-chat",
     )
     await service.create_config(1, data)
-    await service.create_config(1, LLMConfigCreate(
-        name="GPT-4o",
-        base_url="https://api.openai.com",
-        api_key="sk-456",
-        model_name="gpt-4o",
-    ))
+    await service.create_config(
+        1,
+        LLMConfigCreate(
+            name="GPT-4o",
+            base_url="https://api.openai.com",
+            api_key="sk-456",
+            model_name="gpt-4o",
+        ),
+    )
 
     configs = await service.list_configs(1)
     assert len(configs) == 2

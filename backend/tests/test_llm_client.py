@@ -44,9 +44,7 @@ def ok_handler(request: httpx.Request) -> httpx.Response:
 async def test_chat_success():
     """对话成功返回内容"""
     client = make_client(ok_handler)
-    result = await client.chat(
-        [{"role": "user", "content": "hi"}]
-    )
+    result = await client.chat([{"role": "user", "content": "hi"}])
     assert result == "你好，我是 AI"
 
 
@@ -169,9 +167,7 @@ async def test_opencode_anon_stream():
     """OpenCode 匿名客户端流式请求"""
 
     def handler(request: httpx.Request) -> httpx.Response:
-        return sse_response(
-            [{"choices": [{"delta": {"content": "free-model-ok"}}]}]
-        )
+        return sse_response([{"choices": [{"delta": {"content": "free-model-ok"}}]}])
 
     transport = httpx.MockTransport(handler)
     client = LLMClient.for_opencode_anon(timeout=5, transport=transport)

@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Sequence
+from collections.abc import Sequence
 
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.llm_config import LLMConfig
 from app.repositories.base import BaseRepository
@@ -13,14 +14,12 @@ from app.repositories.base import BaseRepository
 class LLMConfigRepository(BaseRepository[LLMConfig]):
     """LLM 配置 Repository"""
 
-    def __init__(self, db):
+    def __init__(self, db: AsyncSession):
         super().__init__(LLMConfig, db)
 
     async def list_by_user(self, user_id: int) -> Sequence[LLMConfig]:
         """获取用户的所有 LLM 配置"""
-        result = await self.db.execute(
-            select(LLMConfig).where(LLMConfig.user_id == user_id)
-        )
+        result = await self.db.execute(select(LLMConfig).where(LLMConfig.user_id == user_id))
         return result.scalars().all()
 
     async def get_active(self, user_id: int) -> LLMConfig | None:
@@ -28,7 +27,7 @@ class LLMConfigRepository(BaseRepository[LLMConfig]):
         result = await self.db.execute(
             select(LLMConfig).where(
                 LLMConfig.user_id == user_id,
-                LLMConfig.is_active == True,
+                LLMConfig.is_active.is_(True),
             )
         )
         return result.scalar_one_or_none()
@@ -38,7 +37,7 @@ class LLMConfigRepository(BaseRepository[LLMConfig]):
         result = await self.db.execute(
             select(LLMConfig).where(
                 LLMConfig.user_id == user_id,
-                LLMConfig.is_active == True,
+                LLMConfig.is_active.is_(True),
             )
         )
         for config in result.scalars().all():

@@ -36,9 +36,37 @@ def test_serialize_experiences():
                 setattr(self, k, v)
 
     aggregate = {
-        "education": [Exp(school="THU", degree="BS", field_of_study="CS", gpa="3.8", start_date="2020", end_date="2024", description="d")],
-        "work": [Exp(company="ByteDance", position="Engineer", start_date="2024", end_date=None, description="svc")],
-        "project": [Exp(name="Shop", role="Lead", tech_tags=["Python"], start_date="2023", end_date="2024", description="p", url="https://x")],
+        "education": [
+            Exp(
+                school="THU",
+                degree="BS",
+                field_of_study="CS",
+                gpa="3.8",
+                start_date="2020",
+                end_date="2024",
+                description="d",
+            )
+        ],
+        "work": [
+            Exp(
+                company="ByteDance",
+                position="Engineer",
+                start_date="2024",
+                end_date=None,
+                description="svc",
+            )
+        ],
+        "project": [
+            Exp(
+                name="Shop",
+                role="Lead",
+                tech_tags=["Python"],
+                start_date="2023",
+                end_date="2024",
+                description="p",
+                url="https://x",
+            )
+        ],
         "skill": [Exp(name="Python", category="language", proficiency="expert")],
         "certificate": [Exp(name="AWS", issuer="Amazon", credential_url="https://c")],
     }
@@ -85,7 +113,15 @@ def test_build_prose_mirror_full():
     doc = build_prose_mirror(content)
     assert doc["type"] == "doc"
     node_types = [n["type"] for n in doc["content"]]
-    assert node_types == ["paragraph", "heading", "heading", "bulletList", "bulletList", "heading", "heading"]
+    assert node_types == [
+        "paragraph",
+        "heading",
+        "heading",
+        "bulletList",
+        "bulletList",
+        "heading",
+        "heading",
+    ]
 
     # 空输入不崩溃
     empty = build_prose_mirror({})

@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.exceptions import BadRequest, Unauthorized
+from app.core.exceptions import BadRequest, Conflict, Unauthorized
 from app.services.auth_service import AuthService
 
 
@@ -43,7 +43,7 @@ async def test_register_duplicate_email(db_session: AsyncSession):
         password="password123",
         confirm_password="password123",
     )
-    with pytest.raises(Exception):  # Conflict
+    with pytest.raises(Conflict):  # 重复邮箱
         await service.register(
             email="dupe@example.com",
             password="password456",

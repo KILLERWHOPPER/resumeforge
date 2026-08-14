@@ -33,7 +33,7 @@ class PDFService:
         if not version:
             raise BadRequest("简历内容为空，无法导出")
 
-        # TODO: 使用 WeasyPrint 将 HTML 渲染为 PDF
+        # Sprint 4: 使用 WeasyPrint 将 HTML 渲染为 PDF
         # 需要先从 version.content（ProseMirror JSON）转换为 HTML
         raise NotImplementedError("PDF 导出功能开发中")
 

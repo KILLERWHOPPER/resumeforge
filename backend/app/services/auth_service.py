@@ -1,9 +1,11 @@
 """认证服务 — 注册、登录、token 刷新、密码重置"""
 
+# ruff: noqa: TRY003
+
 from __future__ import annotations
 
 import hashlib
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from passlib.hash import bcrypt
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -69,7 +71,7 @@ class AuthService:
 
         # 将旧 refresh token 加入黑名单
         if jti:
-            expires_at = datetime.fromtimestamp(payload["exp"], tz=timezone.utc)
+            expires_at = datetime.fromtimestamp(payload["exp"], tz=UTC)
             await self.repo.blacklist_token(jti, user_id, expires_at)
 
         return TokenPair(
@@ -85,7 +87,7 @@ class AuthService:
 
         jti = payload.get("jti")
         user_id = int(payload["sub"])
-        expires_at = datetime.fromtimestamp(payload["exp"], tz=timezone.utc)
+        expires_at = datetime.fromtimestamp(payload["exp"], tz=UTC)
 
         if jti:
             await self.repo.blacklist_token(jti, user_id, expires_at)
@@ -96,11 +98,9 @@ class AuthService:
         if not user:
             return None
 
-        token_raw = hashlib.sha256(
-            f"{user.id}:{datetime.now(timezone.utc)}".encode()
-        ).hexdigest()
+        token_raw = hashlib.sha256(f"{user.id}:{datetime.now(UTC)}".encode()).hexdigest()
         token_hash = hashlib.sha256(token_raw.encode()).hexdigest()
-        expires_at = datetime.now(timezone.utc) + timedelta(minutes=30)
+        expires_at = datetime.now(UTC) + timedelta(minutes=30)
 
         await self.repo.create_password_reset(user.id, token_hash, expires_at)
         return token_raw
@@ -136,5 +136,5 @@ class AuthService:
         if payload:
             jti = payload.get("jti")
             if jti:
-                expires_at = datetime.fromtimestamp(payload["exp"], tz=timezone.utc)
+                expires_at = datetime.fromtimestamp(payload["exp"], tz=UTC)
                 await self.repo.blacklist_token(jti, user_id, expires_at)

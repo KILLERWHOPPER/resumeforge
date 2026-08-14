@@ -1,10 +1,13 @@
 """ResumeForge 后端配置"""
+
 from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
     # 数据库
-    DATABASE_URL: str = "postgresql+asyncpg://resumeforge:resumeforge_dev_2024@localhost:5432/resumeforge"
+    DATABASE_URL: str = (
+        "postgresql+asyncpg://resumeforge:resumeforge_dev_2024@localhost:5432/resumeforge"
+    )
 
     # JWT
     SECRET_KEY: str = "change-me-in-production"

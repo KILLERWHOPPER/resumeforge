@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from collections.abc import AsyncIterator
+from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -38,7 +39,7 @@ class AIResumeService:
         self.experience_service = ExperienceService(db)
         self.llm_config_service = LLMConfigService(db)
 
-    async def get_effective_provider(self, user_id: int) -> dict:
+    async def get_effective_provider(self, user_id: int) -> dict[str, Any]:
         """获取当前生效的 LLM 提供方（用户配置优先，否则回退到 OpenCode 匿名免费模型）"""
         config = await self.llm_config_service.get_active_config(user_id)
         if config:
@@ -109,9 +110,12 @@ class AIResumeService:
             created_at=saved.created_at,
         )
 
-    async def generate_resume(self, resume_id: int, user_id: int) -> AsyncIterator[dict]:
+    async def generate_resume(self, resume_id: int, user_id: int) -> AsyncIterator[dict[str, Any]]:
         """生成简历（SSE 事件流），并发生成锁防止重复触发"""
         resume = await self.resume_service.get_resume(resume_id, user_id)
+
+        if not resume.jd_text:
+            raise BadRequest("职位描述为空，无法生成")
 
         if resume.status == "generating":
             raise Conflict("简历正在生成中，请勿重复操作")
@@ -153,7 +157,9 @@ class AIResumeService:
                 company_name=resume.company_name,
             )
             parts: list[str] = []
-            async for chunk in client.chat_stream(messages, temperature=0.5, max_tokens=GENERATION_MAX_TOKENS):
+            async for chunk in client.chat_stream(
+                messages, temperature=0.5, max_tokens=GENERATION_MAX_TOKENS
+            ):
                 parts.append(chunk)
                 yield {"event": "chunk", "delta": chunk}
 
@@ -191,7 +197,7 @@ class AIResumeService:
             return exc.detail
         return f"生成失败，请重试: {exc}"
 
-    def _validate_analysis(self, analysis: dict) -> None:
+    def _validate_analysis(self, analysis: dict[str, Any]) -> None:
         """校验 JD 分析结果结构"""
         required_keys = (
             "core_responsibilities",

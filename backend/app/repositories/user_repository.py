@@ -2,24 +2,25 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
+
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import Conflict, NotFound
-from app.models.user import User, TokenBlacklist, PasswordReset
+from app.models.user import PasswordReset, TokenBlacklist, User
 from app.repositories.base import BaseRepository
 
 
 class UserRepository(BaseRepository[User]):
     """用户 Repository"""
 
-    def __init__(self, db):
+    def __init__(self, db: AsyncSession):
         super().__init__(User, db)
 
     async def get_by_email(self, email: str) -> User | None:
         """根据邮箱查找用户"""
-        result = await self.db.execute(
-            select(User).where(User.email == email)
-        )
+        result = await self.db.execute(select(User).where(User.email == email))
         return result.scalar_one_or_none()
 
     async def get_by_email_or_404(self, email: str) -> User:
@@ -37,7 +38,7 @@ class UserRepository(BaseRepository[User]):
 
     # ---- Token 黑名单 ----
 
-    async def blacklist_token(self, jti: str, user_id: int, expires_at) -> None:
+    async def blacklist_token(self, jti: str, user_id: int, expires_at: datetime) -> None:
         """将 JWT 加入黑名单"""
         entry = TokenBlacklist(jti=jti, user_id=user_id, expires_at=expires_at)
         self.db.add(entry)
@@ -45,14 +46,14 @@ class UserRepository(BaseRepository[User]):
 
     async def is_token_blacklisted(self, jti: str) -> bool:
         """检查 JWT 是否已被吊销"""
-        result = await self.db.execute(
-            select(TokenBlacklist).where(TokenBlacklist.jti == jti)
-        )
+        result = await self.db.execute(select(TokenBlacklist).where(TokenBlacklist.jti == jti))
         return result.scalar_one_or_none() is not None
 
     # ---- 密码重置 ----
 
-    async def create_password_reset(self, user_id: int, token_hash: str, expires_at) -> PasswordReset:
+    async def create_password_reset(
+        self, user_id: int, token_hash: str, expires_at: datetime
+    ) -> PasswordReset:
         """创建密码重置记录"""
         reset = PasswordReset(
             user_id=user_id,
@@ -65,18 +66,16 @@ class UserRepository(BaseRepository[User]):
 
     async def get_password_reset(self, token_hash: str) -> PasswordReset | None:
         """获取有效的密码重置记录"""
-        from datetime import datetime, timezone
-
         result = await self.db.execute(
             select(PasswordReset).where(
                 PasswordReset.token_hash == token_hash,
-                PasswordReset.used == False,
+                PasswordReset.used.is_(False),
             )
         )
         reset = result.scalar_one_or_none()
         if reset:
             expires = reset.expires_at
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
             # 兼容 timezone-aware 和 timezone-naive 的比较（SQLite 可能丢失 tz）
             if expires.tzinfo is None:
                 now = now.replace(tzinfo=None)

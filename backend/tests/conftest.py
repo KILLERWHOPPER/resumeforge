@@ -2,14 +2,17 @@
 
 from __future__ import annotations
 
+import asyncio
 from collections.abc import AsyncGenerator
 from typing import Any
 
 import pytest
 import pytest_asyncio
+from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from app.core.database import Base
+from app.core.dependencies import get_db
 from app.main import app
 from app.services.ai_resume_service import AIResumeService
 
@@ -31,7 +34,9 @@ class FakeLLM:
     async def chat(self, messages, *, temperature=0.7, max_tokens=None) -> str:
         return self.chat_result
 
-    async def chat_stream(self, messages, *, temperature=0.7, max_tokens=None) -> AsyncGenerator[str, None]:
+    async def chat_stream(
+        self, messages, *, temperature=0.7, max_tokens=None
+    ) -> AsyncGenerator[str, None]:
         for chunk in self.stream_chunks:
             yield chunk
 
@@ -56,7 +61,6 @@ def fake_llm(monkeypatch):
 @pytest.fixture(scope="session")
 def event_loop():
     """每个会话使用同一个事件循环"""
-    import asyncio
     loop = asyncio.new_event_loop()
     yield loop
     loop.close()
@@ -83,9 +87,6 @@ async def db_session() -> AsyncGenerator[AsyncSession, None]:
 @pytest_asyncio.fixture
 async def client(db_session: AsyncSession) -> AsyncGenerator[Any, None]:
     """创建测试 HTTP 客户端"""
-    from httpx import ASGITransport, AsyncClient
-
-    from app.core.dependencies import get_db
 
     # 注入测试 DB
     async def override_get_db():

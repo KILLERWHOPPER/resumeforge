@@ -1,7 +1,9 @@
 """自定义异常类"""
 
+# ruff: noqa: N818 — HTTP 风格异常命名（NotFound/Conflict 等）为有意设计
 
-class AppException(Exception):
+
+class AppError(Exception):
     """应用基础异常"""
 
     def __init__(self, detail: str = "An error occurred", status_code: int = 500):
@@ -10,35 +12,35 @@ class AppException(Exception):
         super().__init__(self.detail)
 
 
-class NotFound(AppException):
+class NotFound(AppError):
     """资源未找到"""
 
     def __init__(self, detail: str = "资源不存在"):
         super().__init__(detail=detail, status_code=404)
 
 
-class Unauthorized(AppException):
+class Unauthorized(AppError):
     """未认证"""
 
     def __init__(self, detail: str = "未提供有效的认证凭据"):
         super().__init__(detail=detail, status_code=401)
 
 
-class Forbidden(AppException):
+class Forbidden(AppError):
     """无权限"""
 
     def __init__(self, detail: str = "无权执行此操作"):
         super().__init__(detail=detail, status_code=403)
 
 
-class BadRequest(AppException):
+class BadRequest(AppError):
     """请求参数错误"""
 
     def __init__(self, detail: str = "请求参数错误"):
         super().__init__(detail=detail, status_code=400)
 
 
-class Conflict(AppException):
+class Conflict(AppError):
     """资源冲突"""
 
     def __init__(self, detail: str = "资源已存在"):

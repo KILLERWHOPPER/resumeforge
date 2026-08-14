@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.crypto import decrypt_or_plaintext, encrypt
@@ -65,7 +67,7 @@ class LLMConfigService:
             api_key_masked=self._mask(data.api_key),
         )
 
-    async def activate_config(self, config_id: int, user_id: int) -> dict:
+    async def activate_config(self, config_id: int, user_id: int) -> dict[str, Any]:
         """激活指定配置"""
         # 先取消所有激活
         await self.repo.deactivate_all(user_id)
@@ -90,7 +92,7 @@ class LLMConfigService:
         """获取用户当前激活的配置"""
         return await self.repo.get_active(user_id)
 
-    async def test_connection(self, user_id: int, data: LLMConfigTest) -> dict:
+    async def test_connection(self, user_id: int, data: LLMConfigTest) -> dict[str, Any]:
         """测试 LLM 配置连接（不落库）"""
         client = LLMClient(
             base_url=data.base_url,

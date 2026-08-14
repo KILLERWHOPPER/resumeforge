@@ -1,5 +1,7 @@
 """API v1 — LLM 配置路由（使用 Service 层）"""
 
+from typing import Any
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -15,7 +17,7 @@ router = APIRouter()
 async def get_effective_provider(
     db: AsyncSession = Depends(get_db),
     user_id: int = Depends(get_current_user_id),
-):
+) -> dict[str, Any]:
     """获取当前生效的 LLM 提供方（用户激活配置或 OpenCode 匿名免费默认）"""
     service = AIResumeService(db)
     return await service.get_effective_provider(user_id)
@@ -26,7 +28,7 @@ async def test_llm_config(
     data: LLMConfigTest,
     db: AsyncSession = Depends(get_db),
     user_id: int = Depends(get_current_user_id),
-):
+) -> dict[str, Any]:
     """测试 LLM 配置连接"""
     service = LLMConfigService(db)
     return await service.test_connection(user_id, data)
@@ -36,7 +38,7 @@ async def test_llm_config(
 async def list_llm_configs(
     db: AsyncSession = Depends(get_db),
     user_id: int = Depends(get_current_user_id),
-):
+) -> list[LLMConfigResponse]:
     """获取所有 LLM 配置"""
     service = LLMConfigService(db)
     return await service.list_configs(user_id)
@@ -47,7 +49,7 @@ async def create_llm_config(
     data: LLMConfigCreate,
     db: AsyncSession = Depends(get_db),
     user_id: int = Depends(get_current_user_id),
-):
+) -> LLMConfigResponse:
     """创建 LLM 配置"""
     service = LLMConfigService(db)
     return await service.create_config(user_id, data)
@@ -58,7 +60,7 @@ async def activate_llm_config(
     config_id: int,
     db: AsyncSession = Depends(get_db),
     user_id: int = Depends(get_current_user_id),
-):
+) -> dict[str, Any]:
     """激活指定配置"""
     service = LLMConfigService(db)
     return await service.activate_config(config_id, user_id)
@@ -69,7 +71,7 @@ async def delete_llm_config(
     config_id: int,
     db: AsyncSession = Depends(get_db),
     user_id: int = Depends(get_current_user_id),
-):
+) -> None:
     """删除 LLM 配置"""
     service = LLMConfigService(db)
     await service.delete_config(config_id, user_id)
