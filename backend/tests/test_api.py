@@ -283,6 +283,57 @@ async def test_resumes_crud(client: AsyncClient, fake_llm):
 
 
 @pytest.mark.asyncio
+async def test_export_pdf_endpoint(client: AsyncClient):
+    """PDF 导出 API"""
+    headers = await register_and_login(client)
+
+    resp = await client.post(
+        "/api/v1/resumes/",
+        headers=headers,
+        json={
+            "company_name": "Acme Corp",
+            "jd_text": "Looking for a senior backend engineer with experience in Python",
+            "target_language": "english",
+        },
+    )
+    assert resp.status_code == 201
+    resume_id = resp.json()["id"]
+
+    # 未生成内容 -> 400
+    resp = await client.get(f"/api/v1/resumes/{resume_id}/export-pdf", headers=headers)
+    assert resp.status_code == 400
+
+    # 写入内容后导出 -> PDF
+    resp = await client.put(
+        f"/api/v1/resumes/{resume_id}/content",
+        headers={**headers, "If-Match": "1"},
+        json={
+            "content": {
+                "type": "doc",
+                "content": [
+                    {
+                        "type": "heading",
+                        "attrs": {"level": 1},
+                        "content": [{"type": "text", "text": "Alice"}],
+                    },
+                    {
+                        "type": "paragraph",
+                        "content": [{"type": "text", "text": "Backend Engineer"}],
+                    },
+                ],
+            }
+        },
+    )
+    assert resp.status_code == 200
+
+    resp = await client.get(f"/api/v1/resumes/{resume_id}/export-pdf", headers=headers)
+    assert resp.status_code == 200
+    assert resp.headers["content-type"] == "application/pdf"
+    assert "attachment" in resp.headers["content-disposition"]
+    assert resp.content.startswith(b"%PDF")
+
+
+@pytest.mark.asyncio
 async def test_analyze_jd_endpoint(client: AsyncClient, fake_llm):
     """JD 分析 API + 结果读取"""
     headers = await register_and_login(client)

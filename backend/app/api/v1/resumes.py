@@ -5,13 +5,14 @@ from collections.abc import AsyncIterator, Sequence
 from typing import Any
 
 from fastapi import APIRouter, Depends, Request
-from fastapi.responses import StreamingResponse
+from fastapi.responses import Response, StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.dependencies import get_current_user_id, get_db
 from app.models.resume import Resume
 from app.schemas.resume import JDAnalysisResponse, ResumeContentUpdate, ResumeCreate, ResumeResponse
 from app.services.ai_resume_service import AIResumeService
+from app.services.pdf_service import PDFService
 from app.services.resume_service import ResumeService
 
 router = APIRouter()
@@ -118,6 +119,22 @@ async def generate_resume(
         event_stream(),
         media_type="text/event-stream",
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
+
+
+@router.get("/{resume_id}/export-pdf")
+async def export_resume_pdf(
+    resume_id: int,
+    db: AsyncSession = Depends(get_db),
+    user_id: int = Depends(get_current_user_id),
+) -> Response:
+    """导出简历为 PDF（ATS 单栏模板）"""
+    service = PDFService(db)
+    pdf_bytes = await service.export_resume_pdf(resume_id, user_id)
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="resume-{resume_id}.pdf"'},
     )
 
 

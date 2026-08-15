@@ -4,13 +4,13 @@ import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
-import { ChevronLeft, FileText, RotateCcw, Sparkles } from 'lucide-react';
+import { ChevronLeft, Download, FileText, RotateCcw, Sparkles } from 'lucide-react';
 import { AppHeader } from '@/components/layout/AppHeader';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useToast } from '@/components/ui/Toast';
-import api, { streamSSE } from '@/lib/api';
+import api, { getApiErrorMessage, streamSSE } from '@/lib/api';
 
 interface Resume {
   id: number;
@@ -92,6 +92,7 @@ export default function ResumeResultPage({ params }: { params: { id: string } })
   const [content, setContent] = useState<ResumeContent | null>(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -133,6 +134,29 @@ export default function ResumeResultPage({ params }: { params: { id: string } })
       toast.error(tCommon('error'), tCommon('networkError'));
     } finally {
       setGenerating(false);
+    }
+  };
+
+  const handleExport = async () => {
+    if (!content?.content) return;
+    setExporting(true);
+    try {
+      const { data } = await api.get(`/resumes/${resumeId}/export-pdf`, {
+        responseType: 'blob',
+      });
+      const url = window.URL.createObjectURL(data as Blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${resume?.company_name || 'resume'}-${resumeId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      toast.success(t('editor.export'), t('editor.exported'));
+    } catch (error) {
+      toast.error(tCommon('error'), getApiErrorMessage(error, t('editor.exportFailed')));
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -206,10 +230,19 @@ export default function ResumeResultPage({ params }: { params: { id: string } })
                   <Button
                     variant="secondary"
                     fullWidth
-                    disabled
+                    onClick={() => router.push(`/resumes/${resumeId}/edit`)}
                     icon={<FileText className="h-4 w-4" />}
                   >
-                    {t('result.editComingSoon')}
+                    {t('editor.title')}
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    fullWidth
+                    loading={exporting}
+                    onClick={handleExport}
+                    icon={<Download className="h-4 w-4" />}
+                  >
+                    {t('editor.export')}
                   </Button>
                   <Button
                     fullWidth

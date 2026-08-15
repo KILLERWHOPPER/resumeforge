@@ -292,8 +292,10 @@
       "updated": "{type}更新成功",
       "deleted": "{type}删除成功",
       "imported": "已识别并添加 {count} 条经历",
+      "reordered": "排序已更新",
       "error": "操作失败，请重试"
     },
+    "dragHint": "拖拽排序",
     "importResume": "导入简历",
     "importing": "正在识别...",
     "importHint": "支持 PDF / DOCX / TXT，AI 自动识别并添加到对应分类"
@@ -360,8 +362,7 @@
       "notGenerated": "该简历尚未生成内容",
       "notGeneratedDesc": "返回新建页面输入职位描述，AI 将为您生成针对性简历",
       "regenerate": "重新生成",
-      "actions": "操作",
-      "editComingSoon": "编辑器即将上线"
+      "actions": "操作"
     },
     "editor": {
       "title": "简历编辑器",
@@ -370,6 +371,10 @@
       "save": "保存",
       "saving": "保存中...",
       "saved": "已保存",
+      "backToResult": "返回结果",
+      "exported": "PDF 已导出",
+      "exportFailed": "导出失败，请稍后重试",
+      "saveFailed": "保存失败，内容可能已在其他地方更新，请刷新后重试",
       "sections": {
         "header": "页眉",
         "summary": "职业摘要",

@@ -15,6 +15,7 @@ __pycache__/
 # Next.js
 .next/
 out/
+*.tsbuildinfo
 
 # Docker
 docker-compose.override.yml

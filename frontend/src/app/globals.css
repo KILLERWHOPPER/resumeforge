@@ -1279,6 +1279,75 @@ a:hover {
   }
 }
 
+/* TipTap / ProseMirror editor content */
+.resume-editor-content {
+  color: var(--text-primary);
+  font-size: 0.9375rem;
+  line-height: 1.7;
+}
+
+.resume-editor-content h1,
+.resume-editor-content h2,
+.resume-editor-content h3 {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.resume-editor-content h1 {
+  font-size: 1.75rem;
+  line-height: 2rem;
+  margin: 0 0 0.75rem;
+}
+
+.resume-editor-content h2 {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  margin: 1.5rem 0 0.5rem;
+}
+
+.resume-editor-content h3 {
+  font-size: 1.0625rem;
+  line-height: 1.5rem;
+  margin: 1.25rem 0 0.375rem;
+}
+
+.resume-editor-content p {
+  margin: 0.375rem 0;
+  color: var(--text-secondary);
+}
+
+.resume-editor-content ul {
+  margin: 0.375rem 0;
+  padding-left: 1.25rem;
+  list-style: disc;
+  color: var(--text-secondary);
+}
+
+.resume-editor-content li {
+  margin: 0.25rem 0;
+}
+
+.resume-editor-content li > p {
+  margin: 0;
+}
+
+.resume-editor-content strong {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.resume-editor-content em {
+  font-style: italic;
+}
+
+.resume-editor-content .is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  color: var(--text-tertiary);
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *,

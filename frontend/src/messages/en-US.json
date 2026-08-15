@@ -292,11 +292,13 @@
       "updated": "{type} updated successfully",
       "deleted": "{type} deleted successfully",
       "imported": "{count} experiences imported",
+      "reordered": "Order updated",
       "error": "Operation failed, please try again"
     },
     "importResume": "Import Resume",
     "importing": "Parsing...",
-    "importHint": "Supports PDF / DOCX / TXT. AI auto-extracts and adds to matching categories"
+    "importHint": "Supports PDF / DOCX / TXT. AI auto-extracts and adds to matching categories",
+    "dragHint": "Drag to reorder"
   },
   "resume": {
     "jdInput": {
@@ -360,8 +362,7 @@
       "notGenerated": "No content generated for this resume yet",
       "notGeneratedDesc": "Go back and paste a job description to have AI generate a tailored resume",
       "regenerate": "Regenerate",
-      "actions": "Actions",
-      "editComingSoon": "Editor coming soon"
+      "actions": "Actions"
     },
     "editor": {
       "title": "Resume Editor",
@@ -370,6 +371,10 @@
       "save": "Save",
       "saving": "Saving...",
       "saved": "Saved",
+      "backToResult": "Back to result",
+      "exported": "PDF exported",
+      "exportFailed": "Export failed, please try again",
+      "saveFailed": "Save failed. Content may have been updated elsewhere, please refresh and retry",
       "sections": {
         "header": "Header",
         "summary": "Professional Summary",

@@ -12,10 +12,26 @@ import {
   Award,
   Edit,
   Trash2,
-  ChevronDown,
-  ChevronUp,
   Upload,
+  GripVertical,
 } from 'lucide-react';
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
@@ -135,6 +151,32 @@ export default function ExperiencesPage() {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [importing, setImporting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    const items = experiences[activeTab];
+    if (!over || active.id === over.id || items.length === 0) return;
+
+    const oldIndex = items.findIndex((i) => i.id === active.id);
+    const newIndex = items.findIndex((i) => i.id === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const next = arrayMove(items, oldIndex, newIndex);
+    setExperiences((prev) => ({ ...prev, [activeTab]: next }));
+
+    try {
+      await api.put('/experiences/reorder', { order: next.map((i) => i.id) });
+      toast.success(tCommon('success'), t('toast.reordered'));
+    } catch (error) {
+      toast.error(tCommon('error'), getApiErrorMessage(error, tCommon('networkError')));
+      fetchExperiences(activeTab);
+    }
+  };
 
   // Fetch experiences for a type
   const fetchExperiences = async (type: ExperienceType) => {
@@ -473,124 +515,99 @@ export default function ExperiencesPage() {
     }
   };
 
-  const renderExperienceCard = (exp: Experience) => {
+  const renderExperienceCardBody = (exp: Experience) => {
     const config = typeConfig[activeTab];
 
     return (
-      <div key={exp.id} className="card-base space-y-4 p-5">
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0 flex-1">
-            <div className="mb-2 flex items-center gap-2">
-              <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary-100 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400">
-                {config.icon}
-              </span>
-              <h4 className="truncate font-semibold text-text-primary">
-                {activeTab === 'education'
-                  ? exp.school
-                  : activeTab === 'work'
-                    ? exp.company
-                    : activeTab === 'project'
-                      ? exp.name
-                      : activeTab === 'skill'
-                        ? exp.name
-                        : exp.name}
-              </h4>
-            </div>
-
-            {activeTab === 'education' && exp.degree && (
-              <p className="text-sm text-text-secondary">
-                {exp.degree}
-                {exp.field_of_study ? ` · ${exp.field_of_study}` : ''}
-              </p>
-            )}
-            {activeTab === 'work' && exp.position && (
-              <p className="text-sm text-text-secondary">{exp.position}</p>
-            )}
-            {activeTab === 'project' && exp.role && (
-              <p className="text-sm text-text-secondary">
-                {t('project.role')}: {exp.role}
-              </p>
-            )}
-            {activeTab === 'skill' && (
-              <div className="mt-1 flex flex-wrap gap-1.5">
-                {exp.category && <span className="badge-primary text-xs">{exp.category}</span>}
-                {exp.proficiency && (
-                  <span className="badge-info text-xs">
-                    {proficiencyOptions.find((p) => p.value === exp.proficiency)?.label}
-                  </span>
-                )}
-              </div>
-            )}
-            {activeTab === 'certificate' && exp.issuer && (
-              <p className="text-sm text-text-secondary">
-                {t('certificate.issuer')}: {exp.issuer}
-              </p>
-            )}
-
-            <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-text-tertiary">
-              {exp.start_date && (
-                <span>
-                  {new Date(exp.start_date).toLocaleDateString(
-                    locale === 'zh-CN' ? 'zh-CN' : 'en-US',
-                    { year: 'numeric', month: 'short' }
-                  )}
-                  {exp.end_date
-                    ? ` - ${exp.end_date === 'present' || exp.end_date === 'current' ? t(`${activeTab}.current`) : new Date(exp.end_date).toLocaleDateString(locale === 'zh-CN' ? 'zh-CN' : 'en-US', { year: 'numeric', month: 'short' })}`
-                    : ''}
-                </span>
-              )}
-            </div>
-
-            {exp.description && (
-              <p className="mt-3 line-clamp-3 text-sm text-text-secondary">{exp.description}</p>
-            )}
-
-            {activeTab === 'project' && exp.tech_tags && exp.tech_tags.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-1">
-                {exp.tech_tags.slice(0, 5).map((tag, i) => (
-                  <span key={i} className="badge-default text-xs">
-                    {tag}
-                  </span>
-                ))}
-                {exp.tech_tags.length > 5 && (
-                  <span className="badge-default text-xs">+{exp.tech_tags.length - 5}</span>
-                )}
-              </div>
-            )}
-
-            {activeTab === 'certificate' && exp.credential_url && (
-              <a
-                href={exp.credential_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-2 inline-flex items-center gap-1 text-xs text-primary-600 hover:text-primary-500"
-              >
-                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                  />
-                </svg>
-                {t('certificate.viewCredential')}
-              </a>
-            )}
-          </div>
-          <div className="flex items-center justify-end gap-2 border-t border-border-light pt-3 dark:border-border-dark">
-            <Button variant="ghost" size="sm" onClick={() => handleEdit(exp)}>
-              <Edit className="mr-1 h-4 w-4" /> {tCommon('edit')}
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-error-600 hover:bg-error-50 hover:text-error-700"
-              onClick={() => setDeletingId(exp.id)}
-            >
-              <Trash2 className="mr-1 h-4 w-4" /> {tCommon('delete')}
-            </Button>
-          </div>
+      <div className="min-w-0 flex-1">
+        <div className="mb-2 flex items-center gap-2">
+          <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary-100 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400">
+            {config.icon}
+          </span>
+          <h4 className="truncate font-semibold text-text-primary">
+            {activeTab === 'education' ? exp.school : activeTab === 'work' ? exp.company : exp.name}
+          </h4>
         </div>
+
+        {activeTab === 'education' && exp.degree && (
+          <p className="text-sm text-text-secondary">
+            {exp.degree}
+            {exp.field_of_study ? ` · ${exp.field_of_study}` : ''}
+          </p>
+        )}
+        {activeTab === 'work' && exp.position && (
+          <p className="text-sm text-text-secondary">{exp.position}</p>
+        )}
+        {activeTab === 'project' && exp.role && (
+          <p className="text-sm text-text-secondary">
+            {t('project.role')}: {exp.role}
+          </p>
+        )}
+        {activeTab === 'skill' && (
+          <div className="mt-1 flex flex-wrap gap-1.5">
+            {exp.category && <span className="badge-primary text-xs">{exp.category}</span>}
+            {exp.proficiency && (
+              <span className="badge-info text-xs">
+                {proficiencyOptions.find((p) => p.value === exp.proficiency)?.label}
+              </span>
+            )}
+          </div>
+        )}
+        {activeTab === 'certificate' && exp.issuer && (
+          <p className="text-sm text-text-secondary">
+            {t('certificate.issuer')}: {exp.issuer}
+          </p>
+        )}
+
+        <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-text-tertiary">
+          {exp.start_date && (
+            <span>
+              {new Date(exp.start_date).toLocaleDateString(locale === 'zh-CN' ? 'zh-CN' : 'en-US', {
+                year: 'numeric',
+                month: 'short',
+              })}
+              {exp.end_date
+                ? ` - ${exp.end_date === 'present' || exp.end_date === 'current' ? t(`${activeTab}.current`) : new Date(exp.end_date).toLocaleDateString(locale === 'zh-CN' ? 'zh-CN' : 'en-US', { year: 'numeric', month: 'short' })}`
+                : ''}
+            </span>
+          )}
+        </div>
+
+        {exp.description && (
+          <p className="mt-3 line-clamp-3 text-sm text-text-secondary">{exp.description}</p>
+        )}
+
+        {activeTab === 'project' && exp.tech_tags && exp.tech_tags.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-1">
+            {exp.tech_tags.slice(0, 5).map((tag, i) => (
+              <span key={i} className="badge-default text-xs">
+                {tag}
+              </span>
+            ))}
+            {exp.tech_tags.length > 5 && (
+              <span className="badge-default text-xs">+{exp.tech_tags.length - 5}</span>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'certificate' && exp.credential_url && (
+          <a
+            href={exp.credential_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 inline-flex items-center gap-1 text-xs text-primary-600 hover:text-primary-500"
+          >
+            <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+              />
+            </svg>
+            {t('certificate.viewCredential')}
+          </a>
+        )}
       </div>
     );
   };
@@ -700,9 +717,31 @@ export default function ExperiencesPage() {
                 }}
               />
             ) : (
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {experiences[activeTab].map(renderExperienceCard)}
-              </div>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext
+                  items={experiences[activeTab].map((exp) => exp.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {experiences[activeTab].map((exp) => (
+                      <SortableExperienceCard
+                        key={exp.id}
+                        exp={exp}
+                        renderBody={renderExperienceCardBody}
+                        onEdit={handleEdit}
+                        onDelete={setDeletingId}
+                        editLabel={tCommon('edit')}
+                        deleteLabel={tCommon('delete')}
+                        dragHint={t('dragHint')}
+                      />
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
             )}
           </TabsContent>
         </Tabs>
@@ -751,6 +790,71 @@ export default function ExperiencesPage() {
           </Button>
         </div>
       </Modal>
+    </div>
+  );
+}
+
+// SortableExperienceCard component
+interface SortableExperienceCardProps {
+  exp: Experience;
+  renderBody: (exp: Experience) => React.ReactNode;
+  onEdit: (exp: Experience) => void;
+  onDelete: (id: number) => void;
+  editLabel: string;
+  deleteLabel: string;
+  dragHint: string;
+}
+
+function SortableExperienceCard({
+  exp,
+  renderBody,
+  onEdit,
+  onDelete,
+  editLabel,
+  deleteLabel,
+  dragHint,
+}: SortableExperienceCardProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: exp.id,
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`card-base space-y-4 p-5 ${isDragging ? 'z-10 opacity-90 shadow-lg' : ''}`}
+    >
+      <div className="flex items-start justify-between gap-4">
+        {renderBody(exp)}
+        <button
+          type="button"
+          {...attributes}
+          {...listeners}
+          title={dragHint}
+          aria-label={dragHint}
+          className="mt-1 flex h-8 w-8 flex-shrink-0 cursor-grab items-center justify-center rounded-lg text-text-tertiary transition-colors hover:bg-neutral-100 hover:text-text-primary active:cursor-grabbing dark:hover:bg-neutral-800"
+        >
+          <GripVertical className="h-4 w-4" />
+        </button>
+      </div>
+      <div className="flex items-center justify-end gap-2 border-t border-border-light pt-3 dark:border-border-dark">
+        <Button variant="ghost" size="sm" onClick={() => onEdit(exp)}>
+          <Edit className="mr-1 h-4 w-4" /> {editLabel}
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-error-600 hover:bg-error-50 hover:text-error-700"
+          onClick={() => onDelete(exp.id)}
+        >
+          <Trash2 className="mr-1 h-4 w-4" /> {deleteLabel}
+        </Button>
+      </div>
     </div>
   );
 }

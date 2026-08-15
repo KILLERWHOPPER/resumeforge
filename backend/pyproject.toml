@@ -130,6 +130,7 @@ module = [
     "httpx.*",
     "jose.*",
     "passlib.*",
+    "weasyprint.*",
 ]
 ignore_missing_imports = true
 
