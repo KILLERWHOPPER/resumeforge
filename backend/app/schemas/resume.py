@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 
 
 class ResumeCreate(BaseModel):
-    company_name: str = Field(max_length=300)
+    company_name: str | None = Field(default=None, max_length=300)
     jd_text: str
     target_language: str = Field(default="english", pattern="^(chinese|english|bilingual)$")
 
