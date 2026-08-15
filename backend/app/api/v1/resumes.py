@@ -10,7 +10,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.dependencies import get_current_user_id, get_db
 from app.models.resume import Resume
-from app.schemas.resume import JDAnalysisResponse, ResumeContentUpdate, ResumeCreate, ResumeResponse
+from app.schemas.resume import (
+    JDAnalysisResponse,
+    ResumeContentUpdate,
+    ResumeCreate,
+    ResumeResponse,
+    ResumeVersionDetail,
+    ResumeVersionRestore,
+    ResumeVersionSummary,
+)
 from app.services.ai_resume_service import AIResumeService
 from app.services.pdf_service import PDFService
 from app.services.resume_service import ResumeService
@@ -136,6 +144,55 @@ async def export_resume_pdf(
         media_type="application/pdf",
         headers={"Content-Disposition": f'attachment; filename="resume-{resume_id}.pdf"'},
     )
+
+
+@router.get("/{resume_id}/versions", response_model=list[ResumeVersionSummary])
+async def list_resume_versions(
+    resume_id: int,
+    db: AsyncSession = Depends(get_db),
+    user_id: int = Depends(get_current_user_id),
+) -> list[dict[str, Any]]:
+    """获取简历版本历史"""
+    service = ResumeService(db)
+    return await service.list_versions(resume_id, user_id)
+
+
+@router.get("/{resume_id}/versions/{version_number}/content", response_model=ResumeVersionDetail)
+async def get_resume_version_content(
+    resume_id: int,
+    version_number: int,
+    db: AsyncSession = Depends(get_db),
+    user_id: int = Depends(get_current_user_id),
+) -> dict[str, Any]:
+    """获取指定版本的内容"""
+    service = ResumeService(db)
+    return await service.get_version_content(resume_id, version_number, user_id)
+
+
+@router.post(
+    "/{resume_id}/versions/{version_number}/restore", response_model=ResumeVersionRestore
+)
+async def restore_resume_version(
+    resume_id: int,
+    version_number: int,
+    db: AsyncSession = Depends(get_db),
+    user_id: int = Depends(get_current_user_id),
+) -> dict[str, Any]:
+    """恢复指定版本为当前内容"""
+    service = ResumeService(db)
+    return await service.restore_version(resume_id, version_number, user_id)
+
+
+@router.post("/{resume_id}/versions/{version_number}/branch", response_model=ResumeResponse, status_code=201)
+async def branch_resume_version(
+    resume_id: int,
+    version_number: int,
+    db: AsyncSession = Depends(get_db),
+    user_id: int = Depends(get_current_user_id),
+) -> Resume:
+    """从指定版本派生一份新简历"""
+    service = ResumeService(db)
+    return await service.branch_resume(resume_id, version_number, user_id)
 
 
 @router.delete("/{resume_id}", status_code=204)

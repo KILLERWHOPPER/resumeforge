@@ -366,3 +366,25 @@ CI/CD 搭建        JWT 会话           LLM 配置页          简历生成流�
 - ✅ **PDF 导出可用**：`GET /resumes/{id}/export-pdf` 将 PM JSON → HTML → WeasyPrint 渲染 ATS 单栏 PDF（页眉/标题/列表排版，中文 + 英文均支持），结果页与编辑器均可下载
 - ✅ **拖拽排序可用**：经历页 dnd-kit 拖拽手柄排序 + 键盘无障碍，`PUT /experiences/reorder` 持久化，失败自动回滚刷新
 - ✅ 后端测试 **104 通过，覆盖率 91%**（含 PM→HTML 转换、PDF 生成、导出 API、越权隔离用例），ruff / mypy --strict 全绿；前端 tsc / lint / prettier / next build 全绿
+
+---
+
+## 9. Sprint 5 — 版本管理 + 收尾固化（进行中 ✅）
+
+**周期：** 第 11~12 周 | **目标：** 简历版本管理可用，收尾上线准备
+
+### 9.1 版本管理（已完成 ✅）
+
+| # | 任务 | 关联 US | 依赖 |
+|---|------|---------|------|
+| S5-B01 | **版本历史 API**：`GET /resumes/{id}/versions`（倒序 + is_current 标记） | US-24 | S0-04 ✅ |
+| S5-B02 | **版本内容 API**：`GET /resumes/{id}/versions/{version_number}/content` | US-24 | S5-B01 ✅ |
+| S5-B03 | **版本恢复 API**：`POST /resumes/{id}/versions/{version_number}/restore`（历史不可变，新写版本并置为当前） | US-25 | S5-B01 ✅ |
+| S5-B04 | **分支复用 API**：`POST /resumes/{id}/versions/{version_number}/branch`（从指定版本派生新简历，继承 company/JD/语言） | — | S5-B01 ✅ |
+| S5-F01 | **版本历史面板**：结果页侧栏展示版本列表（当前标记/时间戳），支持预览、恢复、派生为新简历 | US-24, US-25 | S5-B01~B04 ✅ |
+
+### 9.2 Sprint 5 交付物
+
+- ✅ 后端测试 **112 通过，覆盖率 91.35%**（新增版本列表/内容/恢复/派生 + 越权用例），ruff / mypy --strict 全绿
+- ✅ 前端结果页版本历史面板（预览历史内容 + 恢复 + 分支派生，查看时横幅提示返回当前版本），tsc / eslint 全绿
+- ⏳ 剩余：上线准备（预发布环境、上线检查清单、Docker 优化）、Bug 修复、QA 回归

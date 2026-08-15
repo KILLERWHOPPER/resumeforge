@@ -58,6 +58,25 @@ class ResumeRepository(BaseRepository[Resume]):
         await self.db.flush()
         return version
 
+    async def list_versions(self, resume_id: int) -> Sequence[ResumeVersion]:
+        """获取简历的版本历史，按版本号倒序"""
+        result = await self.db.execute(
+            select(ResumeVersion)
+            .where(ResumeVersion.resume_id == resume_id)
+            .order_by(ResumeVersion.version_number.desc())
+        )
+        return result.scalars().all()
+
+    async def get_version(self, resume_id: int, version_number: int) -> ResumeVersion | None:
+        """获取指定版本号的内容"""
+        result = await self.db.execute(
+            select(ResumeVersion).where(
+                ResumeVersion.resume_id == resume_id,
+                ResumeVersion.version_number == version_number,
+            )
+        )
+        return result.scalar_one_or_none()
+
     # ---- JD Analysis ----
 
     async def get_jd_analysis(self, resume_id: int) -> JDAnalysis | None:

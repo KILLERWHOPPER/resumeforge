@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useToast } from '@/components/ui/Toast';
+import { VersionHistory, type ResumeVersion } from '@/components/resume/VersionHistory';
 import api, { getApiErrorMessage, streamSSE } from '@/lib/api';
 
 interface Resume {
@@ -90,6 +91,9 @@ export default function ResumeResultPage({ params }: { params: { id: string } })
   const resumeId = params.id;
   const [resume, setResume] = useState<Resume | null>(null);
   const [content, setContent] = useState<ResumeContent | null>(null);
+  const [versions, setVersions] = useState<ResumeVersion[]>([]);
+  const [viewingVersion, setViewingVersion] = useState<number | null>(null);
+  const [previewContent, setPreviewContent] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [exporting, setExporting] = useState(false);
@@ -97,12 +101,16 @@ export default function ResumeResultPage({ params }: { params: { id: string } })
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [resumeRes, contentRes] = await Promise.all([
+      const [resumeRes, contentRes, versionsRes] = await Promise.all([
         api.get(`/resumes/${resumeId}`),
         api.get(`/resumes/${resumeId}/content`),
+        api.get(`/resumes/${resumeId}/versions`),
       ]);
       setResume(resumeRes.data);
       setContent(contentRes.data);
+      setVersions(versionsRes.data);
+      setViewingVersion(null);
+      setPreviewContent(null);
     } catch {
       toast.error(tCommon('error'), tCommon('networkError'));
     } finally {
@@ -160,7 +168,41 @@ export default function ResumeResultPage({ params }: { params: { id: string } })
     }
   };
 
+  const handlePreviewVersion = async (versionNumber: number) => {
+    if (versionNumber === viewingVersion) return;
+    try {
+      const { data } = await api.get(`/resumes/${resumeId}/versions/${versionNumber}/content`);
+      setPreviewContent(data.content as Record<string, unknown> | null);
+      setViewingVersion(versionNumber);
+    } catch (error) {
+      toast.error(tCommon('error'), getApiErrorMessage(error, tCommon('networkError')));
+    }
+  };
+
+  const handleRestoreVersion = async (versionNumber: number) => {
+    try {
+      const { data } = await api.post(`/resumes/${resumeId}/versions/${versionNumber}/restore`);
+      toast.success(t('versions.title'), t('versions.restored', { version: data.version }));
+      await fetchData();
+    } catch (error) {
+      toast.error(tCommon('error'), getApiErrorMessage(error, tCommon('networkError')));
+    }
+  };
+
+  const handleBranchVersion = async (versionNumber: number) => {
+    try {
+      const { data } = await api.post(`/resumes/${resumeId}/versions/${versionNumber}/branch`);
+      toast.success(t('versions.title'), t('versions.branched'));
+      router.push(`/resumes/${data.id}`);
+    } catch (error) {
+      toast.error(tCommon('error'), getApiErrorMessage(error, tCommon('networkError')));
+    }
+  };
+
   const doc = content?.content as PMNode | null;
+  const displayedDoc = (
+    viewingVersion !== null ? previewContent : content?.content
+  ) as PMNode | null;
 
   return (
     <div className="min-h-screen bg-background-primary">
@@ -218,8 +260,25 @@ export default function ResumeResultPage({ params }: { params: { id: string } })
         ) : (
           <div className="grid gap-6 lg:grid-cols-[1fr_260px]">
             <div className="rounded-xl border border-border-light bg-white p-8 shadow-sm dark:border-border-dark dark:bg-neutral-900">
+              {viewingVersion !== null && (
+                <div className="mb-4 flex items-center justify-between gap-2 rounded-lg border border-primary-200 bg-primary-50 px-4 py-2.5 dark:border-primary-900/40 dark:bg-primary-900/10">
+                  <p className="text-sm font-medium text-primary-700 dark:text-primary-300">
+                    {t('versions.viewingBanner', { version: viewingVersion })}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setViewingVersion(null);
+                      setPreviewContent(null);
+                    }}
+                    className="text-sm font-medium text-primary-600 transition-colors hover:text-primary-500 dark:text-primary-400"
+                  >
+                    {t('versions.viewCurrent')}
+                  </button>
+                </div>
+              )}
               <div className="mx-auto max-w-[700px]">
-                {doc.content?.map((node, i) => renderNode(node, i))}
+                {displayedDoc?.content?.map((node, i) => renderNode(node, i))}
               </div>
             </div>
 
@@ -253,6 +312,14 @@ export default function ResumeResultPage({ params }: { params: { id: string } })
                   </Button>
                 </div>
               </div>
+
+              <VersionHistory
+                versions={versions}
+                viewingVersion={viewingVersion}
+                onPreview={handlePreviewVersion}
+                onRestore={handleRestoreVersion}
+                onBranch={handleBranchVersion}
+              />
             </div>
           </div>
         )}

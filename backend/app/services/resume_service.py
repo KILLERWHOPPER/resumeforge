@@ -99,3 +99,77 @@ class ResumeService:
         await self.repo.db.flush()
 
         return {"message": "保存成功", "version": new_version_number}
+
+    async def list_versions(self, resume_id: int, user_id: int) -> list[dict[str, Any]]:
+        """获取简历版本历史（含当前版本标记）"""
+        resume = await self.get_resume(resume_id, user_id)
+        versions = await self.repo.list_versions(resume.id)
+        return [
+            {
+                "version_number": v.version_number,
+                "created_at": v.created_at,
+                "is_current": v.id == resume.current_version_id,
+            }
+            for v in versions
+        ]
+
+    async def get_version_content(
+        self, resume_id: int, version_number: int, user_id: int
+    ) -> dict[str, Any]:
+        """获取指定版本的内容"""
+        resume = await self.get_resume(resume_id, user_id)
+        version = await self.repo.get_version(resume.id, version_number)
+        if not version:
+            raise NotFound("版本不存在")
+        return {
+            "version_number": version.version_number,
+            "created_at": version.created_at,
+            "content": version.content,
+        }
+
+    async def restore_version(
+        self, resume_id: int, version_number: int, user_id: int
+    ) -> dict[str, Any]:
+        """恢复指定版本为当前内容（历史不可变，新写一个版本）"""
+        resume = await self.get_resume(resume_id, user_id)
+        version = await self.repo.get_version(resume.id, version_number)
+        if not version:
+            raise NotFound("版本不存在")
+
+        current = await self.repo.get_current_version(resume)
+        current_number = current.version_number if current else 0
+        new_version = await self.repo.create_version(
+            resume_id=resume.id,
+            content=version.content,
+            version_number=current_number + 1,
+        )
+        resume.current_version_id = new_version.id
+        await self.repo.db.flush()
+
+        return {"message": "已恢复至指定版本", "version": new_version.version_number}
+
+    async def branch_resume(
+        self, resume_id: int, version_number: int, user_id: int
+    ) -> Resume:
+        """从指定版本派生一份新简历（分支复用）"""
+        resume = await self.get_resume(resume_id, user_id)
+        version = await self.repo.get_version(resume.id, version_number)
+        if not version:
+            raise NotFound("版本不存在")
+
+        branch = await self.repo.create(
+            user_id=user_id,
+            company_name=resume.company_name,
+            jd_text=resume.jd_text,
+            target_language=resume.target_language,
+        )
+        new_version = await self.repo.create_version(
+            resume_id=branch.id,
+            content=version.content,
+            version_number=1,
+        )
+        branch.current_version_id = new_version.id
+        branch.status = "generated"
+        await self.repo.db.flush()
+
+        return branch

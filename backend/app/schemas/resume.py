@@ -27,6 +27,23 @@ class ResumeContentUpdate(BaseModel):
     content: dict[str, Any]  # ProseMirror JSON
 
 
+class ResumeVersionSummary(BaseModel):
+    version_number: int
+    created_at: datetime
+    is_current: bool
+
+
+class ResumeVersionDetail(BaseModel):
+    version_number: int
+    created_at: datetime
+    content: dict[str, Any]  # ProseMirror JSON
+
+
+class ResumeVersionRestore(BaseModel):
+    message: str
+    version: int
+
+
 class JDAnalysisResponse(BaseModel):
     resume_id: int
     core_responsibilities: list[str]

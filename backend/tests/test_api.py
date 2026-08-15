@@ -283,6 +283,76 @@ async def test_resumes_crud(client: AsyncClient, fake_llm):
 
 
 @pytest.mark.asyncio
+async def test_resume_versions_api(client: AsyncClient):
+    """版本历史 API：列表 / 内容 / 恢复 / 派生"""
+    headers = await register_and_login(client)
+
+    resp = await client.post(
+        "/api/v1/resumes/",
+        headers=headers,
+        json={
+            "company_name": "Acme Corp",
+            "jd_text": "Looking for a senior backend engineer with experience in Python",
+            "target_language": "english",
+        },
+    )
+    assert resp.status_code == 201
+    resume_id = resp.json()["id"]
+
+    # 写入 v1 / v2
+    for text in ("v1 content", "v2 content"):
+        resp = await client.get(f"/api/v1/resumes/{resume_id}/content", headers=headers)
+        version = resp.json()["version"] or 0
+        resp = await client.put(
+            f"/api/v1/resumes/{resume_id}/content",
+            headers={**headers, "If-Match": str(version)},
+            json={"content": {"type": "doc", "content": [{"type": "text", "text": text}]}},
+        )
+        assert resp.status_code == 200
+
+    # 版本列表（倒序，v2 为当前）
+    resp = await client.get(f"/api/v1/resumes/{resume_id}/versions", headers=headers)
+    assert resp.status_code == 200
+    versions = resp.json()
+    assert [v["version_number"] for v in versions] == [2, 1]
+    assert versions[0]["is_current"] is True
+
+    # 读取指定版本内容
+    resp = await client.get(
+        f"/api/v1/resumes/{resume_id}/versions/1/content", headers=headers
+    )
+    assert resp.status_code == 200
+    assert resp.json()["version_number"] == 1
+
+    # 恢复 v1 -> 新版本 v3
+    resp = await client.post(
+        f"/api/v1/resumes/{resume_id}/versions/1/restore", headers=headers
+    )
+    assert resp.status_code == 200
+    assert resp.json()["version"] == 3
+
+    resp = await client.get(f"/api/v1/resumes/{resume_id}/content", headers=headers)
+    assert resp.json()["version"] == 3
+
+    # 派生新简历 -> 版本 1，内容同 v2
+    resp = await client.post(
+        f"/api/v1/resumes/{resume_id}/versions/2/branch", headers=headers
+    )
+    assert resp.status_code == 201
+    branch_id = resp.json()["id"]
+    assert resp.json()["company_name"] == "Acme Corp"
+
+    resp = await client.get(f"/api/v1/resumes/{branch_id}/content", headers=headers)
+    assert resp.json()["version"] == 1
+
+    # 不存在版本 -> 404
+    resp = await client.get(
+        f"/api/v1/resumes/{resume_id}/versions/99/content", headers=headers
+    )
+    assert resp.status_code == 404
+
+
+@pytest.mark.asyncio
 async def test_export_pdf_endpoint(client: AsyncClient):
     """PDF 导出 API"""
     headers = await register_and_login(client)
