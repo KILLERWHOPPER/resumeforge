@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import logging
 from collections.abc import AsyncIterator
 from typing import Any
 
@@ -24,6 +25,8 @@ from app.services.prompts import (
 )
 from app.services.prosemirror import build_prose_mirror
 from app.services.resume_service import ResumeService
+
+logger = logging.getLogger(__name__)
 
 JD_MIN_LENGTH = 50
 GENERATION_MAX_TOKENS = 4096
@@ -76,7 +79,11 @@ class AIResumeService:
 
         client = await self._get_client(user_id)
         messages = build_jd_analysis_prompt(resume.jd_text, resume.target_language)
-        raw = await client.chat(messages, temperature=0)
+        try:
+            raw = await client.chat(messages, temperature=0)
+        except Exception:
+            logger.exception("JD 分析失败 resume_id=%s user_id=%s", resume_id, user_id)
+            raise
         analysis = extract_json(raw)
         self._validate_analysis(analysis)
 
@@ -177,6 +184,8 @@ class AIResumeService:
             resume.status = "generated"
             await self.db.flush()
 
+            logger.info("简历生成成功 resume_id=%s version=%s", resume_id, version.version_number)
+
             yield {
                 "event": "complete",
                 "resume_id": resume_id,
@@ -184,6 +193,7 @@ class AIResumeService:
                 "completeness": check,
             }
         except Exception as exc:
+            logger.exception("简历生成失败 resume_id=%s user_id=%s", resume_id, user_id)
             resume.status = "failed"
             await self.db.flush()
             yield {

@@ -1,5 +1,6 @@
 """ResumeForge FastAPI 应用入口"""
 
+import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
@@ -10,6 +11,11 @@ from fastapi.responses import JSONResponse
 from app.api.v1 import auth, experiences, llm_configs, resumes
 from app.core.config import settings
 from app.core.exceptions import AppError
+
+logging.basicConfig(
+    level=getattr(logging, settings.LOG_LEVEL.upper(), logging.INFO),
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+)
 
 
 @asynccontextmanager

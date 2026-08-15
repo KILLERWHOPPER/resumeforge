@@ -34,6 +34,9 @@ class Settings(BaseSettings):
     PDF_TEMP_DIR: str = "/tmp/resumeforge-pdf"
     PDF_MAX_CONCURRENT: int = 2
 
+    # 日志
+    LOG_LEVEL: str = "INFO"
+
     class Config:
         env_file = ".env"
 
