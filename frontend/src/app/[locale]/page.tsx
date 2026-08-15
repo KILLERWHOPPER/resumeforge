@@ -1,9 +1,12 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useRouter } from '@/i18n/routing';
 
 export default function Home() {
   const router = useRouter();
-  router.push('/dashboard');
+  useEffect(() => {
+    router.push('/dashboard');
+  }, [router]);
   return null;
 }
