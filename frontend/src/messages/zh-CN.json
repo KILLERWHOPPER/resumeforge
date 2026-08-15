@@ -330,6 +330,7 @@
     "generation": {
       "title": "正在生成简历",
       "steps": {
+        "preparing": "准备生成简历",
         "analyzing": "分析职位要求",
         "matching": "匹配个人经历",
         "writing": "撰写简历内容",

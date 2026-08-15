@@ -43,7 +43,7 @@ interface EffectiveProvider {
 type Step = 'form' | 'analyzing' | 'analysis' | 'generating';
 
 const GENERATION_STAGES = [
-  { stage: 'preparing', labelKey: 'analyzing' },
+  { stage: 'preparing', labelKey: 'preparing' },
   { stage: 'analyzing', labelKey: 'analyzing' },
   { stage: 'matching', labelKey: 'matching' },
   { stage: 'writing', labelKey: 'writing' },

@@ -148,6 +148,35 @@ export function getAccessToken(): string | null {
 
 export type SSEHandler = (event: string, data: Record<string, unknown>) => void;
 
+// 从 JWT 中解析过期时间（毫秒），解析失败返回 null
+function decodeExp(token: string): number | null {
+  try {
+    const payload = token.split('.')[1];
+    const json = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
+    return typeof json.exp === 'number' ? json.exp * 1000 : null;
+  } catch {
+    return null;
+  }
+}
+
+// 获取一个尚未过期的 access token（必要时用 refresh token 刷新）
+async function getFreshAccessToken(): Promise<string | null> {
+  if (accessToken) {
+    const exp = decodeExp(accessToken);
+    if (exp === null || exp > Date.now() + 30_000) return accessToken;
+  }
+  if (!refreshToken) return null;
+  try {
+    const { data } = await axios.post(`${API_BASE}/api/v1/auth/refresh`, {
+      refresh_token: refreshToken,
+    });
+    setTokens(data.access_token, data.refresh_token);
+    return data.access_token;
+  } catch {
+    return null;
+  }
+}
+
 export async function streamSSE(
   url: string,
   handlers: {
@@ -155,22 +184,34 @@ export async function streamSSE(
     onError?: (err: Error) => void;
   }
 ): Promise<void> {
-  const token = getAccessToken();
-  try {
-    const res = await fetch(url, {
+  const doFetch = (token: string) =>
+    fetch(url, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${token ?? ''}`,
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
       body: '{}',
     });
 
-    if (!res.ok || !res.body) {
-      const text = await res.text().catch(() => '');
-      throw new Error(`SSE 请求失败: ${res.status} ${text}`);
-    }
+  let token = await getFreshAccessToken();
+  let res = await doFetch(token ?? '');
 
+  // access token 过期导致 401：刷新后重试一次
+  if (res.status === 401 && refreshToken) {
+    const fresh = await getFreshAccessToken();
+    if (fresh) {
+      token = fresh;
+      res = await doFetch(fresh);
+    }
+  }
+
+  if (!res.ok || !res.body) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`SSE 请求失败: ${res.status} ${text}`);
+  }
+
+  try {
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';

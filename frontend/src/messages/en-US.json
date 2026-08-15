@@ -330,6 +330,7 @@
     "generation": {
       "title": "Generating Resume",
       "steps": {
+        "preparing": "Preparing to generate",
         "analyzing": "Analyzing job requirements",
         "matching": "Matching personal experience",
         "writing": "Writing resume content",
