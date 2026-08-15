@@ -9,6 +9,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="zh-CN">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: "document.documentElement.classList.remove('dark');document.documentElement.style.colorScheme='light';",
+          }}
+        />
+      </head>
       <body className="min-h-screen bg-gray-50 text-gray-900 antialiased">{children}</body>
     </html>
   );
