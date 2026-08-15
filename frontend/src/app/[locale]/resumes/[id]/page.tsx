@@ -65,7 +65,13 @@ function renderNode(node: PMNode, key: number): React.ReactNode {
           {node.content?.map((li, i) => (
             <li key={i} className="flex gap-2 text-sm leading-relaxed text-text-secondary">
               <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-primary-500" />
-              <span>{li.content?.map((c, j) => renderInline(c))}</span>
+              <span>
+                {li.content?.map((child, j) =>
+                  child.type === 'paragraph'
+                    ? child.content?.map((c, k) => renderInline(c))
+                    : renderInline(child)
+                )}
+              </span>
             </li>
           ))}
         </ul>
