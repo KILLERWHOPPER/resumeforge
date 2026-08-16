@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.core.exceptions import BadRequest, Conflict
 from app.repositories.resume_repository import ResumeRepository
+from app.repositories.user_repository import UserRepository
 from app.schemas.resume import JDAnalysisResponse
 from app.services.experience_service import ExperienceService
 from app.services.llm_client import LLMClient
@@ -23,7 +24,7 @@ from app.services.prompts import (
     completeness_check,
     serialize_experiences,
 )
-from app.services.prosemirror import build_prose_mirror
+from app.services.prosemirror import build_prose_mirror, build_user_header
 from app.services.resume_service import ResumeService
 
 logger = logging.getLogger(__name__)
@@ -41,6 +42,7 @@ class AIResumeService:
         self.resume_service = ResumeService(db)
         self.experience_service = ExperienceService(db)
         self.llm_config_service = LLMConfigService(db)
+        self.user_repo = UserRepository(db)
 
     async def get_effective_provider(self, user_id: int) -> dict[str, Any]:
         """获取当前生效的 LLM 提供方（用户配置优先，否则回退到 OpenCode 匿名免费模型）"""
@@ -170,9 +172,25 @@ class AIResumeService:
                 parts.append(chunk)
                 yield {"event": "chunk", "delta": chunk}
 
-            # 4. 解析并落库
+            # 4. 解析并落库（头部拼接用户个人资料）
             generated = extract_json("".join(parts))
             content = build_prose_mirror(generated)
+
+            user = await self.user_repo.get(user_id)
+            if user:
+                header = build_user_header(
+                    {
+                        "name_zh": user.name_zh,
+                        "name_en": user.name_en,
+                        "email": user.email,
+                        "contact_email": user.contact_email,
+                        "phone": user.phone,
+                        "address": user.address,
+                        "linkedin_url": user.linkedin_url,
+                    },
+                    resume.target_language,
+                )
+                content["content"] = header + content["content"]
 
             version_number = await self.resume_repo.next_version_number(resume)
             version = await self.resume_repo.create_version(

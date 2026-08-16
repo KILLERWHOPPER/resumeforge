@@ -244,13 +244,142 @@ export default function SettingsPage() {
 
 function ProfileTab() {
   const t = useTranslations('settings.profile');
+  const tCommon = useTranslations('common');
+  const toast = useToast();
+
+  const [form, setForm] = useState({
+    name_zh: '',
+    name_en: '',
+    contact_email: '',
+    phone: '',
+    address: '',
+    linkedin_url: '',
+  });
+  const [accountEmail, setAccountEmail] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  const fetchProfile = async () => {
+    try {
+      const { data } = await api.get('/auth/me');
+      setAccountEmail(data.email);
+      setForm({
+        name_zh: data.name_zh || '',
+        name_en: data.name_en || '',
+        contact_email: data.contact_email || '',
+        phone: data.phone || '',
+        address: data.address || '',
+        linkedin_url: data.linkedin_url || '',
+      });
+    } catch {
+      // global handler shows toast
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const setField = (field: keyof typeof form) => (value: string) =>
+    setForm((prev) => ({ ...prev, [field]: value }));
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const { data } = await api.put('/auth/me', {
+        name_zh: form.name_zh,
+        name_en: form.name_en,
+        contact_email: form.contact_email,
+        phone: form.phone,
+        address: form.address,
+        linkedin_url: form.linkedin_url,
+      });
+      setAccountEmail(data.email);
+      setForm({
+        name_zh: data.name_zh || '',
+        name_en: data.name_en || '',
+        contact_email: data.contact_email || '',
+        phone: data.phone || '',
+        address: data.address || '',
+        linkedin_url: data.linkedin_url || '',
+      });
+      toast.success(tCommon('success'), t('saved'));
+    } catch {
+      // global handler shows toast
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="max-w-2xl">
       <h2 className="mb-4 text-lg font-semibold text-text-primary">{t('title')}</h2>
-      <div className="card rounded-xl border border-border-light bg-white p-6 dark:border-border-dark dark:bg-neutral-900">
-        <Input label={t('email')} value="user@example.com" disabled hint={t('emailHint')} />
-      </div>
+      <p className="mb-4 text-sm text-text-secondary">{t('description')}</p>
+
+      {loading ? (
+        <Skeleton variant="card" height={320} />
+      ) : (
+        <div className="space-y-6">
+          <div className="card rounded-xl border border-border-light bg-white p-6 dark:border-border-dark dark:bg-neutral-900">
+            <div className="grid gap-5 sm:grid-cols-2">
+              <Input
+                label={t('nameZh')}
+                value={form.name_zh}
+                onChange={(e) => setField('name_zh')(e.target.value)}
+                placeholder={t('nameZhPlaceholder')}
+              />
+              <Input
+                label={t('nameEn')}
+                value={form.name_en}
+                onChange={(e) => setField('name_en')(e.target.value)}
+                placeholder={t('nameEnPlaceholder')}
+              />
+            </div>
+            <div className="mt-5 grid gap-5 sm:grid-cols-2">
+              <Input
+                label={t('contactEmail')}
+                type="email"
+                value={form.contact_email}
+                onChange={(e) => setField('contact_email')(e.target.value)}
+                placeholder={t('contactEmailPlaceholder')}
+              />
+              <Input
+                label={t('phone')}
+                value={form.phone}
+                onChange={(e) => setField('phone')(e.target.value)}
+                placeholder={t('phonePlaceholder')}
+              />
+            </div>
+            <div className="mt-5">
+              <Input
+                label={t('address')}
+                value={form.address}
+                onChange={(e) => setField('address')(e.target.value)}
+                placeholder={t('addressPlaceholder')}
+              />
+            </div>
+            <div className="mt-5">
+              <Input
+                label={t('linkedin')}
+                value={form.linkedin_url}
+                onChange={(e) => setField('linkedin_url')(e.target.value)}
+                placeholder={t('linkedinPlaceholder')}
+              />
+            </div>
+            <div className="mt-5 border-t border-border-light pt-5 dark:border-border-dark">
+              <Input label={t('email')} value={accountEmail} disabled hint={t('emailHint')} />
+            </div>
+          </div>
+
+          <div className="flex justify-end">
+            <Button onClick={handleSave} loading={saving}>
+              {tCommon('save')}
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

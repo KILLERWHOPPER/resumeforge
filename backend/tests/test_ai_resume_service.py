@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.core.exceptions import BadRequest, Conflict
 from app.repositories.resume_repository import ResumeRepository
+from app.repositories.user_repository import UserRepository
 from app.schemas.resume import ResumeCreate
 from app.services.ai_resume_service import AIResumeService
 from app.services.llm_utils import extract_json
@@ -157,6 +158,58 @@ async def test_generate_resume_error_event(db_session: AsyncSession, fake_llm):
     assert events[-1]["event"] == "error"
     resume = await service.resume_service.get_resume(resume_id, 1)
     assert resume.status == "failed"
+
+
+@pytest.mark.asyncio
+async def test_generate_resume_includes_user_header(db_session: AsyncSession, fake_llm):
+    """生成简历时在顶部拼接用户姓名与联系方式"""
+    user = await UserRepository(db_session).create(
+        email="header@example.com",
+        password_hash="x",
+        name_zh="张三",
+        name_en="San Zhang",
+        contact_email="contact@example.com",
+        phone="13800000000",
+        address="北京市海淀区",
+        linkedin_url="https://www.linkedin.com/in/test",
+    )
+
+    resume_id = await create_resume(db_session, user_id=user.id)
+    fake_llm(
+        FakeLLM(
+            stream_chunks=[
+                '{"summary": "Summary text", "sections": [{"type": "work", "title": "工作经历", "items": []}]}'
+            ]
+        )
+    )
+
+    service = AIResumeService(db_session)
+    async for _ in service.generate_resume(resume_id, user.id):
+        pass
+
+    content = await service.resume_service.get_resume_content(resume_id, user.id)
+    nodes = content["content"]["content"]
+    assert nodes[0]["type"] == "heading"
+    assert nodes[0]["content"][0]["text"] == "San Zhang"  # english 目标语言 -> 英文名
+    assert nodes[1]["type"] == "paragraph"
+    contact_text = nodes[1]["content"][0]["text"]
+    assert "contact@example.com" in contact_text
+    assert "13800000000" in contact_text
+    assert "https://www.linkedin.com/in/test" in contact_text
+
+
+@pytest.mark.asyncio
+async def test_generate_resume_without_user_no_header(db_session: AsyncSession, fake_llm):
+    """用户不存在时生成简历不拼接头部（不报错）"""
+    resume_id = await create_resume(db_session, user_id=1)
+    fake_llm(FakeLLM(stream_chunks=['{"summary": "s", "sections": []}']))
+
+    service = AIResumeService(db_session)
+    async for _ in service.generate_resume(resume_id, 1):
+        pass
+
+    content = await service.resume_service.get_resume_content(resume_id, 1)
+    assert content["content"]["content"][0]["type"] == "paragraph"
 
 
 @pytest.mark.asyncio

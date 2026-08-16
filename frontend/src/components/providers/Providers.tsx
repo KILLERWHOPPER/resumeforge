@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import { ToastProvider, useToast } from '@/components/ui/Toast';
 import { setGlobalErrorHandler } from '@/lib/api';
 import { AxiosError } from 'axios';
+import { ThemeProvider } from '@/components/providers/ThemeProvider';
 
 function GlobalErrorListener() {
   const toast = useToast();
@@ -28,9 +29,11 @@ function GlobalErrorListener() {
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <ToastProvider>
-      <GlobalErrorListener />
-      {children}
-    </ToastProvider>
+    <ThemeProvider>
+      <ToastProvider>
+        <GlobalErrorListener />
+        {children}
+      </ToastProvider>
+    </ThemeProvider>
   );
 }

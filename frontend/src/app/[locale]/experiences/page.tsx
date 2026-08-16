@@ -147,6 +147,7 @@ export default function ExperiencesPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingExperience, setEditingExperience] = useState<Experience | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const [formData, setFormData] = useState<Partial<Experience>>({});
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [importing, setImporting] = useState(false);
@@ -240,6 +241,7 @@ export default function ExperiencesPage() {
 
   const handleDelete = async () => {
     if (!deletingId) return;
+    setDeleting(true);
     try {
       await api.delete(`/experiences/${deletingId}`);
       toast.success(tCommon('success'), t('toast.deleted'));
@@ -247,6 +249,7 @@ export default function ExperiencesPage() {
     } catch (error) {
       toast.error(tCommon('error'), tCommon('networkError'));
     } finally {
+      setDeleting(false);
       setDeletingId(null);
     }
   };
@@ -761,7 +764,7 @@ export default function ExperiencesPage() {
         <form onSubmit={handleSubmit} className="space-y-6">
           {renderFormFields()}
           <div className="flex justify-end gap-3 border-t border-border-light pt-4 dark:border-border-dark">
-            <Button variant="ghost" onClick={() => setModalOpen(false)}>
+            <Button variant="ghost" type="button" onClick={() => setModalOpen(false)}>
               {tCommon('cancel')}
             </Button>
             <Button type="submit" variant="primary">
@@ -785,7 +788,13 @@ export default function ExperiencesPage() {
           <Button variant="ghost" onClick={() => setDeletingId(null)}>
             {tCommon('cancel')}
           </Button>
-          <Button variant="destructive" onClick={handleDelete} loading={!!deletingId}>
+          <Button
+            variant="destructive"
+            type="button"
+            onClick={handleDelete}
+            loading={deleting}
+            disabled={deleting}
+          >
             {tCommon('delete')}
           </Button>
         </div>

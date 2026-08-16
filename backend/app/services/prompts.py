@@ -64,6 +64,7 @@ def build_resume_generation_prompt(
         "- 优先把工作经历与项目经历放在最前，教育经历在后。\n"
         "- 技能 section 的 items 按用户已填写的分类组织，heading 为分类名，bullets 为技能名列表。\n"
         "- 证书 section 的 bullets 可留空。\n"
+        "- 姓名与联系方式（邮箱/电话/住址/LinkedIn）已由系统单独生成在简历头部，summary 中不要重复包含任何姓名或联系方式。\n"
         f"- 所有内容使用「{target_language}」撰写。"
     )
     payload = {

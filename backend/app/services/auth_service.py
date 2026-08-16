@@ -17,7 +17,7 @@ from app.core.security import (
     decode_token,
 )
 from app.repositories.user_repository import UserRepository
-from app.schemas.auth import TokenPair, UserResponse
+from app.schemas.auth import TokenPair, UserProfileResponse, UserProfileUpdate, UserResponse
 
 
 class AuthService:
@@ -53,6 +53,23 @@ class AuthService:
             access_token=create_access_token(user.id),
             refresh_token=create_refresh_token(user.id),
         )
+
+    async def get_profile(self, user_id: int) -> UserProfileResponse:
+        """获取当前用户个人资料"""
+        user = await self.repo.get_or_404(user_id)
+        return UserProfileResponse.model_validate(user)
+
+    async def update_profile(
+        self, user_id: int, data: UserProfileUpdate
+    ) -> UserProfileResponse:
+        """更新当前用户个人资料（空字符串视为清空该字段）"""
+        user = await self.repo.get_or_404(user_id)
+        for field, raw_value in data.model_dump(exclude_unset=True).items():
+            normalized = raw_value.strip() or None if isinstance(raw_value, str) else raw_value
+            setattr(user, field, normalized)
+        await self.repo.db.flush()
+        await self.repo.db.refresh(user)
+        return UserProfileResponse.model_validate(user)
 
     async def refresh_token(self, refresh_token: str) -> TokenPair:
         """刷新 Token"""

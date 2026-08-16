@@ -13,6 +13,8 @@ from app.schemas.auth import (
     TokenPair,
     TokenRefresh,
     UserLogin,
+    UserProfileResponse,
+    UserProfileUpdate,
     UserRegister,
     UserResponse,
 )
@@ -42,6 +44,27 @@ async def login(
     """用户登录"""
     service = AuthService(db)
     return await service.login(data.email, data.password)
+
+
+@router.get("/me", response_model=UserProfileResponse)
+async def get_me(
+    user_id: int = Depends(get_current_user_id),
+    db: AsyncSession = Depends(get_db),
+) -> UserProfileResponse:
+    """获取当前用户个人资料"""
+    service = AuthService(db)
+    return await service.get_profile(user_id)
+
+
+@router.put("/me", response_model=UserProfileResponse)
+async def update_me(
+    data: UserProfileUpdate,
+    user_id: int = Depends(get_current_user_id),
+    db: AsyncSession = Depends(get_db),
+) -> UserProfileResponse:
+    """更新当前用户个人资料"""
+    service = AuthService(db)
+    return await service.update_profile(user_id, data)
 
 
 @router.post("/refresh", response_model=TokenPair)

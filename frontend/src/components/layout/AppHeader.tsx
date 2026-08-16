@@ -4,8 +4,9 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { usePathname } from '@/i18n/routing';
-import { ChevronDown, LogOut, Menu, Settings, User, X } from 'lucide-react';
+import { ChevronDown, LogOut, Menu, Moon, Settings, Sun, User, X } from 'lucide-react';
 import api, { clearTokens } from '@/lib/api';
+import { useTheme } from '@/components/providers/ThemeProvider';
 
 interface AppHeaderProps {
   activePrefix: string;
@@ -20,6 +21,9 @@ export function AppHeader({ activePrefix }: AppHeaderProps) {
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const { theme, toggleTheme } = useTheme();
+
+  const themeLabel = theme === 'dark' ? tCommon('themeLight') : tCommon('themeDark');
 
   const handleLogout = async () => {
     try {
@@ -62,6 +66,15 @@ export function AppHeader({ activePrefix }: AppHeaderProps) {
               </Link>
             </div>
           </div>
+
+          <button
+            onClick={toggleTheme}
+            className="rounded-lg p-2 text-text-secondary transition-colors hover:bg-neutral-100 hover:text-text-primary dark:hover:bg-neutral-800"
+            aria-label={themeLabel}
+            title={themeLabel}
+          >
+            {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+          </button>
 
           <div className="relative">
             <button
@@ -131,6 +144,13 @@ export function AppHeader({ activePrefix }: AppHeaderProps) {
             className="animate-slide-in-from-top border-t border-border-light py-4 dark:border-border-dark md:hidden"
           >
             <div className="flex flex-col gap-2">
+              <button
+                onClick={toggleTheme}
+                className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-text-secondary hover:bg-neutral-100 hover:text-text-primary dark:hover:bg-neutral-800"
+              >
+                {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                {themeLabel}
+              </button>
               <Link
                 href={`/dashboard`}
                 className="rounded-lg px-3 py-2 text-sm font-medium text-text-secondary hover:bg-neutral-100 hover:text-text-primary dark:hover:bg-neutral-800"

@@ -69,7 +69,9 @@
     "networkError": "Network error, please try again",
     "confirmDelete": "Confirm delete",
     "dashboard": "Dashboard",
-    "experiences": "Experiences"
+    "experiences": "Experiences",
+    "themeLight": "Light mode",
+    "themeDark": "Dark mode"
   },
   "auth": {
     "login": {
@@ -189,7 +191,9 @@
       "chinese": "Chinese",
       "english": "English",
       "bilingual": "Bilingual"
-    }
+    },
+    "deleted": "Resume deleted",
+    "deleteConfirm": "Are you sure you want to delete the resume “{name}”? This action cannot be undone."
   },
   "experiences": {
     "title": "Experience Management",
@@ -362,7 +366,9 @@
       "notGenerated": "No content generated for this resume yet",
       "notGeneratedDesc": "Go back and paste a job description to have AI generate a tailored resume",
       "regenerate": "Regenerate",
-      "actions": "Actions"
+      "actions": "Actions",
+      "deleted": "Resume deleted",
+      "deleteConfirm": "Are you sure you want to delete the resume “{name}”? This action cannot be undone."
     },
     "editor": {
       "title": "Resume Editor",
@@ -420,10 +426,24 @@
     },
     "profile": {
       "title": "Profile",
-      "email": "Email",
-      "emailHint": "Email cannot be changed",
+      "description": "This basic info will appear at the top of AI-generated resumes (name, contact email, phone, address, LinkedIn).",
+      "email": "Login email",
+      "emailHint": "Login email cannot be changed",
       "avatar": "Avatar",
-      "uploadAvatar": "Upload Avatar"
+      "uploadAvatar": "Upload Avatar",
+      "nameZh": "Name (Chinese)",
+      "nameZhPlaceholder": "e.g. Zhang San",
+      "nameEn": "Name (English)",
+      "nameEnPlaceholder": "e.g. San Zhang",
+      "contactEmail": "Contact email",
+      "contactEmailPlaceholder": "Contact email shown on resumes",
+      "phone": "Phone",
+      "phonePlaceholder": "Contact phone shown on resumes",
+      "address": "Address",
+      "addressPlaceholder": "e.g. Haidian District, Beijing",
+      "linkedin": "LinkedIn URL",
+      "linkedinPlaceholder": "https://www.linkedin.com/in/...",
+      "saved": "Profile saved"
     },
     "llm": {
       "title": "LLM Configuration",

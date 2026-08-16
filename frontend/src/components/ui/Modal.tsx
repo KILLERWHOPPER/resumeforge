@@ -78,7 +78,7 @@ export function Modal({
       />
       <div
         className={cn(
-          'bg-overlay-modal-bg border-overlay-modal-border relative w-full animate-scale-in rounded-2xl border shadow-xl',
+          'bg-overlay-modal-bg border-overlay-modal-border relative flex max-h-[calc(100vh-2rem)] w-full animate-scale-in flex-col overflow-hidden rounded-2xl border shadow-xl',
           sizeStyles[size]
         )}
         role="dialog"
@@ -113,7 +113,7 @@ export function Modal({
             )}
           </div>
         )}
-        <div className="p-6">{children}</div>
+        <div className="overflow-y-auto p-6">{children}</div>
       </div>
     </div>
   );

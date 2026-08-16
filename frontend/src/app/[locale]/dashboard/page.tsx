@@ -17,10 +17,13 @@ import {
   Menu,
   X,
   ChevronDown,
+  Trash2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { ConfirmModal } from '@/components/ui/Modal';
+import { useToast } from '@/components/ui/Toast';
 import api, { clearTokens } from '@/lib/api';
 
 interface Resume {
@@ -38,9 +41,12 @@ export default function DashboardPage() {
   const t = useTranslations('dashboard');
   const tCommon = useTranslations('common');
   const tAuth = useTranslations('auth.login');
+  const toast = useToast();
 
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleteTarget, setDeleteTarget] = useState<Resume | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
@@ -67,6 +73,21 @@ export default function DashboardPage() {
     }
     clearTokens();
     window.location.href = `/${locale}/auth/login`;
+  };
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await api.delete(`/resumes/${deleteTarget.id}`);
+      toast.success(tCommon('success'), t('deleted'));
+      setResumes((prev) => prev.filter((r) => r.id !== deleteTarget.id));
+      setDeleteTarget(null);
+    } catch {
+      toast.error(tCommon('error'), tCommon('networkError'));
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -309,6 +330,20 @@ export default function DashboardPage() {
                     <Button variant="ghost" size="sm" className="flex-1">
                       {t('actions.preview')}
                     </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="px-2 text-text-tertiary hover:text-error-600 dark:hover:text-error-400"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setDeleteTarget(resume);
+                      }}
+                      aria-label={tCommon('delete')}
+                      title={tCommon('delete')}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
               </Link>
@@ -316,6 +351,16 @@ export default function DashboardPage() {
           </div>
         )}
       </main>
+
+      <ConfirmModal
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
+        title={tCommon('confirmDelete')}
+        message={t('deleteConfirm', { name: deleteTarget?.company_name || t('unnamedResume') })}
+        confirmText={tCommon('delete')}
+        loading={deleting}
+      />
     </div>
   );
 }

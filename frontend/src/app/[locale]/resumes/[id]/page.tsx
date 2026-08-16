@@ -4,11 +4,12 @@ import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
-import { ChevronLeft, Download, FileText, RotateCcw, Sparkles } from 'lucide-react';
+import { ChevronLeft, Download, FileText, RotateCcw, Sparkles, Trash2 } from 'lucide-react';
 import { AppHeader } from '@/components/layout/AppHeader';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { ConfirmModal } from '@/components/ui/Modal';
 import { useToast } from '@/components/ui/Toast';
 import { VersionHistory, type ResumeVersion } from '@/components/resume/VersionHistory';
 import api, { getApiErrorMessage, streamSSE } from '@/lib/api';
@@ -97,6 +98,8 @@ export default function ResumeResultPage({ params }: { params: { id: string } })
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -142,6 +145,20 @@ export default function ResumeResultPage({ params }: { params: { id: string } })
       toast.error(tCommon('error'), tCommon('networkError'));
     } finally {
       setGenerating(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      await api.delete(`/resumes/${resumeId}`);
+      toast.success(tCommon('success'), t('result.deleted'));
+      router.push('/dashboard');
+    } catch (error) {
+      toast.error(tCommon('error'), getApiErrorMessage(error, tCommon('networkError')));
+      setDeleteModalOpen(false);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -239,6 +256,13 @@ export default function ResumeResultPage({ params }: { params: { id: string } })
             >
               {t('result.regenerate')}
             </Button>
+            <Button
+              variant="destructive"
+              onClick={() => setDeleteModalOpen(true)}
+              icon={<Trash2 className="h-4 w-4" />}
+            >
+              {tCommon('delete')}
+            </Button>
           </div>
         </div>
 
@@ -324,6 +348,16 @@ export default function ResumeResultPage({ params }: { params: { id: string } })
           </div>
         )}
       </main>
+
+      <ConfirmModal
+        isOpen={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={handleDelete}
+        title={tCommon('confirmDelete')}
+        message={t('result.deleteConfirm', { name: resume?.company_name || t('jdInput.title') })}
+        confirmText={tCommon('delete')}
+        loading={deleting}
+      />
     </div>
   );
 }

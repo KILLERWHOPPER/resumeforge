@@ -43,6 +43,32 @@ def bullet_list(bullets: list[str]) -> PMNode | None:
     return {"type": "bulletList", "content": items}
 
 
+def build_user_header(user: dict[str, Any], target_language: str) -> list[PMNode]:
+    """构建简历头部节点（姓名 + 联系方式），基于用户个人资料"""
+    nodes: list[PMNode] = []
+
+    name_zh = (user.get("name_zh") or "").strip()
+    name_en = (user.get("name_en") or "").strip()
+    if target_language == "chinese":
+        display_name = name_zh or name_en
+    elif target_language == "english":
+        display_name = name_en or name_zh
+    else:
+        display_name = f"{name_zh}（{name_en}）" if name_zh and name_en else (name_zh or name_en)
+
+    if display_name:
+        nodes.append(heading(1, display_name))
+
+    contact = user.get("contact_email") or user.get("email") or ""
+    contact = contact.strip()
+    parts = [p for p in [contact, user.get("phone"), user.get("address"), user.get("linkedin_url")] if p and p.strip()]
+    contact_line = "  |  ".join(p.strip() for p in parts)
+    if contact_line:
+        nodes.append(paragraph(contact_line))
+
+    return nodes
+
+
 def build_prose_mirror(content: PMNode) -> PMNode:
     """构建标准 ProseMirror 文档（doc -> paragraph/heading/bulletList）"""
     doc: PMNode = {"type": "doc", "content": []}

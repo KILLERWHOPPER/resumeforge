@@ -45,3 +45,26 @@ class UserResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class UserProfileResponse(BaseModel):
+    id: int
+    email: str
+    name_zh: str | None = None
+    name_en: str | None = None
+    contact_email: str | None = None
+    phone: str | None = None
+    address: str | None = None
+    linkedin_url: str | None = None
+
+    class Config:
+        from_attributes = True
+
+
+class UserProfileUpdate(BaseModel):
+    name_zh: str | None = Field(default=None, max_length=100)
+    name_en: str | None = Field(default=None, max_length=100)
+    contact_email: str | None = Field(default=None, max_length=255)
+    phone: str | None = Field(default=None, max_length=50)
+    address: str | None = Field(default=None, max_length=255)
+    linkedin_url: str | None = Field(default=None, max_length=500)

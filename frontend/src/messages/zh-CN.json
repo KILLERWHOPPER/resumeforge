@@ -69,7 +69,9 @@
     "networkError": "网络错误，请稍后重试",
     "confirmDelete": "确认删除",
     "dashboard": "仪表盘",
-    "experiences": "经历管理"
+    "experiences": "经历管理",
+    "themeLight": "浅色模式",
+    "themeDark": "深色模式"
   },
   "auth": {
     "login": {
@@ -189,7 +191,9 @@
       "chinese": "中文",
       "english": "英文",
       "bilingual": "中英双语"
-    }
+    },
+    "deleted": "简历已删除",
+    "deleteConfirm": "确定要删除简历“{name}”吗？此操作不可撤销。"
   },
   "experiences": {
     "title": "经历管理",
@@ -362,7 +366,9 @@
       "notGenerated": "该简历尚未生成内容",
       "notGeneratedDesc": "返回新建页面输入职位描述，AI 将为您生成针对性简历",
       "regenerate": "重新生成",
-      "actions": "操作"
+      "actions": "操作",
+      "deleted": "简历已删除",
+      "deleteConfirm": "确定要删除简历“{name}”吗？此操作不可撤销。"
     },
     "editor": {
       "title": "简历编辑器",
@@ -420,10 +426,24 @@
     },
     "profile": {
       "title": "个人资料",
-      "email": "邮箱",
-      "emailHint": "邮箱不可修改",
+      "description": "这些基本信息会出现在 AI 生成的简历顶部（姓名、常用邮箱、电话、住址、LinkedIn）。",
+      "email": "登录邮箱",
+      "emailHint": "登录邮箱不可修改",
       "avatar": "头像",
-      "uploadAvatar": "上传头像"
+      "uploadAvatar": "上传头像",
+      "nameZh": "姓名（中文）",
+      "nameZhPlaceholder": "例如：张三",
+      "nameEn": "姓名（英文）",
+      "nameEnPlaceholder": "例如：San Zhang",
+      "contactEmail": "常用邮箱",
+      "contactEmailPlaceholder": "用于显示在简历上的联系邮箱",
+      "phone": "电话",
+      "phonePlaceholder": "用于显示在简历上的联系电话",
+      "address": "住址",
+      "addressPlaceholder": "例如：北京市海淀区",
+      "linkedin": "LinkedIn 链接",
+      "linkedinPlaceholder": "https://www.linkedin.com/in/...",
+      "saved": "个人资料已保存"
     },
     "llm": {
       "title": "LLM 配置",

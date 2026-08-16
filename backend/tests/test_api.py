@@ -36,6 +36,61 @@ async def register_and_login(
 
 
 @pytest.mark.asyncio
+async def test_profile_get_and_update(client: AsyncClient):
+    """个人资料：获取默认值，更新后可读回"""
+    headers = await register_and_login(client, email="profile@example.com")
+
+    resp = await client.get("/api/v1/auth/me", headers=headers)
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["email"] == "profile@example.com"
+    assert data["name_zh"] is None
+
+    resp = await client.put(
+        "/api/v1/auth/me",
+        headers=headers,
+        json={
+            "name_zh": "张三",
+            "name_en": "San Zhang",
+            "contact_email": "contact@example.com",
+            "phone": "13800000000",
+            "address": "北京市海淀区",
+            "linkedin_url": "https://www.linkedin.com/in/test",
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["name_zh"] == "张三"
+    assert data["name_en"] == "San Zhang"
+    assert data["contact_email"] == "contact@example.com"
+    assert data["phone"] == "13800000000"
+    assert data["address"] == "北京市海淀区"
+    assert data["linkedin_url"] == "https://www.linkedin.com/in/test"
+
+    # 空字符串视为清空字段
+    resp = await client.put(
+        "/api/v1/auth/me",
+        headers=headers,
+        json={
+            "name_zh": "李四",
+            "name_en": "  ",
+            "contact_email": "  ",
+        },
+    )
+    data = resp.json()
+    assert data["name_zh"] == "李四"
+    assert data["name_en"] is None
+    assert data["contact_email"] is None
+
+
+@pytest.mark.asyncio
+async def test_profile_requires_auth(client: AsyncClient):
+    """未登录访问个人资料返回 401"""
+    resp = await client.get("/api/v1/auth/me")
+    assert resp.status_code == 401
+
+
+@pytest.mark.asyncio
 async def test_auth_full_flow(client: AsyncClient):
     """认证完整流程：注册→登录→刷新→登出"""
     await register_and_login(client)
