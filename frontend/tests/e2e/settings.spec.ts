@@ -7,6 +7,7 @@ async function loginAsFreshUser(page: import('@playwright/test').Page, request: 
   await injectTokens(page, tokens);
   await page.goto('/zh-CN/settings');
   await expect(page).toHaveURL(/\/zh-CN\/settings/);
+  return email;
 }
 
 test.describe('设置页面 Settings', () => {
@@ -31,9 +32,9 @@ test.describe('设置页面 Settings', () => {
   });
 
   test('个人资料标签显示邮箱', async ({ page, request }) => {
-    await loginAsFreshUser(page, request);
+    const email = await loginAsFreshUser(page, request);
     await page.locator('[role="tab"]:has-text("个人资料")').click();
-    await expect(page.locator('input[value]').first()).toHaveValue('user@example.com');
+    await expect(page.locator('input[disabled]')).toHaveValue(email, { timeout: 10000 });
     await expect(page.locator('text=邮箱不可修改')).toBeVisible();
   });
 

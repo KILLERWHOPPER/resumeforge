@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import http from 'http';
 
-const BACKEND_HOST = '127.0.0.1';
-const BACKEND_PORT = 8000;
+const BACKEND_URL = process.env.BACKEND_URL || 'http://127.0.0.1:8000';
 
 function copyHeaders(headers: Headers): Record<string, string> {
   const out: Record<string, string> = {};
@@ -26,9 +25,10 @@ function sendToBackend(
   body: ReadableStream<Uint8Array> | null;
 }> {
   return new Promise((resolve, reject) => {
+    const backend = new URL(BACKEND_URL);
     const options: http.RequestOptions = {
-      hostname: BACKEND_HOST,
-      port: BACKEND_PORT,
+      hostname: backend.hostname,
+      port: backend.port || (backend.protocol === 'https:' ? 443 : 80),
       path,
       method,
       headers,
