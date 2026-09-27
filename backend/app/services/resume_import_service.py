@@ -14,8 +14,8 @@ from app.repositories.experience_repository import ExperienceRepository
 from app.schemas.experience import ExperienceImportResponse, ExperienceResponse
 from app.services.llm_client import LLMClient
 from app.services.llm_config_service import LLMConfigService
-from app.services.llm_utils import extract_json
-from app.services.prompts import build_resume_parse_prompt
+from app.services.prompt_template_service import PromptTemplateService
+from app.services.prompts import build_resume_parse_prompt, get_lang_instruction
 from app.services.resume_parser import extract_resume_text
 
 TYPE_ORDER = ("education", "work", "project", "skill", "certificate")
@@ -82,6 +82,7 @@ class ResumeImportService:
         self.db = db
         self.experience_repo = ExperienceRepository(db)
         self.llm_config_service = LLMConfigService(db)
+        self.prompt_template_service = PromptTemplateService(db)
 
     async def _get_client(self, user_id: int) -> LLMClient:
         """构建 LLM 客户端：优先用户配置，否则使用 OpenCode 匿名免费模型"""
@@ -106,9 +107,11 @@ class ResumeImportService:
         text = extract_resume_text(filename, content)
 
         client = await self._get_client(user_id)
-        messages = build_resume_parse_prompt(text, language)
-        raw = await client.chat(messages, temperature=0, max_tokens=4096)
-        parsed = extract_json(raw)
+        system = await self.prompt_template_service.render_system(
+            "resume_parse", lang_instruction=get_lang_instruction(language)
+        )
+        messages = build_resume_parse_prompt(text, language, system=system)
+        parsed = await client.chat_json(messages, temperature=0, max_tokens=4096)
 
         normalized = self._normalize(parsed)
         created = await self._insert_all(user_id, normalized)

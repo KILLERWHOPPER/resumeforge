@@ -12,6 +12,7 @@ import httpx
 
 from app.core.config import settings
 from app.core.exceptions import BadRequest
+from app.services.llm_utils import extract_json
 
 
 class LLMClient:
@@ -94,6 +95,42 @@ class LLMClient:
         except (KeyError, IndexError, TypeError) as exc:
             raise BadRequest("LLM 响应格式异常") from exc
         return content or ""
+
+    async def chat_json(
+        self,
+        messages: list[dict[str, str]],
+        *,
+        temperature: float = 0.7,
+        max_tokens: int | None = None,
+        max_retries: int = 1,
+    ) -> dict[str, Any]:
+        """对话并解析 JSON 输出，失败时携带上一轮错误上下文自动重试。
+
+        适用于要求模型只输出 JSON 对象的场景。每轮重试会把模型上一次的
+        输出与修复指令追加到对话中，引导其输出完整合法的 JSON。
+        """
+        convo = list(messages)
+        last_error: Exception | None = None
+        for _ in range(max_retries + 1):
+            raw = await self.chat(convo, temperature=temperature, max_tokens=max_tokens)
+            try:
+                return extract_json(raw)
+            except BadRequest as exc:
+                last_error = exc
+                convo = convo + [
+                    {"role": "assistant", "content": raw[:2000]},
+                    {
+                        "role": "user",
+                        "content": (
+                            "你上一次的输出无法解析为 JSON（可能被截断或包含多余文字）。"
+                            "请重新输出完整且合法的一个 JSON 对象，"
+                            "不要输出任何其他文字或 Markdown 代码块。"
+                        ),
+                    },
+                ]
+        raise BadRequest(
+            f"AI 返回内容无法解析为 JSON（已重试 {max_retries} 次）"
+        ) from last_error
 
     async def chat_stream(
         self,

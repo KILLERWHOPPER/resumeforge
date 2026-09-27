@@ -10,6 +10,7 @@ import pytest
 from app.core.config import settings
 from app.core.exceptions import BadRequest
 from app.services.llm_client import LLMClient
+from app.services.llm_utils import extract_json
 
 
 def make_client(handler) -> LLMClient:
@@ -175,3 +176,53 @@ async def test_opencode_anon_stream():
     async for chunk in client.chat_stream([{"role": "user", "content": "hi"}]):
         parts.append(chunk)
     assert "".join(parts) == "free-model-ok"
+
+
+@pytest.mark.asyncio
+async def test_chat_json_retries_on_bad_output():
+    """chat_json：首次输出不可解析时携带上下文重试"""
+    calls: list[list] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        body = json.loads(request.content)
+        calls.append(body["messages"])
+        content = '{"ok": true}' if len(calls) > 1 else "garbage output"
+        return httpx.Response(200, json={"choices": [{"message": {"content": content}}]})
+
+    client = make_client(handler)
+    result = await client.chat_json([{"role": "user", "content": "hi"}], temperature=0)
+    assert result == {"ok": True}
+    # 第二次请求应包含 assistant 上轮输出与修复指令
+    assert calls[1][-2]["role"] == "assistant"
+    assert "garbage" in calls[1][-2]["content"]
+    assert "JSON" in calls[1][-1]["content"]
+
+
+@pytest.mark.asyncio
+async def test_chat_json_exhausts_retries():
+    """chat_json：重试耗尽后抛 BadRequest"""
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            200, json={"choices": [{"message": {"content": "still not json"}}]}
+        )
+
+    client = make_client(handler)
+    with pytest.raises(BadRequest, match="已重试 2 次"):
+        await client.chat_json([{"role": "user", "content": "hi"}], max_retries=2)
+
+
+def test_extract_json_repairs_truncated_output():
+    """extract_json：被截断的 JSON 能尽力修复"""
+    truncated = '{"summary": "s", "sections": [{"type": "work", "title": "工作经历"'
+    assert extract_json(truncated) == {
+        "summary": "s",
+        "sections": [{"type": "work", "title": "工作经历"}],
+    }
+
+    truncated2 = '{"a": [1, 2, {"b": "x"}, '
+    assert extract_json(truncated2) == {"a": [1, 2, {"b": "x"}]}
+
+    # 引号未闭合时放弃修复
+    with pytest.raises(BadRequest):
+        extract_json('{"a": "unterminated')

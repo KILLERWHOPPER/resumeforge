@@ -5,6 +5,7 @@ from app.services.auth_service import AuthService
 from app.services.experience_service import ExperienceService
 from app.services.llm_config_service import LLMConfigService
 from app.services.pdf_service import PDFService
+from app.services.prompt_template_service import PromptTemplateService
 from app.services.resume_service import ResumeService
 from app.services.user_service import UserService
 
@@ -16,4 +17,5 @@ __all__ = [
     "ResumeService",
     "LLMConfigService",
     "PDFService",
+    "PromptTemplateService",
 ]

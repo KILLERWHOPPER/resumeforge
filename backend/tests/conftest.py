@@ -13,8 +13,10 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 
 from app.core.database import Base
 from app.core.dependencies import get_db
+from app.core.exceptions import BadRequest
 from app.main import app
 from app.services.ai_resume_service import AIResumeService
+from app.services.llm_utils import extract_json
 
 # 使用内存 SQLite 进行测试
 TEST_DATABASE_URL = "sqlite+aiosqlite:///./test.db"
@@ -27,12 +29,35 @@ class FakeLLM:
         self,
         chat_result: str = '{"core_responsibilities": ["开发核心服务"], "required_skills": ["Python"], "preferred_skills": ["Docker"], "experience_level": "3-5年", "soft_skills": ["沟通"], "keywords": ["FastAPI"]}',
         stream_chunks: list[str] | None = None,
+        chat_results: list[str] | None = None,
     ):
         self.chat_result = chat_result
         self.stream_chunks = stream_chunks or ['{"summary": "职业摘要", "sections": []}']
+        # 顺序返回列表：每次 chat 消费一个，耗尽后重复最后一个
+        self.chat_results = chat_results
+        self.chat_calls = 0
 
     async def chat(self, messages, *, temperature=0.7, max_tokens=None) -> str:
+        if self.chat_results:
+            idx = min(self.chat_calls, len(self.chat_results) - 1)
+            self.chat_calls += 1
+            return self.chat_results[idx]
         return self.chat_result
+
+    async def chat_json(self, messages, *, temperature=0.7, max_tokens=None, max_retries=1):
+        """与 LLMClient.chat_json 行为一致：解析失败重试"""
+        convo = list(messages)
+        for _ in range(max_retries + 1):
+            raw = await self.chat(convo, temperature=temperature, max_tokens=max_tokens)
+            try:
+                return extract_json(raw)
+            except BadRequest as exc:
+                last_error = exc
+                convo = convo + [
+                    {"role": "assistant", "content": raw[:2000]},
+                    {"role": "user", "content": "请重新输出完整合法的 JSON 对象。"},
+                ]
+        raise BadRequest(f"AI 返回内容无法解析为 JSON（已重试 {max_retries} 次）") from last_error
 
     async def chat_stream(
         self, messages, *, temperature=0.7, max_tokens=None

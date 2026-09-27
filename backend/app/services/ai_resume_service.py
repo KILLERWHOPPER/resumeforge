@@ -13,11 +13,12 @@ from app.core.config import settings
 from app.core.exceptions import BadRequest, Conflict
 from app.repositories.resume_repository import ResumeRepository
 from app.repositories.user_repository import UserRepository
-from app.schemas.resume import JDAnalysisResponse
+from app.schemas.resume import JDAnalysisResponse, validate_jd_analysis
 from app.services.experience_service import ExperienceService
 from app.services.llm_client import LLMClient
 from app.services.llm_config_service import LLMConfigService
 from app.services.llm_utils import extract_json
+from app.services.prompt_template_service import PromptTemplateService
 from app.services.prompts import (
     build_jd_analysis_prompt,
     build_resume_generation_prompt,
@@ -42,6 +43,7 @@ class AIResumeService:
         self.resume_service = ResumeService(db)
         self.experience_service = ExperienceService(db)
         self.llm_config_service = LLMConfigService(db)
+        self.prompt_template_service = PromptTemplateService(db)
         self.user_repo = UserRepository(db)
 
     async def get_effective_provider(self, user_id: int) -> dict[str, Any]:
@@ -80,14 +82,18 @@ class AIResumeService:
             raise BadRequest("职位描述过短（至少 50 字符），无法分析")
 
         client = await self._get_client(user_id)
-        messages = build_jd_analysis_prompt(resume.jd_text, resume.target_language)
+        system = await self.prompt_template_service.render_system(
+            "jd_analysis", target_language=resume.target_language
+        )
+        messages = build_jd_analysis_prompt(
+            resume.jd_text, resume.target_language, system=system
+        )
         try:
-            raw = await client.chat(messages, temperature=0)
+            analysis = await client.chat_json(messages, temperature=0)
         except Exception:
             logger.exception("JD 分析失败 resume_id=%s user_id=%s", resume_id, user_id)
             raise
-        analysis = extract_json(raw)
-        self._validate_analysis(analysis)
+        analysis = self._validate_analysis(analysis)
 
         saved = await self.resume_repo.save_jd_analysis(resume_id, analysis)
         return JDAnalysisResponse(
@@ -119,7 +125,7 @@ class AIResumeService:
             created_at=saved.created_at,
         )
 
-    async def generate_resume(self, resume_id: int, user_id: int) -> AsyncIterator[dict[str, Any]]:
+    async def generate_resume(self, resume_id: int, user_id: int) -> AsyncIterator[dict[str, Any]]:  # noqa: PLR0915
         """生成简历（SSE 事件流），并发生成锁防止重复触发"""
         resume = await self.resume_service.get_resume(resume_id, user_id)
 
@@ -140,12 +146,16 @@ class AIResumeService:
             if not saved_analysis:
                 yield {"event": "status", "stage": "analyzing", "message": "正在分析职位要求..."}
                 client = await self._get_client(user_id)
-                raw = await client.chat(
-                    build_jd_analysis_prompt(resume.jd_text, resume.target_language),
+                system = await self.prompt_template_service.render_system(
+                    "jd_analysis", target_language=resume.target_language
+                )
+                analysis = await client.chat_json(
+                    build_jd_analysis_prompt(
+                        resume.jd_text, resume.target_language, system=system
+                    ),
                     temperature=0,
                 )
-                analysis = extract_json(raw)
-                self._validate_analysis(analysis)
+                analysis = self._validate_analysis(analysis)
                 saved_analysis = await self.resume_repo.save_jd_analysis(resume_id, analysis)
             else:
                 analysis = saved_analysis.analysis
@@ -159,11 +169,15 @@ class AIResumeService:
             # 3. 流式生成简历内容
             yield {"event": "status", "stage": "writing", "message": "正在撰写简历内容..."}
             client = await self._get_client(user_id)
+            system = await self.prompt_template_service.render_system(
+                "resume_generation", target_language=resume.target_language
+            )
             messages = build_resume_generation_prompt(
                 analysis=analysis,
                 experiences=serialized,
                 target_language=resume.target_language,
                 company_name=resume.company_name,
+                system=system,
             )
             parts: list[str] = []
             async for chunk in client.chat_stream(
@@ -172,8 +186,19 @@ class AIResumeService:
                 parts.append(chunk)
                 yield {"event": "chunk", "delta": chunk}
 
-            # 4. 解析并落库（头部拼接用户个人资料）
-            generated = extract_json("".join(parts))
+            # 4. 解析并落库（头部拼接用户个人资料）；截断时尽力修复并重试一次
+            raw_text = "".join(parts)
+            try:
+                generated = extract_json(raw_text)
+            except BadRequest:
+                client = await self._get_client(user_id)
+                generated = await client.chat_json(
+                    messages
+                    + [{"role": "assistant", "content": raw_text[:2000]}],
+                    temperature=0.5,
+                    max_tokens=GENERATION_MAX_TOKENS,
+                    max_retries=1,
+                )
             content = build_prose_mirror(generated)
 
             user = await self.user_repo.get(user_id)
@@ -225,16 +250,6 @@ class AIResumeService:
             return exc.detail
         return f"生成失败，请重试: {exc}"
 
-    def _validate_analysis(self, analysis: dict[str, Any]) -> None:
-        """校验 JD 分析结果结构"""
-        required_keys = (
-            "core_responsibilities",
-            "required_skills",
-            "preferred_skills",
-            "experience_level",
-            "soft_skills",
-            "keywords",
-        )
-        missing = [key for key in required_keys if key not in analysis]
-        if missing:
-            raise BadRequest(f"JD 分析结果缺少字段: {', '.join(missing)}")
+    def _validate_analysis(self, analysis: dict[str, Any]) -> dict[str, Any]:
+        """深度校验并归一化 JD 分析结果（缺失字段/错误格式抛 BadRequest）"""
+        return validate_jd_analysis(analysis)
