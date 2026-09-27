@@ -28,5 +28,10 @@ docker-compose.override.yml
 htmlcov/
 coverage.xml
 
+# Playwright / E2E test artifacts
+.e2e-frontend/
+frontend/playwright-report/
+frontend/test-results/
+
 # PDF temp files
 /tmp/
